@@ -65,6 +65,8 @@ Issues:
 </br>
 You are welcomed to feedback for comments and advices or fork the MyLogger project.
 </br>
+</br>
+</br>
 
 Credit:</br>
 Admin template powered by [Charisma](http://usman.it/themes/charisma)</br>
