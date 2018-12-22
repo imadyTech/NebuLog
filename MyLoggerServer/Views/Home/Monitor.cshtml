@@ -1,0 +1,249 @@
+﻿@section Init{
+}
+
+<div class="ch-container">
+    <div class="row">
+        <!-- left menu starts 左侧菜单 -->
+        <div class="col-sm-2 col-lg-2">
+            <div class="sidebar-nav">
+                <div class="nav-canvas">
+                    <div class="nav-sm nav nav-stacked">
+
+                    </div>
+                    <ul class="nav nav-pills nav-stacked main-menu">
+                        <li class="nav-header">LogLevel Selector</li>
+                        <li id="left-menu-onTrace">
+                            <a class="ajax-link">
+                                <i class="glyphicon glyphicon-pencil green"></i><span> Trace</span>
+                            </a>
+                        </li>
+                        <li id="left-menu-onDebug">
+                            <a class="ajax-link">
+                                <i class="glyphicon glyphicon-eye-open green"></i><span> Debug</span>
+                            </a>
+                        </li>
+                        <li id="left-menu-onInformation">
+                            <a class="ajax-link">
+                                <i class="glyphicon glyphicon-info-sign blue"></i><span> Information</span>
+                            </a>
+                        </li>
+                        <li id="left-menu-onWarning">
+                            <a class="ajax-link">
+                                <i class="glyphicon glyphicon-warning-sign yellow"></i><span> Warning</span>
+                            </a>
+                        </li>
+                        <li id="left-menu-onError">
+                            <a class="ajax-link">
+                                <i class="glyphicon glyphicon-exclamation-sign red"></i><span> Error</span>
+                            </a>
+                        </li>
+                        <li id="left-menu-onCritical">
+                            <a class="ajax-link">
+                                <i class="glyphicon glyphicon-fire red"></i><span> Critical</span>
+                            </a>
+                        </li>
+                        <li class="nav-header hidden-md">Other Features</li>
+                        <li>
+                            <a class="ajax-link">
+                                <i class="glyphicon glyphicon-align-justify"></i><span> Tables</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="ajax-link">
+                                <i class="glyphicon glyphicon-plus"></i><span> Accordion Menu</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="ajax-link">
+                                <i class="glyphicon glyphicon-calendar"></i><span> Calendar</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="ajax-link">
+                                <i class="glyphicon glyphicon-th"></i><span> Grid</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="ajax-link">
+                                <i class="glyphicon glyphicon-globe"></i><span> Tour</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="ajax-link" href="icon.html">
+                                <i class="glyphicon glyphicon-star"></i><span> Icons</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="error.html"><i class="glyphicon glyphicon-ban-circle"></i><span> Error Page</span></a>
+                        </li>
+                        <li>
+                            <a href="login.html"><i class="glyphicon glyphicon-lock"></i><span> Login Page</span></a>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!--/span-->
+        <!--End: left menu ends 左侧菜单 -->
+
+        <noscript>
+            <div class="alert alert-block col-md-12">
+                <h4 class="alert-heading">Warning!</h4>
+                <p>
+                    You need to have <a href="http://en.wikipedia.org/wiki/JavaScript" target="_blank">JavaScript</a>
+                    enabled to use this site.
+                </p>
+            </div>
+        </noscript>
+
+        <!-- logging information MyLogger日志表格 -->
+        <div id="content" class=" sidebar-navcol-lg-8 col-sm-8">
+            <!-- content starts -->
+            <table data-toggle="table" id="messagesList"
+                   data-height="720"
+                   data-toolbar="#toolbar"
+                   data-pagination="false"
+                   data-page-size="20"
+                   data-show-pagination-switch="true"
+                   data-id-field="id"
+                   data-search="true"
+                   data-show-refresh="true"
+                   data-show-toggle="true"
+                   data-show-columns="true"
+                   data-show-export="true"
+                   data-show-fullscreen="true"
+                   data-detail-view="true"
+                   data-detail-formatter="detailFormatter"
+                   data-sort-name="Time"
+                   data-sort-order="asc"
+                   data-row-style="rowStyle">
+                <thead>
+                    <tr>
+                        <!--th data-field="state" data-checkbox="true"></th-->
+                        <th style="" data-field="Time" data-formatter="timeFormatter" data-sortable="true" class="col-md-2">
+                            <div class="th-inner">Time</div>
+                            <div class="fht-cell" style="width: 120px;"></div>
+                        </th>
+                        <th style="" data-field="Sender" data-formatter="senderFormatter" data-sortable="true" class="col-md-2">
+                            <div class="th-inner">Sender</div>
+                            <div class="fht-cell" style="width: 160px;"></div>
+                        </th>
+                        <th style="" data-field="LogLevel" data-formatter="loglevelFormatter" data-sortable="true" class="col-md-2">
+                            <div class="th-inner">LogLevel</div>
+                            <div class="fht-cell" style="width: 80px;"></div>
+                        </th>
+                        <th style="" data-field="Message" data-formatter="messageFormatter" data-sortable="false" class="col-md-6">
+                            <div class="th-inner">Message</div>
+                            <div class="fht-cell" style="width: 760px;"></div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <!-- content ends -->
+        </div>
+        <!--End: logging information 日志表格 -->
+        <!-- Stats 右侧统计数据 -->
+        <div class="box col-md-2" style="margin-top:-2px">
+            <div class="box-inner">
+                <div class="box-header well" data-original-title="">
+                    <h2><i class="glyphicon glyphicon-list"></i>Logging Stats</h2>
+                    <div class="box-icon">
+                        <a href="#" class="btn btn-setting btn-round btn-default"><i class="glyphicon glyphicon-cog"></i></a>
+                        <a href="#" class="btn btn-minimize btn-round btn-default"><i class="glyphicon glyphicon-chevron-up"></i></a>
+                        <a href="#" class="btn btn-close btn-round btn-default"><i class="glyphicon glyphicon-remove"></i></a>
+                    </div>
+                </div>
+                <div class="box-content">
+                    <ul class="dashboard-list" style="margin-left:-25px">
+                        <li class="dark center-text" style="margin-top:-15px">
+                            <h2><span id="stat-all">0</span></h2>
+                            Total Logs
+                        </li>
+                        <li>
+                            <i class="glyphicon glyphicon-pencil green"></i>
+                            Trace
+                            <span class="green pull-right" id="stat-Trace">0</span>
+                        </li>
+                        <li>
+                            <i class="glyphicon glyphicon-eye-open green"></i>
+                            Debug
+                            <span class="green pull-right" id="stat-Debug">0</span>
+                        </li>
+                        <li>
+                            <i class="glyphicon glyphicon-info-sign blue"></i>
+                            Information
+                            <span class="blue pull-right" id="stat-Information">0</span>
+                        </li>
+                        <li>
+                            <i class="glyphicon glyphicon-warning-sign yellow"></i>
+                            Warning
+                            <span class="yellow pull-right" id="stat-Warning">0</span>
+                        </li>
+                        <li>
+                            <i class="glyphicon glyphicon-exclamation-sign red"></i>
+                            Error
+                            <span class="red pull-right" id="stat-Error">0</span>
+                        </li>
+                        <li>
+                            <i class="glyphicon glyphicon-fire red"></i>
+                            Critical
+                            <span class="red pull-right" id="stat-Critical">0</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!--Ends: Stats 右侧统计数据 -->
+        <!-- Stats 右侧甜甜圈 -->
+        <div class="box col-md-2">
+            <div class="box-inner">
+                <div class="box-header well" data-original-title="">
+                    <h2><i class="glyphicon glyphicon-list-alt"></i> Donut</h2>
+                    <div class="box-icon">
+                        <a href="#" class="btn btn-setting btn-round btn-default"><i class="glyphicon glyphicon-cog"></i></a>
+                        <a href="#" class="btn btn-minimize btn-round btn-default"><i class="glyphicon glyphicon-chevron-up"></i></a>
+                        <a href="#" class="btn btn-close btn-round btn-default"><i class="glyphicon glyphicon-remove"></i></a>
+                    </div>
+                </div>
+                <div class="box-content">
+                    <div id="donutchart" style="height: 120px; padding: 0px; position: relative;">
+                        <canvas class="flot-base" style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 140px; height: 120px;" width="140" height="120"></canvas>
+                        <canvas class="flot-overlay" style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 140px; height: 120px;" width="140" height="120"></canvas>
+                        <span class="pieLabel" id="pieLabel0" style="position: absolute; top: 5.5px; left: 209px;">
+                            <div style="font-size:x-small;text-align:center;padding:2px;color:rgb(237,194,64);">Internet Explorer<br>3%</div>
+                        </span>
+                        <span class="pieLabel" id="pieLabel1" style="position: absolute; top: 15.5px; left: 270.5px;">
+                            <div style="font-size:x-small;text-align:center;padding:2px;color:rgb(175,216,248);">Mobile<br>7%</div>
+                        </span>
+                        <span class="pieLabel" id="pieLabel2" style="position: absolute; top: 100.5px; left: 346.5px;">
+                            <div style="font-size:x-small;text-align:center;padding:2px;color:rgb(203,75,75);">Safari<br>22%</div>
+                        </span>
+                        <span class="pieLabel" id="pieLabel3" style="position: absolute; top: 237.5px; left: 297px;">
+                            <div style="font-size:x-small;text-align:center;padding:2px;color:rgb(77,167,77);">Opera<br>16%</div>
+                        </span>
+                        <span class="pieLabel" id="pieLabel4" style="position: absolute; top: 238.5px; left: 145.5px;">
+                            <div style="font-size:x-small;text-align:center;padding:2px;color:rgb(148,64,237);">Firefox<br>23%</div>
+                        </span>
+                        <span class="pieLabel" id="pieLabel5" style="position: absolute; top: 53.5px; left: 116.5px;">
+                            <div style="font-size:x-small;text-align:center;padding:2px;color:rgb(189,155,51);">Chrome<br>29%</div>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End: Stats 右侧甜甜圈 -->
+    </div><!--/.fluid-container-->
+</div>
+
+@section Scripts{
+
+    <!-- ==========MyLogger脚本========== -->
+        <script src="/lib/bootstrap-table/bootstrap-table.js"></script>
+        <script src="/lib/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
+        <script src="/lib/signalr/signalr.js"></script>
+        <script src="/js/MyLoggerClient.js"></script>
+    <!--Ends: ==========MyLogger脚本========== -->
+}

@@ -1,0 +1,27 @@
+{
+  "name": "MeiyuMonitor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aspnet/signalr": "^1.1.0",
+    "datatables.net-dt": "^1.10.19",
+    "echarts": "^4.2.0-rc.2"
+  },
+  "devDependencies": {
+    "grunt": "1.0.1",
+    "grunt-contrib-concat": "1.0.1",
+    "grunt-contrib-uglify": "2.0.0",
+    "grunt-contrib-copy": "1.0.0",
+    "grunt-minify-html": "2.1.0",
+    "grunt-replace": "1.0.1",
+    "grunt-contrib-cssmin": "1.0.2",
+    "grunt-tinyimg": "1.0.0"
+  },
+  "description": ""
+}

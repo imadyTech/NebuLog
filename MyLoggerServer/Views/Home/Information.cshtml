@@ -1,0 +1,83 @@
+﻿
+<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Message"]</h3>
+
+
+<link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="/lib/bootstrap-table/css/bootstrap-table.css">
+
+<div id="toolbar">
+    <button id="button" class="btn btn-default">append</button>
+</div>
+
+<table data-toggle="table" id="messagesList" data-pagination="false" data-page-size="30" data-search="true" class="table table-hover" style="width:1121px">
+    <thead>
+        <tr>
+            <th style="" data-field="Time">
+                <div class="th-inner ">Time</div>
+                <div class="fht-cell" style="width: 176px;"></div>
+            </th>
+            <th style="" data-field="Sender">
+                <div class="th-inner ">Sender</div>
+                <div class="fht-cell" style="width: 176px;"></div>
+            </th>
+            <th style="" data-field="Message">
+                <div class="th-inner ">Message</div>
+                <div class="fht-cell" style="width: 769px;"></div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+
+<script src="/lib/jquery/dist/jquery.min.js"></script>
+<script src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/lib/bootstrap-table/bootstrap-table.js"></script>
+<script src="/lib/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
+
+<script src="/lib/signalr/signalr.js"></script>
+
+<script>
+    /*
+    var ul = document.getElementById("messagesList");
+
+    var description = document.createElement("li");
+    var textnode = document.createTextNode("this is a trial of signalr.");
+    description.appendChild(textnode);
+    ul.appendChild(description);
+    document.getElementById("messagesList")
+        .appendChild(description);
+    */
+    var $table = $('#messagesList');
+
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/MyLoggerHub")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+
+
+    connection.start().catch(err => console.error(err.toString()));
+
+
+
+    connection.on("SendMessage", (user, message) => {
+        $table.bootstrapTable('append', randomData(user, message));
+        $table.bootstrapTable('scrollTo', 'bottom');
+    });
+
+
+    function randomData(userinput, messageinput) {
+        var rows = [];
+
+        rows.push({
+            Time: new Date().toLocaleTimeString(),
+            Sender: userinput,
+            Message: messageinput
+        });
+        return rows;
+    }
+</script>
+
