@@ -3,8 +3,8 @@ A realtime logging tool based on Microsoft SignalR, to help developers debugging
 
 How to use</br>
 -----------------
-1. Have the MyLoggerServer solution deploed to cloud or running on local;
-2. Add MyLogger folder (a VS project) to your solution folder;
+1. Have the MyLoggerServer project deployed to cloud or running on local;
+2. Add MyLogger folder (a VS project) to your solution folder (not yet support Nuget installation);
 3. Refer MyLogger project to the applicaiton that to realtime log;
 4. Add the targeted Url to appsettings.json:
 ~~~ Json
