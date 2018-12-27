@@ -129,11 +129,25 @@ function cellStyle(value, row, index, field) {
 function detailFormatter(index, row) {
     var html = [];
     $.each(row, function (key, value) {
-        html.push('<p><b>' + key + ':</b> ' + value + '</p>')
+        if (value.indexOf("<xml>") !== -1) {
+            var start = value.indexOf("<xml>");
+            var end = value.indexOf("</xml>");
+            var xml = value.substring(start, end);
+            var formatted = formatXml(xml);
+                var count = 0;
+            var linecount = function (sourcetext) {
+                for (var i = 0, I = sourcetext.length; i < I; i++) {
+                    if (sourcetext.substring(i, 4) === '\n')
+                        count++;
+                }
+                return count;
+            };
+            value = "<textarea rows='" + count + "' style='width:90%'>" + formatted + "</textarea>";
+        }
+        html.push('<p><b>' + key + ':</b> ' + value + '</p>');
     });
     return html.join('');
 }
-
 //对表格数据的格式进行格式处理
 function timeFormatter(value, row) {
     //鸣谢：DateFormat代码基于eguid提供的参考修改而来。
@@ -190,6 +204,81 @@ function loglevelFormatter(value, row) {
     return value;
 }
 function messageFormatter(value, row) {
+    if (value.indexOf("<xml>") !== -1) {
+        var start = value.indexOf("<xml>");
+        var end = value.indexOf("</xml>");
+        var xml = value.substring(start, end);
+        value = value.replace(xml, '');
+        value = value + '<button class="btn btn-success btn-xs"> XML data </button>';
+    }
     return value.substring(0, 99) + (value.length > 100 ? '...' : '');
 }
 
+
+//作者：yk10010
+//来源：CSDN
+//原文：https://blog.csdn.net/yk10010/article/details/81739393 
+//版权声明：本文为博主原创文章，转载请附上博文链接！
+function formatXml(text) {
+    //去掉多余的空格 
+    text = '\n' + text.replace(/(<\w+)(\s.*?>)/g, function ($0, name, props) { return name + ' ' + props.replace(/\s+(\w+=)/g, " $1"); }).replace(/>\s*?</g, ">\n<"); 
+    //把注释编码 
+    text = text.replace(/\n/g, '\r').replace(/<!--(.+?)-->/g, function ($0, text) {
+        var ret = '<!--' + escape(text) + '-->';
+        //alert(ret); 
+        return ret;
+    }).replace(/\r/g, '\n'); 
+        //调整格式 
+    var rgx = /\n(<(([^\?]).+?)(?:\s|\s*?>|\s*?(\/)>)(?:.*?(?:(?:(\/)>)|(?:<(\/)\2>)))?)/mg;
+    var nodeStack = [];
+    var output = text.replace(rgx, function ($0, all, name, isBegin, isCloseFull1, isCloseFull2, isFull1, isFull2) {
+        var isClosed = (isCloseFull1 === '/') || (isCloseFull2 === '/') || (isFull1 === '/') || (isFull2 === '/');
+        //alert([all,isClosed].join('=')); 
+        var prefix = '';
+        if (isBegin === '!') { prefix = getPrefix(nodeStack.length); }
+        else {
+            if (isBegin !== '/') {
+                prefix = getPrefix(nodeStack.length);
+                if (!isClosed) { nodeStack.push(name); }
+            }
+            else { nodeStack.pop(); prefix = getPrefix(nodeStack.length); }
+        }
+        var ret = '\n' + prefix + all;
+        return ret;
+    });
+    var prefixSpace = -1;
+    var outputText = output.substring(1);
+    //alert(outputText); 
+    //把注释还原并解码，调格式 
+    outputText = outputText.replace(/\n/g, '\r').replace(/(\s*)<!--(.+?)-->/g, function ($0, prefix, text) {
+        //alert(['[',prefix,']=',prefix.length].join('')); 
+        if (prefix.charAt(0) === '\r')
+            prefix = prefix.substring(1);
+        text = unescape(text).replace(/\r/g, '\n');
+        var ret = '\n' + prefix + '<!--' + text.replace(/^\s*/mg, prefix) + '-->';
+        //alert(ret); 
+        return ret;
+    });
+    return outputText.replace(/\s+$/g, '').replace(/\r/g, '\r\n');
+}
+function getPrefix(prefixIndex) {
+    var span = '    ';
+    var output = [];
+    for (var i = 0; i < prefixIndex; ++i) { output.push(span); }
+    return output.join('');
+}
+//---------------------
+<xml>
+    <Content>
+        <![CDATA[The MsgType of Text was successfully handled.]]>
+    </Content>
+    <MsgType>
+        <![CDATA[text]]>
+    </MsgType>
+    <ToUserName>
+        <![CDATA[ohKYFxDy4WBQJx_17dAMJihaJN-8]]>
+    </ToUserName>
+    <FromUserName>
+        <![CDATA[gh_bdd620900a5b]]>
+    </FromUserName>
+    <CreateTime>1545886648</CreateTime>

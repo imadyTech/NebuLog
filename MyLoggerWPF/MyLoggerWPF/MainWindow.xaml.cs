@@ -4,19 +4,20 @@ using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.AspNetCore.SignalR.Client;
 
+
 namespace SignalRChatClient
 {
     public partial class MainWindow : Window
     {
         HubConnection connection;
+
         public MainWindow()
         {
             InitializeComponent();
 
             connection = new HubConnectionBuilder()
-                .WithUrl("http://monitor.imady.com/MyMonitorHub")
+                .WithUrl("http://monitor.imady.com/MyLoggerHub")
                 .Build();
-
             #region snippet_ClosedRestart
             connection.Closed += async (error) =>
             {

@@ -5,11 +5,21 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MeiyuMonitor.Models;
+using Microsoft.AspNetCore.SignalR;
 
 namespace MeiyuMonitor.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IHubContext<MyLoggerHub> _hubContext;
+
+        public HomeController(IHubContext<MyLoggerHub> context)
+        {
+            _hubContext = context;
+        }
+
+
+
         public IActionResult Index()
         {
             return View();
@@ -29,8 +39,10 @@ namespace MeiyuMonitor.Controllers
             return View();
         }
 
-        public IActionResult Monitor()
+        public async Task<IActionResult> Monitor()
         {
+            await _hubContext.Clients.All.SendAsync("SendMessage", $"Home page loaded at: {DateTime.Now}");
+
             ViewData["Message"] = "苏州美娱网络科技有限公司";
             ViewData["Title"] = "Meiyu Logger Project";
             return View();
