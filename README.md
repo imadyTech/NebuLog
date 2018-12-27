@@ -3,8 +3,8 @@ A realtime logging tool based on Microsoft SignalR, to help developers debugging
 
 How to use</br>
 -----------------
-1. Have the MyLoggerServer solution deploed to cloud or running on local;
-2. Add MyLogger folder (a VS project) to your solution folder;
+1. Have the MyLoggerServer project deployed to cloud or running on local;
+2. Add MyLogger folder (a VS project) to your solution folder (not yet support Nuget installation);
 3. Refer MyLogger project to the applicaiton that to realtime log;
 4. Add the targeted Url to appsettings.json:
 ~~~ Json
@@ -61,7 +61,7 @@ Issues:
 -------
 1. The remote side logging was designed for development time debugging purpose instead of production logging, e.g. operation data logging with persistence needs. However we may have the MyLogger upgraded in the future to support more features.
 2. Currently the monitoring web page was realized base on Bootstrap-Datatable, which could be slowed down when bulk amount of logs come to the server side (we suggest click Refresh button above the datatable to clear the data when the web page frame rate decrease to observable level). We will optimize the code in the future to improve the user experience.
-3. Currently on Asp.net core or WPF client are supported. As Microsoft has released SignalR Client for JavaScript and Java as well, we will add support to these languages in the future. Other languages and platforms are subject to the progress of Microsoft SignalR.
+3. Currently only Asp.net core is supported. As Microsoft has released SignalR Client for JavaScript and Java as well, we will add support to these languages in the future. Other languages and platforms are subject to the progress of Microsoft SignalR.
 </br>
 You are welcomed to feedback for comments and advices or fork the MyLogger project.
 </br>
