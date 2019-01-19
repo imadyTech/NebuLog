@@ -15,10 +15,30 @@ namespace MyLogger
     {
         public static void AddMyLogger(this IServiceCollection services)
         {
-            services.AddTransient<IMyLogger, MyLogger>();
+            //services.AddTransient<IMyLogger, MyLogger>();
+            services.AddTransient(typeof(IMyLogger<>), typeof( MyLogger<>));
+            /*
+            services.AddTransient(typeof(IMyLogger<>), (provider =>
+            {
+                var factory = provider.GetService<ILoggerFactory>();
+                return factory.CreateLogger<MyLogger>();
+            }));
+            */
         }
+    }
 
 
+
+
+    /// <summary>
+    /// 这是原来通过扩展来给ILogger增加新方法的尝试。已过时。
+    /// </summary>
+    public static class MyLoggerExtensionMethods
+    {
+        public static void LogCustom(this ILogger logger, string sender, string message)
+        {
+            logger.LogInformation(sender, message);
+        }
     }
 
     /// <summary>
@@ -34,7 +54,17 @@ namespace MyLogger
         //通过ILoggerFactory工厂模式也可以创建iLogger实例，
         //参见 https://www.cnblogs.com/artech/p/inside-net-core-logging-2.html
         ///两个方法创建的Logger在日志记录行为上是等效的
-        //public static ILogger<T> CreateLogger<T>(this ILoggerFactory factory)
+        /*
+        public static IMyLogger<T> CreateLogger<T>(this ILoggerFactory factory)
+        {
+            return factory.CreateLogger<T>();
+        }*/
         //public static ILogger CreateLogger(this ILoggerFactory factory, Type type)；
+
+        public static void UseMyLogger<T>(this ILoggerFactory factory, IServiceCollection services)
+        {
+            factory.AddProvider(new MyLoggerProvider(services.BuildServiceProvider().GetService<IOptions<MyLoggerOption>>()));
+
+        }
     }
 }

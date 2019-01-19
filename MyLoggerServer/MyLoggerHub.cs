@@ -9,24 +9,37 @@ namespace MeiyuMonitor
 {
     public class MyLoggerHub: Hub
     {
+
         public MyLoggerHub()
         {
             
         }
-        [HubMethodName("SendMessage")]
-        public async Task SendMessage(DateTime time, string sourcename, string loglevel, string message)
+
+
+
+        [HubMethodName("OnILogging")]
+        public async Task SendMessage(DateTime time, string projectname, string sourcename, string loglevel, string message)
         {
-            await Clients.All.SendAsync("SendMessage", time.ToString("yyyy-MM-dd hh:mm:ss.fff"), sourcename, loglevel, message);
+            await Clients.All.SendAsync("OnILogging", time.ToString("yyyy-MM-dd hh:mm:ss.fff"), projectname, sourcename, loglevel, message);
             var context = Context;
             var manager = Groups;
 
             //Console.WriteLine($"=========={DateTime.Now}============{context.User?.FindFirst(ClaimTypes.Email)?.Value}::{context.UserIdentifier} of totalclients.");
         }
-
-        public async Task Logging(string username, LogInfo log)
+        
+        [HubMethodName("OnMyLogCustom")]
+        public async Task OnMyLogCustom(string username, LogInfo log)
         {
             await Clients.All.SendAsync("OnLogging", username, log);
         }
+
+        [HubMethodName("OnMyLogException")]
+        public async Task OnMyLogException(string username, Exception log)
+        {
+            await Clients.All.SendAsync("OnLogging", username, log);
+        }
+
+
 
         public override Task OnConnectedAsync()
         {

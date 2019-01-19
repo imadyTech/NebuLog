@@ -14,24 +14,27 @@ namespace MyLoggerTestApp.Controllers
 {
     public class HomeController : Controller
     {
-        ILogger _logger;
+        //这里需要把Ilogg改为IMyLogger
+        IMyLogger _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IMyLogger<HomeController> logger)
         {
             _logger = logger;
         }
 
+
         public IActionResult Index()
         {
-            _logger.LogTrace("LogTrace.");
-            _logger.LogDebug("LogDebug.");
-            _logger.LogInformation("LogInformation.");
-            _logger.LogWarning("LogWarning.");
-            _logger.LogError("LogError.");
-            _logger.LogCritical("LogCritical.");
+            //这是扩展后的IMyLogger新方法的尝试。
+            _logger.LogCustom("Frank","Index action initiated.");
 
-            //这是通过扩展来给ILogger增加新方法的尝试。
-            //_logger.LogCustom("Frank","Index action initiated.");
+            //这些是兼容原ILogger的方法
+            _logger.LogTrace("This is a Test: LogTrace.");
+            _logger.LogDebug("This is a Test: LogDebug.");
+            _logger.LogInformation("This is a Test: LogInformation.");
+            _logger.LogWarning("This is a Test: LogWarning.");
+            _logger.LogError("This is a Test: LogError.");
+            _logger.LogCritical("This is a Test: LogCritical.");
 
             return View();
         }

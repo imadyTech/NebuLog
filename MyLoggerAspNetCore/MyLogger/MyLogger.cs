@@ -13,7 +13,12 @@ namespace MyLogger
         MyLoggerOption _option;
         HubConnection connection;
 
-        public MyLogger(MyLoggerOption option, string categoryName)
+        #region =====构造函数=====
+        public MyLogger(IOptions<MyLoggerOption> wxOption) : this(wxOption.Value, "")
+        {
+        }
+
+        public MyLogger( MyLoggerOption option, string categoryName)
         {
             _option = option;
             _categoryName = categoryName;
@@ -25,48 +30,16 @@ namespace MyLogger
 
             connection.Closed += async (error) =>
             {
-                await Task.Delay(new Random().Next(0, 5) * 1000);
+                await Task.Delay(2000);
                 await connection.StartAsync();
             };
+            connection.StartAsync().Wait();
 
         }
-        public async Task LogCustom(string sender, string parameter)
-        {
-            /*
-            #region snippet_ConnectionOn
-            connection.On<string, string>("ReceiveMessage", (user, message) =>
-            {
-            });
-            #endregion
-            */
-
-            try
-            {
-                await connection.StartAsync();
-            }
-            catch (Exception ex)
-            {
-            }
-
-            #region snippet_ErrorHandling
-            try
-            {
-                #region snippet_InvokeAsync
-                await connection.InvokeAsync("SendMessage",
-                    sender,
-                    parameter);
-                #endregion
-            }
-            catch (Exception ex)
-            {
-                await connection.InvokeAsync("SendMessage",
-                    "ErrorSending", ex.Message);
-            }
-            #endregion
-
-        }
+        #endregion
 
 
+        #region =====ILogger实现=====
         public IDisposable BeginScope<TState>(TState state)
         {
             return null;
@@ -79,41 +52,61 @@ namespace MyLogger
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-
-            /*
-            try
-            {
-                connection.StartAsync();
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            connection.InvokeAsync("SendMessage", "Frank","MyLogger test");
-            */
-
-            connection.StartAsync().Wait();
             var task = connection.SendAsync(
-                "SendMessage",
+                "OnILogging",
                 DateTime.Now,
+                _option.ProjectName,
                 _categoryName,
                 logLevel.ToString(),
                 //new { Level = logLevel, Content = formatter(state, exception) });
                 formatter(state, exception));
             task.Wait();
         }
-    }
+        #endregion
 
 
-
-    /// <summary>
-    /// 这是通过扩展来给ILogger增加新方法的尝试。
-    /// </summary>
-    public static class MyLoggerExtensionMethods
-    {
-        public static void LogCustom(this ILogger logger, string sender, string message)
+        #region =====IMyLogger扩展实现=====
+        public void LogCustom(string sender, string message)
         {
-
+            //this._categoryName = sender;
+            this.LogInformation(message);
         }
+        #endregion
+
+
+        #region =====支撑方法=====
+        private void Logging(HubConnection connection, string PortName, DateTime time, params string[] parameters)
+        {
+            connection.StartAsync().Wait();
+        }
+        /*
+        try
+        {
+            connection.StartAsync();
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        connection.InvokeAsync("SendMessage", "Frank","MyLogger test");
+        */
+
+
+        #endregion
     }
+
+
+
+
+    public class MyLogger<TCategory> : MyLogger, IMyLogger<TCategory>
+    {
+        #region =====构造函数=====
+        public MyLogger(IOptions<MyLoggerOption> wxOption) : base (wxOption.Value, typeof(TCategory).Name)
+        {
+        }
+
+
+        #endregion
+    }
+
 }

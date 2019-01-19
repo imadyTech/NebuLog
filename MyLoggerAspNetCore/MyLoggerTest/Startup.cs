@@ -42,8 +42,10 @@ namespace MyLoggerTestApp
             Services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             //===================================================================================
-            //services.AddMyLogger();
             Services.Configure<MyLoggerOption>(Configuration.GetSection("MyLoggerOption"));
+            //如果想使用IMyLogger的扩展则通过使用AddMyLogger
+            services.AddMyLogger();
+            //设置系统日志输出的最小级别
             Services.AddLogging( builder =>
             {
                 builder
@@ -53,12 +55,11 @@ namespace MyLoggerTestApp
                     // Only for Debug logger, using the provider type or it's alias
                     //.AddFilter("Debug", "System", LogLevel.Information)
                     // Only for Console logger by provider type
-                    .AddFilter<MyLoggerProvider>("Microsoft", LogLevel.Trace)
+                    .AddFilter<MyLoggerProvider>("Microsoft", LogLevel.Information)
                     .AddConsole()
                     .AddDebug();
             });
             //===================================================================================
-
             return Services.BuildServiceProvider();
 
         }
@@ -82,9 +83,10 @@ namespace MyLoggerTestApp
             app.UseCookiePolicy();
 
             //===================================================================================
+            //如果想开启系统日志输出到IMyLogger则使用以下代码
             var option = Services.BuildServiceProvider().GetService< IOptions<MyLoggerOption>>();
-            loggerFactory.AddProvider(new MyLoggerProvider(option));
-            //loggerFactory.UseMyLogger(Services);//extension方式添加MyLogger
+            loggerFactory.UseMyLogger(Services);//extension方式添加MyLogger，两种写法效果等同
+            //loggerFactory.AddProvider(new MyLoggerProvider(option));
             //===================================================================================
 
             app.UseMvc(routes =>    

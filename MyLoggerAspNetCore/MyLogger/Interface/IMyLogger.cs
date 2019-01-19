@@ -8,7 +8,12 @@ namespace MyLogger
 {
     public interface IMyLogger: ILogger
     {
+        void LogCustom( string sender, string message);
     }
 
+    public interface IMyLogger<out TCategoryName> : IMyLogger
+    {
+
+    }
 
 }

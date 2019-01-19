@@ -22,17 +22,25 @@
     connection.start().catch(err => console.error(err.toString()));
 
 
-    connection.on("SendMessage", (time, source, loglevel, message) => {
-        $table.bootstrapTable('append', appendata(time, source, loglevel, message));
+    connection.on("OnILogging", (time, project, source, loglevel, message) => {
+        $table.bootstrapTable('append', appendata(time, project, source, loglevel, message));
         $table.bootstrapTable('scrollTo', 'bottom');
 
         var allData = $table.bootstrapTable('getData', false);
         refreshStats(allData);
-        console.log(new Date() + ' : ' + source + ' : ' + loglevel + '(' + message + ')');
+        //console.log(new Date() + ' : ' + project +' : ' + source + ' : ' + loglevel + '(' + message + ')');
     });
-    connection.on("OnLogging", (username, loginfo) => {
+    connection.on("OnMyLogCustom", (username, loginfo) => {
         $table.bootstrapTable('append', appendLog(username, loginfo));
         $table.bootstrapTable('scrollTo', 'bottom');
+    });
+    connection.on("OnILogging", (time, project, source, loglevel, excetion) => {
+        $table.bootstrapTable('append', appendata(time, project, source, loglevel, message));
+        $table.bootstrapTable('scrollTo', 'bottom');
+
+        var allData = $table.bootstrapTable('getData', false);
+        refreshStats(allData);
+        //console.log(new Date() + ' : ' + project +' : ' + source + ' : ' + loglevel + '(' + message + ')');
     });
 
     //Left menu items action
@@ -56,11 +64,12 @@
     });
 });
 
-function appendata(timeinput, sourceinput, loglevelinput, messageinput) {
+function appendata(timeinput, projectinput, sourceinput, loglevelinput, messageinput) {
     var rows = [];
 
     rows.push({
         Time: timeinput,
+        Project: projectinput,
         Sender: sourceinput,
         LogLevel: loglevelinput,
         Message: messageinput
@@ -211,9 +220,11 @@ function messageFormatter(value, row) {
         value = value.replace(xml, '');
         value = value + '<button class="btn btn-success btn-xs"> XML data </button>';
     }
-    return value.substring(0, 99) + (value.length > 100 ? '...' : '');
+    return value.substring(0, 79) + (value.length > 80 ? '...' : '');
 }
-
+function projectFormatter(value, row) {
+    return value.substring(value.lastIndexOf(".") + 1, value.length);
+}
 
 //作者：yk10010
 //来源：CSDN
@@ -268,17 +279,3 @@ function getPrefix(prefixIndex) {
     return output.join('');
 }
 //---------------------
-<xml>
-    <Content>
-        <![CDATA[The MsgType of Text was successfully handled.]]>
-    </Content>
-    <MsgType>
-        <![CDATA[text]]>
-    </MsgType>
-    <ToUserName>
-        <![CDATA[ohKYFxDy4WBQJx_17dAMJihaJN-8]]>
-    </ToUserName>
-    <FromUserName>
-        <![CDATA[gh_bdd620900a5b]]>
-    </FromUserName>
-    <CreateTime>1545886648</CreateTime>
