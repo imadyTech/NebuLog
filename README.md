@@ -1,5 +1,5 @@
 # MyLogger</br>
-A realtime logging tool based on Microsoft SignalR, to help developers debugging their projects.</br>
+A distributed logging tool based on Microsoft SignalR, to help developers debugging their projects.</br>
 
 How to use</br>
 -----------------
