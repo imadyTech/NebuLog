@@ -27,14 +27,25 @@ namespace MeiyuMonitor
             //Console.WriteLine($"=========={DateTime.Now}============{context.User?.FindFirst(ClaimTypes.Email)?.Value}::{context.UserIdentifier} of totalclients.");
         }
         
-        [HubMethodName("OnMyLogCustom")]
-        public async Task OnMyLogCustom(string username, LogInfo log)
+        [HubMethodName("OnMyLogException")]
+        public async Task OnMyLogException(DateTime time, string projectname, string sourcename, string loglevel, string exception)
         {
-            await Clients.All.SendAsync("OnLogging", username, log);
+            //Frank: exception已经被序列化，是为了减少服务器端拆箱/装箱的开销。
+            //故此要求抛出exception的源需要将异常信息序列化后再传输。
+
+            await Clients.All.SendAsync(
+                "OnMyLogException", 
+                time.ToString("yyyy-MM-dd hh:mm:ss.fff"), 
+                projectname, 
+                sourcename, 
+                loglevel, 
+                exception);
+            var context = Context;
+            var manager = Groups;
         }
 
-        [HubMethodName("OnMyLogException")]
-        public async Task OnMyLogException(string username, Exception log)
+        [HubMethodName("OnMyLogCustom")]
+        public async Task OnMyLogCustom(string username, LogInfo log)
         {
             await Clients.All.SendAsync("OnLogging", username, log);
         }

@@ -34,8 +34,8 @@
         $table.bootstrapTable('append', appendLog(username, loginfo));
         $table.bootstrapTable('scrollTo', 'bottom');
     });
-    connection.on("OnILogging", (time, project, source, loglevel, excetion) => {
-        $table.bootstrapTable('append', appendata(time, project, source, loglevel, message));
+    connection.on("OnMyLogException", (time, project, source, loglevel, exception) => {
+        $table.bootstrapTable('append', appendException(time, project, source, loglevel, exception));
         $table.bootstrapTable('scrollTo', 'bottom');
 
         var allData = $table.bootstrapTable('getData', false);
@@ -43,7 +43,7 @@
         //console.log(new Date() + ' : ' + project +' : ' + source + ' : ' + loglevel + '(' + message + ')');
     });
 
-    //Left menu items action
+    //Left menu items action 左侧分类筛选器
     $('#left-menu-onTrace').click(function () {
         filterData($table, 'Trace');
     });
@@ -62,6 +62,10 @@
     $('#left-menu-onCritical').click(function () {
         filterData($table, 'Critical');
     });
+    //Frank: 2019-01-28新增Exception的处理
+    $('#left-menu-onException').click(function () {
+        filterData($table, 'Exception');
+    });
 });
 
 function appendata(timeinput, projectinput, sourceinput, loglevelinput, messageinput) {
@@ -76,7 +80,17 @@ function appendata(timeinput, projectinput, sourceinput, loglevelinput, messagei
     });
     return rows;
 }
-
+function appendException(timeinput, projectinput, sourceinput, loglevelinput, exception) {
+    var rows = [];
+    rows.push({
+        Time: timeinput,
+        Project: projectinput,
+        Sender: sourceinput,
+        LogLevel: loglevelinput,
+        Message: exception
+    });
+    return rows;
+}
 function appendLog(user, log) {
     var rows = [];
     rows.push({
@@ -87,6 +101,8 @@ function appendLog(user, log) {
     return rows;
 }
 
+
+
 //刷新Stats面板数值
 function refreshStats(data) {
     $('#stat-all').text(data.length);
@@ -96,6 +112,8 @@ function refreshStats(data) {
     $('#stat-Warning').text($.grep(data, function (log) { return log.LogLevel === 'Warning'; }).length);
     $('#stat-Error').text($.grep(data, function (log) { return log.LogLevel === 'Error'; }).length);
     $('#stat-Critical').text($.grep(data, function (log) { return log.LogLevel === 'Critical'; }).length);
+    //Frank: 2019-01-28新增Exception的处理
+    $('#stat-Exception').text($.grep(data, function (log) { return log.LogLevel === 'Exception'; }).length);
 }
 
 /*Deprecated: filterData0函数采用了datatable数组遍历的方式，效率太低。
@@ -126,6 +144,8 @@ function rowStyle(row, index) {
     if (row.LogLevel === "Warning") { return { classes: "warning" }; }
     if (row.LogLevel === "Error") { return { classes: "danger" }; }
     if (row.LogLevel === "Critical") { return { classes: "danger" }; }
+    //Frank: 2019-01-28新增Exception的处理
+    if (row.LogLevel === "Exception") { return { classes: "danger" }; }
     return {};
 }
 function cellStyle(value, row, index, field) {
@@ -209,10 +229,14 @@ function loglevelFormatter(value, row) {
         case "Warning": return "<span class='label label-warning'>Warning</span>";
         case "Error": return "<span class='label label-danger'>Error</span>";
         case "Critical": return "<span class='label label-danger'>Critical</span>";
+        //Frank: 2019-01-28新增Exception的处理
+        case "Exception": return "<span class='label label-danger'>Exception</span>";
     }
     return value;
 }
+
 function messageFormatter(value, row) {
+    //如果收到的message包含了XML格式信息，浏览器默认会渲染XML，因此需要对消息先进行一些处理。
     if (value.indexOf("<xml>") !== -1) {
         var start = value.indexOf("<xml>");
         var end = value.indexOf("</xml>");

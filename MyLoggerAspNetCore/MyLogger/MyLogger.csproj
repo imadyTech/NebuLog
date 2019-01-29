@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="GlobalExceptionFilter.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="microsoft.aspnetcore.http" Version="2.2.0" />
+    <PackageReference Include="microsoft.aspnetcore.http.extensions" Version="2.2.0" />
     <PackageReference Include="microsoft.aspnetcore.signalr.client" Version="1.1.0" />
   </ItemGroup>
 
