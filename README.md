@@ -68,6 +68,52 @@ You are welcomed to feedback for comments and advices or fork the MyLogger proje
 </br>
 </br>
 
+ Update README.md
+
+2019-01-28 Update
+Now the ILogger is extended to IMyLogger if you want to extend some new features more than Microsoft's standard Logxxx().
+This is the updated code in Startup.cs:
+~~~
+        public IServiceProvider ConfigureServices(IServiceCollection services)
+        {
+            ...
+            Services.Configure<MyLoggerOption>(Configuration.GetSection("MyLoggerOption"));
+            services.AddMyLogger();
+            Services.AddLogging( builder =>
+            {
+                builder
+                    .AddFilter<MyLoggerProvider>("Microsoft", LogLevel.Trace)
+                    .AddConsole()
+                    .AddDebug();
+            });
+            ...
+        }
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        {
+            ...
+if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                //app.UseBrowserLink();
+                app.UseDatabaseErrorPage();
+            }
+            else
+            {
+                //app.UseExceptionHandler("/Home/Error");
+                //this will add the MyLoggerExceptionMiddleWare to intercept any application level exception and logging to MyLogger:
+                var myLogger = Services.BuildServiceProvider().GetService<IMyLogger<MyLoggerExceptionMiddleWare>>();
+                app.UseMyLoggerException(
+                    new MyLoggerExceptionMiddleWareOption(errorHandingPath: "/home/error"),
+                    myLogger);
+            }
+
+            var option = Services.BuildServiceProvider().GetService< IOptions<MyLoggerOption>>();
+            loggerFactory.AddProvider(new MyLoggerProvider(option));
+            ...
+        }
+~~~
+
+
 Credit:</br>
 Admin template powered by [Charisma](http://usman.it/themes/charisma)</br>
 Datatable powered by [Bootstrap Table](https://github.com/wenzhixin/bootstrap-table/)</br>
