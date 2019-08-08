@@ -4,7 +4,7 @@ A distributed logging tool based on Microsoft SignalR, to help developers debugg
 
 Update README.md
 
-2019-08-88 Update</br>
+2019-08-08 Update</br>
 MyLogger has been renamed to NebuLog.
 Now you can use Nuget to install the NebuLog instead of refer the source code:
 ~~~
