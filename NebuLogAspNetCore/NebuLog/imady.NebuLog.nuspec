@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Zhen Qun (Frank) Shen</authors>
+    <owners>imady Technologies (Suzhou) Co., Ltd.</owners>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/imadyTech/NebuLog</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Development and trial version</releaseNotes>
+    <copyright>Copyright (C) 2019 imady Technologies (Suzhou) Co., Ltd.</copyright>
+  </metadata>
+</package>

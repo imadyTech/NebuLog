@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <PackageId>imady.NebuLog</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Zhen Qun (Frank) Shen</Authors>
+    <Company>imady Technologies (Suzhou) Co., Ltd.</Company>
+    <Product>imady.NebuLog</Product>
+    <Description>A distributed logging tool based on Microsoft SignalR, to help developers debugging their projects.</Description>
+    <Copyright>Copyright (C) 2019 imady Technologies (Suzhou) Co., Ltd.</Copyright>
+    <PackageLicenseUrl>https://github.com/imadyTech/NebuLog/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/imadyTech/NebuLog</PackageProjectUrl>
+    <PackageIconUrl>https://avatars2.githubusercontent.com/u/7894361?s=460&amp;v=4</PackageIconUrl>
+    <PackageReleaseNotes>Development and trial version.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="GlobalExceptionFilter.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="microsoft.aspnetcore.http" Version="2.2.0" />
+    <PackageReference Include="microsoft.aspnetcore.http.extensions" Version="2.2.0" />
+    <PackageReference Include="microsoft.aspnetcore.signalr.client" Version="1.1.0" />
+  </ItemGroup>
+
+</Project>

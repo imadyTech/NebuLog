@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "imady.NebuLog", "NebuLog\imady.NebuLog.csproj", "{AE4BD2D0-D125-4C4C-B407-B49DB1C9D973}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebuLogTestApp", "NebuLogTest\NebuLogTestApp.csproj", "{83F130C1-CB9A-4FDC-9FAD-1C5C2ECD5FFE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AE4BD2D0-D125-4C4C-B407-B49DB1C9D973}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE4BD2D0-D125-4C4C-B407-B49DB1C9D973}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE4BD2D0-D125-4C4C-B407-B49DB1C9D973}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE4BD2D0-D125-4C4C-B407-B49DB1C9D973}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83F130C1-CB9A-4FDC-9FAD-1C5C2ECD5FFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83F130C1-CB9A-4FDC-9FAD-1C5C2ECD5FFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83F130C1-CB9A-4FDC-9FAD-1C5C2ECD5FFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83F130C1-CB9A-4FDC-9FAD-1C5C2ECD5FFE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {026AE6E0-31DA-4F30-8BA0-52B114116562}
+	EndGlobalSection
+EndGlobal
