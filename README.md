@@ -4,14 +4,14 @@ A distributed logging tool based on Microsoft SignalR, to help developers debugg
 
 Update README.md
 
-2019-08-88 Update
+2019-08-88 Update</br>
 MyLogger has been renamed to NebuLog.
 Now you can use Nuget to install the NebuLog instead of refer the source code:
 ~~~
 PM> Install-Package imady.NebuLog -Version 0.1.0
 ~~~
 
-2019-01-28 Update
+2019-01-28 Update</br>
 Now the ILogger is extended to IMyLogger if you want to extend some new features more than Microsoft's standard Logxxx().
 This is the updated code in Startup.cs:
 ~~~
