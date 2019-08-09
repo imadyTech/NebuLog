@@ -1,6 +1,6 @@
 using System;
 
-namespace MeiyuMonitor.Models
+namespace NebuLog
 {
     public class ErrorViewModel
     {

@@ -2,8 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AssemblyName>MyLoggerServer</AssemblyName>
+    <AssemblyName>NebuLogServer</AssemblyName>
     <RootNamespace>MyLoggerServer</RootNamespace>
+    <PackageId>imady.NebuLogServer</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Zhen Qun (Frank) Shen</Authors>
+    <Company>imady Technologies (Suzhou) Co., Ltd.</Company>
+    <Product>imady.NebuLogServer</Product>
+    <Description>A distributed logging tool based on Microsoft SignalR, to help developers debugging their projects. This is server side application.</Description>
+    <Copyright>Copyright (C) 2019 imady Technologies (Suzhou) Co., Ltd.</Copyright>
+    <PackageLicenseUrl>https://github.com/imadyTech/NebuLog/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/imadyTech/NebuLog</PackageProjectUrl>
+    <PackageIconUrl>https://avatars2.githubusercontent.com/u/7894361?s=460&amp;v=4</PackageIconUrl>
+    <PackageReleaseNotes>Development and trial version.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

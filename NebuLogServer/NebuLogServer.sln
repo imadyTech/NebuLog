@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2048
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyLoggerServer", "MyLoggerServer.csproj", "{7BE0C983-0544-4702-B273-C8FA8A25E4D5}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyLoggerTestApp", "..\MyLoggerAspNetCore\MyLoggerTest\MyLoggerTestApp.csproj", "{CCC89900-9167-40BC-B239-1FC78B4F9844}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebuLogServer", "NebuLogServer.csproj", "{7BE0C983-0544-4702-B273-C8FA8A25E4D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +15,6 @@ Global
 		{7BE0C983-0544-4702-B273-C8FA8A25E4D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BE0C983-0544-4702-B273-C8FA8A25E4D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BE0C983-0544-4702-B273-C8FA8A25E4D5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CCC89900-9167-40BC-B239-1FC78B4F9844}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CCC89900-9167-40BC-B239-1FC78B4F9844}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CCC89900-9167-40BC-B239-1FC78B4F9844}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CCC89900-9167-40BC-B239-1FC78B4F9844}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

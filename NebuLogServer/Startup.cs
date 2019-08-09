@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MeiyuMonitor
+namespace NebuLog
 {
     public class Startup
     {
@@ -57,7 +57,7 @@ namespace MeiyuMonitor
 
             app.UseSignalR(route =>
             {
-                route.MapHub<MyLoggerHub>("/MyLoggerHub");
+                route.MapHub<NebuLogHub>("/NebuLogHub");
             });
             /*
             app.Use(async (context, next) =>

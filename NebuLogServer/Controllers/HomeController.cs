@@ -4,16 +4,16 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MeiyuMonitor.Models;
+using NebuLog;
 using Microsoft.AspNetCore.SignalR;
 
-namespace MeiyuMonitor.Controllers
+namespace NebuLog.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IHubContext<MyLoggerHub> _hubContext;
+        private readonly IHubContext<NebuLogHub> _hubContext;
 
-        public HomeController(IHubContext<MyLoggerHub> context)
+        public HomeController(IHubContext<NebuLogHub> context)
         {
             _hubContext = context;
         }
