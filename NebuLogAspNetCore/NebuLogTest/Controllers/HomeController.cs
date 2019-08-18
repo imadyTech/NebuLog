@@ -15,9 +15,9 @@ namespace NebuLogTestApp.Controllers
     public class HomeController : Controller
     {
         //这里需要把Ilogg改为INebuLog
-        INebuLog _logger;
+        ILogger _logger;
 
-        public HomeController(INebuLog<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
         }
@@ -25,16 +25,6 @@ namespace NebuLogTestApp.Controllers
 
         public IActionResult Index()
         {
-            //这是扩展后的INebuLog新方法的尝试。
-            _logger.LogCustom("Frank","Index action initiated.");
-
-            //这些是兼容原ILogger的方法
-            _logger.LogTrace("This is a Test: LogTrace.");
-            _logger.LogDebug("This is a Test: LogDebug.");
-            _logger.LogInformation("This is a Test: LogInformation.");
-            _logger.LogWarning("This is a Test: LogWarning.");
-            _logger.LogError("This is a Test: LogError.");
-            _logger.LogCritical("This is a Test: LogCritical.");
 
             return View();
         }

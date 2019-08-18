@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Net.Http;
 
 namespace NebuLog
 {
@@ -25,7 +27,19 @@ namespace NebuLog
 
             connection = new HubConnectionBuilder()
                 //.WithUrl("http://monitor.imady.com/NebuLogHub")
-                .WithUrl(_option.NebuLogHubUrl)
+                .WithUrl(_option.NebuLogHubUrl, httpconnectionoptions =>
+                {
+                    httpconnectionoptions.HttpMessageHandlerFactory = (handler) =>
+                    {
+                        var newHandler = handler as HttpClientHandler;
+                        newHandler.ServerCertificateCustomValidationCallback = (request, cert, chain, errors) =>
+                        {
+                            return true;
+                        };
+                        return newHandler;
+                    };
+                })
+                .AddJsonProtocol()
                 .Build();
 
             connection.Closed += async (error) =>
@@ -39,7 +53,7 @@ namespace NebuLog
         #endregion
 
 
-        #region =====ILogger实现=====
+        #region =====标准ILogger接口实现=====
         public IDisposable BeginScope<TState>(TState state)
         {
             return null;
@@ -52,9 +66,10 @@ namespace NebuLog
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
+            var datetime = DateTime.Now.ToString().Replace('/', '-');
             var task = connection.SendAsync(
                 "OnILogging",
-                DateTime.Now,
+                datetime,
                 _option.ProjectName,
                 _categoryName,
                 logLevel.ToString(),
@@ -83,7 +98,7 @@ namespace NebuLog
             var formatter = new Func<Exception, string>(ExceptionFormatter);
 
             var task = connection.SendAsync(
-                "OnMyLogException",
+                "OnNebuLogException",
                 DateTime.Now,
                 _option.ProjectName,
                 _categoryName,
@@ -104,7 +119,7 @@ namespace NebuLog
             //故此要求抛出exception的源需要将异常信息序列化后再传输。
 
             var task = connection.SendAsync(
-                "OnMyLogException",
+                "OnNebuLogException",
                 DateTime.Now,
                 _option.ProjectName,
                 _categoryName,
@@ -134,6 +149,7 @@ namespace NebuLog
 
 
             if (arg.InnerException != null)
+
             {
                 var formatter = new Func<Exception, string>(ExceptionFormatter);
                 ExceptionFormatterResult += formatter(arg.InnerException);

@@ -4,10 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using NebuLog;
+using NebuLogServer;
 using Microsoft.AspNetCore.SignalR;
 
-namespace NebuLog.Controllers
+namespace NebuLogServer.Controllers
 {
     public class HomeController : Controller
     {
@@ -41,10 +41,10 @@ namespace NebuLog.Controllers
 
         public async Task<IActionResult> Monitor()
         {
-            await _hubContext.Clients.All.SendAsync("SendMessage", $"Home page loaded at: {DateTime.Now}");
+            await _hubContext.Clients.All.SendAsync("OnILogging", $"Home page loaded at: {DateTime.Now}");
 
             ViewData["Message"] = "苏州美娱网络科技有限公司";
-            ViewData["Title"] = "Meiyu Logger Project";
+            ViewData["Title"] = "NebuLog - Nebula Logger";
             return View();
         }
 

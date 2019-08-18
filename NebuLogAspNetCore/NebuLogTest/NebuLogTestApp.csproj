@@ -8,9 +8,8 @@
 
 
   <ItemGroup>
-    <PackageReference Include="microsoft.aspnetcore.app" Version="2.2.0" />
+    <PackageReference Include="microsoft.aspnetcore.app" Version="2.2.3" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-    <PackageReference Include="microsoft.aspnetcore.signalr.client" Version="1.1.0" />
   </ItemGroup>
 
 

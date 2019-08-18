@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <PackageId>imady.NebuLog</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.1.4</Version>
     <Authors>Zhen Qun (Frank) Shen</Authors>
     <Company>imady Technologies (Suzhou) Co., Ltd.</Company>
     <Product>imady.NebuLog</Product>
@@ -20,9 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="microsoft.aspnetcore.http" Version="2.2.0" />
+    <PackageReference Include="microsoft.aspnetcore.http" Version="2.2.2" />
     <PackageReference Include="microsoft.aspnetcore.http.extensions" Version="2.2.0" />
-    <PackageReference Include="microsoft.aspnetcore.signalr.client" Version="1.1.0" />
+    <PackageReference Include="microsoft.aspnetcore.signalr.client" Version="1.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="1.1.5" />
   </ItemGroup>
 
 </Project>

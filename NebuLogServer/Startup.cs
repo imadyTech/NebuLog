@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace NebuLog
+namespace NebuLogServer
 {
     public class Startup
     {
@@ -32,7 +32,8 @@ namespace NebuLog
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddSignalR();
+            services.AddSignalR()
+                .AddJsonProtocol();
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);

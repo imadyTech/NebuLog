@@ -26,7 +26,7 @@ namespace NebuLogTestApp
             _context = context;
 
             connection = new HubConnectionBuilder()
-                .WithUrl("http://monitor.imady.com/NebuLogHub")
+                .WithUrl("https://nebulog.yingyu88.cn/NebuLogHub")
                 .Build();
 
             connection.Closed += async (error) =>
@@ -64,7 +64,7 @@ namespace NebuLogTestApp
             catch (Exception ex)
             {
                 await connection.InvokeAsync("SendMessage",
-                    "MeiyuLogger", ex.Message);
+                    "NebuLog", ex.Message);
             }
             #endregion
         }

@@ -1,6 +1,6 @@
 using System;
 
-namespace NebuLog
+namespace NebuLogServer
 {
     public class ErrorViewModel
     {

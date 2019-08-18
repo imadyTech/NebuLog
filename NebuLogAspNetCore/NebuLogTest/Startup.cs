@@ -44,7 +44,7 @@ namespace NebuLogTestApp
             //===================================================================================
             Services.Configure<NebuLogOption>(Configuration.GetSection("NebuLogOption"));
             //如果想使用INebuLog的扩展则通过使用AddNebuLog
-            services.AddNebuLog();
+            Services.AddNebuLog();
             //设置系统日志输出的最小级别
             Services.AddLogging( builder =>
             {

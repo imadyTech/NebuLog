@@ -15,7 +15,7 @@
 
     const connection = new signalR
         .HubConnectionBuilder()
-        .withUrl("/MyLoggerHub")
+        .withUrl("/NebuLogHub")
         .configureLogging(signalR.LogLevel.Information)
         .build();
 
@@ -30,11 +30,11 @@
         refreshStats(allData);
         //console.log(new Date() + ' : ' + project +' : ' + source + ' : ' + loglevel + '(' + message + ')');
     });
-    connection.on("OnMyLogCustom", (username, loginfo) => {
+    connection.on("OnNebuLogCustom", (username, loginfo) => {
         $table.bootstrapTable('append', appendLog(username, loginfo));
         $table.bootstrapTable('scrollTo', 'bottom');
     });
-    connection.on("OnMyLogException", (time, project, source, loglevel, exception) => {
+    connection.on("OnNebuLogException", (time, project, source, loglevel, exception) => {
         $table.bootstrapTable('append', appendException(time, project, source, loglevel, exception));
         $table.bootstrapTable('scrollTo', 'bottom');
 

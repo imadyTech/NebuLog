@@ -25,11 +25,6 @@ namespace NebuLogTestApp
                 //        logging.AddDebug();
                 //        logging.AddEventSourceLogger();
                 //    })
-                .ConfigureLogging(factory =>
-                {
-                    //factory.AddConsole();
-                    factory.AddDebug();
-                })
                 .UseUrls("http://*:5001")
                 .UseStartup<Startup>();
     }

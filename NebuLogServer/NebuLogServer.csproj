@@ -18,6 +18,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\lib\signalr\signalr.js.map" />
+    <Content Remove="wwwroot\lib\signalr\signalr.min.js.map" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="wwwroot\charisma\bower_components\bootstrap-tour\.bower.json" />
     <Content Include="wwwroot\charisma\bower_components\bootstrap-tour\bower.json" />
     <Content Include="wwwroot\charisma\bower_components\bootstrap-tour\build\css\bootstrap-tour.css" />
@@ -1085,9 +1090,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="microsoft.aspnetcore.app" Version="2.2.0" />
-    <PackageReference Include="microsoft.aspnetcore.razor.design" Version="2.2.0" />
-    <PackageReference Include="microsoft.aspnetcore.signalr" Version="1.1.0" />
+    <PackageReference Include="microsoft.aspnetcore.app" Version="2.2.3" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="1.1.5" />
   </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties package_1json__JSONSchema="http://json.schemastore.org/project-1.0.0-beta4" /></VisualStudio></ProjectExtensions>
 
 </Project>

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace NebuLog
+namespace NebuLogServer
 {
     public class NebuLogHub: Hub
     {
@@ -28,7 +28,7 @@ namespace NebuLog
         }
         
         [HubMethodName("OnNebuLogException")]
-        public async Task OnMyLogException(DateTime time, string projectname, string sourcename, string loglevel, string exception)
+        public async Task OnNebuLogException(DateTime time, string projectname, string sourcename, string loglevel, string exception)
         {
             //Frank: exception已经被序列化，是为了减少服务器端拆箱/装箱的开销。
             //故此要求抛出exception的源需要将异常信息序列化后再传输。
@@ -45,7 +45,7 @@ namespace NebuLog
         }
 
         [HubMethodName("OnNebuLogCustom")]
-        public async Task OnMyLogCustom(string username, LogInfo log)
+        public async Task OnNebuLogCustom(string username, LogInfo log)
         {
             await Clients.All.SendAsync("OnLogging", username, log);
         }
