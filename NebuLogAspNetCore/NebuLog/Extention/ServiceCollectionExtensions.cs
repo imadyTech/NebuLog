@@ -16,7 +16,7 @@ namespace NebuLog
         public static void AddNebuLog(this IServiceCollection services)
         {
             //services.AddTransient<INebuLog, NebuLog>();
-            services.AddTransient(typeof(INebuLog<>), typeof( NebuLog<>));
+            services.AddScoped(typeof(INebuLog<>), typeof(NebuLog<>));
             /*
             services.AddTransient(typeof(INebuLog<>), (provider =>
             {
@@ -26,7 +26,6 @@ namespace NebuLog
             */
         }
     }
-
 
 
 

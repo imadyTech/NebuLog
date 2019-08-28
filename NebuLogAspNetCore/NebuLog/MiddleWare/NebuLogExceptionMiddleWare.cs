@@ -15,19 +15,31 @@ namespace NebuLog
 
         private NebuLogExceptionMiddleWareOption _option;
 
+        private INebuLog<NebuLogExceptionMiddleWare> _logger;
 
-        private NebuLog<NebuLogExceptionMiddleWare> _logger;
+
+        public NebuLogExceptionMiddleWare(RequestDelegate nextDelegate)
+        {
+            _next = nextDelegate;
+        }
+
+        public NebuLogExceptionMiddleWare(
+            NebuLogExceptionMiddleWareOption option,
+            INebuLog<NebuLogExceptionMiddleWare> logger)
+        {
+            _option = option;
+            _logger = logger;
+        }
 
         public NebuLogExceptionMiddleWare(
             RequestDelegate next, 
-            NebuLogExceptionMiddleWareOption option, 
-            NebuLog<NebuLogExceptionMiddleWare> logger)
+            NebuLogExceptionMiddleWareOption option,
+            INebuLog<NebuLogExceptionMiddleWare> logger)
         {
             _next = next;
             _option = option;
             _logger = logger;
         }
-
 
         public async Task Invoke(HttpContext context)
         {

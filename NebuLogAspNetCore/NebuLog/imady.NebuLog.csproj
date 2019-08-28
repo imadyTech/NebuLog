@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <PackageId>imady.NebuLog</PackageId>
-    <Version>0.1.4</Version>
+    <Version>0.1.5</Version>
     <Authors>Zhen Qun (Frank) Shen</Authors>
     <Company>imady Technologies (Suzhou) Co., Ltd.</Company>
     <Product>imady.NebuLog</Product>
