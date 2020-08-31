@@ -5,6 +5,7 @@ A distributed logging tool based on Microsoft SignalR, to help developers debugg
 Update README.md
 2020-08-31 Update</br>
 There was a new feature added for INebuLog interface: Custom Status monitor.
+
         /// <summary>
         /// Adding a dynamic status monitor at the right side Custom Stats panel.
         /// </summary>
