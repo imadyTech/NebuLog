@@ -50,6 +50,34 @@ namespace NebuLogServer
             await Clients.All.SendAsync("OnLogging", username, log);
         }
 
+        /// <summary>
+        /// （动态）在监控界面右侧stats面板中创建一条stat条目
+        /// </summary>
+        /// <param name="statId">要增加的状态监控对象statId（必须保证不与其它id冲突）</param>
+        /// <param name="statTitle">状态监控对象的标题</param>
+        /// <param name="color">需要显示的颜色</param>
+        [HubMethodName("OnAddCustomStats")]
+        public async Task AddCustomStats(string statId, string statTitle, string color)
+        {
+            //await Clients.All.SendAsync("OnILogging", DateTime.Now, "OnAddCustomStats", statId, "Debug", statTitle);
+            await Clients.All.SendAsync("OnAddCustomStats", statId, statTitle, color);
+
+            //var context = Context;
+            //var manager = Groups
+            //Console.WriteLine($"=========={DateTime.Now}============{context.User?.FindFirst(ClaimTypes.Email)?.Value}::{context.UserIdentifier} of totalclients.");
+        }
+
+        /// <summary>
+        /// 更新已经增加的stat条目
+        /// </summary>
+        /// <param name="statId">状态监控对象的Id</param>
+        /// <param name="message">需要更新的信息</param>
+        [HubMethodName("OnLogCustomStats")]
+        public async Task LogCustomStats(string statId, string message)
+        {
+            //await Clients.All.SendAsync("OnILogging", DateTime.Now, "OnLogCustomStats", statId, "Debug", message);
+            await Clients.All.SendAsync("OnLogCustomStats", statId, message);
+        }
 
 
         public override Task OnConnectedAsync()

@@ -15,6 +15,7 @@
     <PackageProjectUrl>https://github.com/imadyTech/NebuLog</PackageProjectUrl>
     <PackageIconUrl>https://avatars2.githubusercontent.com/u/7894361?s=460&amp;v=4</PackageIconUrl>
     <PackageReleaseNotes>Development and trial version.</PackageReleaseNotes>
+    <UserSecretsId>592d2931-6dac-4f2f-9d2c-472976180a51</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

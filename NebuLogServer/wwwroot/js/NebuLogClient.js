@@ -42,6 +42,17 @@
         refreshStats(allData);
         //console.log(new Date() + ' : ' + project +' : ' + source + ' : ' + loglevel + '(' + message + ')');
     });
+    var statsPanel = $('#statsPanel');
+    connection.on("OnAddCustomStats", (statId, statTitle, color) => {
+        var v_li = document.createElement("li");//生成li
+        v_li.innerHTML = "<i class='glyphicon glyphicon-asterisk " + color + "'></i>" + statTitle +
+            "<span class='" + color + " pull-right' id='" + statId + "'>?</span >";//添加li中要显示的内容
+        statsPanel.append(v_li);
+    });
+    connection.on("OnLogCustomStats", (statId, message) => {
+        $("#" + statId).text(message);
+        console.log('OnLogCustomStats' + new Date() + ' : ' + statId + ' : ' + message);
+    });
 
     //Left menu items action 左侧分类筛选器
     $('#left-menu-onTrace').click(function () {

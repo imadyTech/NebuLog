@@ -8,6 +8,11 @@ namespace NebuLog
 {
     public interface INebuLog: ILogger
     {
+        /// <summary>
+        /// 发送自定义的字符串信息；
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="message"></param>
         void LogCustom( string sender, string message);
 
         /// <summary>
@@ -22,6 +27,22 @@ namespace NebuLog
         /// <param name="exception">异常消息体</param>
         /// <param name="formatter">调用者自己提供的客制化序列化器</param>
         void LogException(Exception exception, Func<Exception, string> formatter);
+
+
+        /// <summary>
+        /// （动态）在监控界面右侧stats面板中创建一条stat条目
+        /// </summary>
+        /// <param name="statId">要增加的状态监控对象statId（必须保证不与其它id冲突）</param>
+        /// <param name="statTitle">状态监控对象的标题</param>
+        /// <param name="color">需要显示的颜色</param>
+        void AddCustomStats(string statId, string statTitle, string color);
+
+        /// <summary>
+        /// 更新已经增加的stat条目
+        /// </summary>
+        /// <param name="statId">状态监控对象的Id</param>
+        /// <param name="message">需要更新的信息</param>
+        void LogCustomStats(string statId, string message);
     }
 
     public interface INebuLog<out TCategoryName> : INebuLog

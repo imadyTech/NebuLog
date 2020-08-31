@@ -129,6 +129,39 @@ namespace NebuLog
                 );
             task.Wait();
         }
+
+        /// <summary>
+        /// （动态）在监控界面右侧stats面板中创建一条stat条目
+        /// </summary>
+        /// <param name="statId">要增加的状态监控对象statId（必须保证不与其它id冲突）</param>
+        /// <param name="statTitle">状态监控对象的标题</param>
+        /// <param name="color">需要显示的颜色</param>
+        void AddCustomStats(string statId, string statTitle, string color)
+        {
+            var task = connection.SendAsync(
+                "OnAddCustomStats",
+                statId,
+                statTitle,
+                color);
+            task.Wait();
+
+        }
+
+        /// <summary>
+        /// 更新已经增加的stat条目
+        /// </summary>
+        /// <param name="statId">状态监控对象的Id</param>
+        /// <param name="message">需要更新的信息</param>
+        void LogCustomStats(string statId, string message)
+        {
+            var task = connection.SendAsync(
+                "OnLogCustomStats",
+                statId,
+                message
+                );
+            task.Wait();
+
+        }
         #endregion
 
 
