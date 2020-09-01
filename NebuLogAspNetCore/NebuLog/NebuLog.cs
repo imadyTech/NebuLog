@@ -9,24 +9,23 @@ using System.Net.Http;
 
 namespace NebuLog
 {
-    public class NebuLog : INebuLog
+    public class NebuLog : INebuLog, IDisposable
     {
         string _categoryName { get; set; }
         NebuLogOption _option;
         HubConnection connection;
 
         #region =====构造函数=====
-        public NebuLog(IOptions<NebuLogOption> wxOption) : this(wxOption.Value, "")
+        public NebuLog(IOptions<NebuLogOption> nebulogOption) : this(nebulogOption.Value, "")
         {
         }
 
-        public NebuLog(NebuLogOption option, string categoryName)
+        public NebuLog(NebuLogOption nebulogOption, string categoryName)
         {
-            _option = option;
+            _option = nebulogOption;
             _categoryName = categoryName;
 
             connection = new HubConnectionBuilder()
-                //.WithUrl("http://monitor.imady.com/NebuLogHub")
                 .WithUrl(_option.NebuLogHubUrl, httpconnectionoptions =>
                 {
                     httpconnectionoptions.HttpMessageHandlerFactory = (handler) =>
@@ -49,6 +48,33 @@ namespace NebuLog
             };
             connection.StartAsync().Wait();
 
+        }
+        #endregion
+
+        #region 析构函数（断开signalR连接）
+        private bool IsDisposed = false;
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected async void Dispose(bool Diposing)
+        {
+            await connection.StopAsync();
+
+            if (!IsDisposed)
+            {
+                if (Diposing)
+                {
+                    //Clean Up managed resources  
+                }
+                //Clean up unmanaged resources  
+            }
+            IsDisposed = true;
+        }
+        ~NebuLog()
+        {
+            Dispose(false);
         }
         #endregion
 
@@ -136,7 +162,7 @@ namespace NebuLog
         /// <param name="statId">要增加的状态监控对象statId（必须保证不与其它id冲突）</param>
         /// <param name="statTitle">状态监控对象的标题</param>
         /// <param name="color">需要显示的颜色</param>
-        void AddCustomStats(string statId, string statTitle, string color)
+        public void AddCustomStats(string statId, string statTitle, string color)
         {
             var task = connection.SendAsync(
                 "OnAddCustomStats",
@@ -152,7 +178,7 @@ namespace NebuLog
         /// </summary>
         /// <param name="statId">状态监控对象的Id</param>
         /// <param name="message">需要更新的信息</param>
-        void LogCustomStats(string statId, string message)
+        public void LogCustomStats(string statId, string message)
         {
             var task = connection.SendAsync(
                 "OnLogCustomStats",
@@ -165,7 +191,7 @@ namespace NebuLog
         #endregion
 
 
-        #region =====支撑方法=====
+        #region =====private methods 支撑方法=====
         //private string ExceptionFormatterResult;
         /// <summary>
         /// Exception的序列化
@@ -216,7 +242,7 @@ namespace NebuLog
     public class NebuLog<TCategory> : NebuLog, INebuLog<TCategory>
     {
         #region =====构造函数=====
-        public NebuLog(IOptions<NebuLogOption> wxOption) : base(wxOption.Value, typeof(TCategory).Name)
+        public NebuLog(IOptions<NebuLogOption> nebulogOption) : base(nebulogOption.Value, typeof(TCategory).Name)
         {
         }
 

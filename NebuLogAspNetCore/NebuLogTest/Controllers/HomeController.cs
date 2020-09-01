@@ -20,6 +20,7 @@ namespace NebuLogTestApp.Controllers
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
+            //(_logger as INebuLog).AddCustomStats("customStat", "customStat", "green");
         }
 
 
