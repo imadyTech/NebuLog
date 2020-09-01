@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NebuLog
 {
-    public interface INebuLog: ILogger
+    public interface INebuLog: ILogger, IDisposable
     {
         /// <summary>
         /// 发送自定义的字符串信息；
@@ -14,6 +14,12 @@ namespace NebuLog
         /// <param name="sender"></param>
         /// <param name="message"></param>
         void LogCustom( string sender, string message);
+
+        /// <summary>
+        /// 发送序列化以后的exception字符信息。
+        /// </summary>
+        /// <param name="exceptionMessage">序列化以后的exception字符串。</param>
+        void LogException(string exceptionMessage);
 
         /// <summary>
         /// 发送异常，以标准方式将Exception序列化后发送。

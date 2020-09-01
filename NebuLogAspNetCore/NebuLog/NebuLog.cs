@@ -9,7 +9,7 @@ using System.Net.Http;
 
 namespace NebuLog
 {
-    public class NebuLog : INebuLog, IDisposable
+    public class NebuLog : INebuLog
     {
         string _categoryName { get; set; }
         NebuLogOption _option;
@@ -111,6 +111,20 @@ namespace NebuLog
         {
             //this._categoryName = sender;
             this.LogInformation(message);
+        }
+
+
+        public void LogException(string exceptionMessage)
+        {
+            var task = connection.SendAsync(
+                "OnNebuLogException",
+                DateTime.Now,
+                _option.ProjectName,
+                _categoryName,
+                "Exception",//微软官方6种Log级别以外扩展出来的级别
+                exceptionMessage
+                );
+            task.Wait();
         }
 
         /// <summary>
