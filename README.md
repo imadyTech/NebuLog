@@ -3,6 +3,32 @@ A distributed logging tool based on Microsoft SignalR, to help developers debugg
 
 
 Update README.md
+2020-08-31 Update</br>
+There was a new feature added for INebuLog interface: Custom Status monitor.
+
+        /// <summary>
+        /// Adding a dynamic status monitor at the right side Custom Stats panel.
+        /// </summary>
+        /// <param name="statId">The Id of the custom stats（must be an unique value otherwise it will be conflicted afterward.）</param>
+        /// <param name="statTitle">The title of the custom stat.</param>
+        /// <param name="color">The color you want the stat to display in the panel.</param>
+        void AddCustomStats(string statId, string statTitle, string color);
+
+        /// <summary>
+        /// Update the stat.
+        /// </summary>
+        /// <param name="statId">The Id of the custom stat. </param>
+        /// <param name="message">The value to display. </param>
+        void LogCustomStats(string statId, string message);
+Keep in mind these methods only supported in INebuLog so you might need cast the ILogger to INebuLog, for example:
+~~~
+        public HomeController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+            (_logger as INebuLog).AddCustomStats("customStat", "customStat", "green");
+        }
+~~~
+
 
 2019-08-08 Update</br>
 MyLogger has been renamed to NebuLog.
