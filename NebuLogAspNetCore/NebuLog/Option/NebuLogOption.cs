@@ -8,6 +8,6 @@ namespace NebuLog
 
         public string NebuLogHubUrl { get; set; }
 
-        public LogLevel LogLevel { get; set; } = LogLevel.Trace;
+        public LogLevel LogLevel { get; set; } 
     }
 }

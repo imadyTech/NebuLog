@@ -20,6 +20,8 @@ namespace NebuLogTestApp
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            Console.WriteLine("---------------------" );
+
         }
 
         public IConfiguration Configuration { get; }
@@ -51,11 +53,11 @@ namespace NebuLogTestApp
                 builder
                     //.AddConfiguration(Configuration.GetSection("NebuLogOption"))
                     // filter for all providers
-                    //.AddFilter("System", LogLevel.Debug)
+                    //.AddFilter("System", LogLevel.Trace)
                     // Only for Debug logger, using the provider type or it's alias
-                    //.AddFilter("Debug", "System", LogLevel.Information)
+                    //.AddFilter("Debug", LogLevel.Trace)
                     // Only for Console logger by provider type
-                    .AddFilter<NebuLogProvider>("Microsoft", LogLevel.Information)
+                    .AddFilter<NebuLogProvider>("Microsoft", LogLevel.Trace)
                     .AddConsole()
                     .AddDebug();
             });

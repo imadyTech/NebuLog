@@ -15,9 +15,9 @@ namespace NebuLogTestApp.Controllers
     public class HomeController : Controller
     {
         //这里需要把Ilogg改为INebuLog
-        ILogger _logger;
+        INebuLog _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(INebuLog<HomeController> logger)
         {
             _logger = logger;
             //(_logger as INebuLog).AddCustomStats("customStat", "customStat", "green");
@@ -26,7 +26,7 @@ namespace NebuLogTestApp.Controllers
 
         public IActionResult Index()
         {
-
+            //(_logger as INebuLog).LogException(new Exception("exception test"));
             return View();
         }
 

@@ -255,7 +255,9 @@ function messageFormatter(value, row) {
         value = value.replace(xml, '');
         value = value + '<button class="btn btn-success btn-xs"> XML data </button>';
     }
-    return value.substring(0, 79) + (value.length > 80 ? '...' : '');
+    var brPos = value.indexOf("<br>");
+    if (brPos > 79) brPos = 79;
+    return value.substring(0, brPos) + (value.length > 80 ? '...' : '');
 }
 function projectFormatter(value, row) {
     return value.substring(value.lastIndexOf(".") + 1, value.length);
