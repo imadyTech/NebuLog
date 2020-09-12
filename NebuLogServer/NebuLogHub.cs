@@ -2,29 +2,30 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace NebuLogServer
+namespace imady.NebuLogServer
 {
     public class NebuLogHub: Hub
     {
 
         public NebuLogHub()
         {
-            
+            //Console.WriteLine($"=========={DateTime.Now} NebuLogHub ============");
         }
 
 
 
         [HubMethodName("OnILogging")]
-        public async Task SendMessage(DateTime time, string projectname, string sourcename, string loglevel, string message)
+        public async Task OnILogging(DateTime time, string projectname, string sourcename, string loglevel, string message)
         {
+            //Console.WriteLine($"=========={DateTime.Now}:: OnILogging {message} ============");
             await Clients.All.SendAsync("OnILogging", time.ToString("yyyy-MM-dd hh:mm:ss.fff"), projectname, sourcename, loglevel, message);
             var context = Context;
             var manager = Groups;
 
-            //Console.WriteLine($"=========={DateTime.Now}============{context.User?.FindFirst(ClaimTypes.Email)?.Value}::{context.UserIdentifier} of totalclients.");
         }
         
         [HubMethodName("OnNebuLogException")]

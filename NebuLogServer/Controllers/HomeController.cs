@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using NebuLogServer;
+using imady.NebuLogServer;
 using Microsoft.AspNetCore.SignalR;
 
 namespace NebuLogServer.Controllers
@@ -39,12 +39,13 @@ namespace NebuLogServer.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Monitor()
+        public IActionResult Monitor()
         {
-            await _hubContext.Clients.All.SendAsync("OnILogging", $"Home page loaded at: {DateTime.Now}");
+
 
             ViewData["Message"] = "苏州美娱网络科技有限公司";
             ViewData["Title"] = "NebuLog - Nebula Logger";
+            //await _hubContext.Clients.All.SendAsync("OnILogging", DateTime.Now, "project", "source", "Debug", "NebuLog");
             return View();
         }
 

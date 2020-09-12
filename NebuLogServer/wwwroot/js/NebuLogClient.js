@@ -257,6 +257,7 @@ function messageFormatter(value, row) {
     }
     var brPos = value.indexOf("<br>");
     if (brPos > 79) brPos = 79;
+    if (brPos <= 0) brPos = 79;
     return value.substring(0, brPos) + (value.length > 80 ? '...' : '');
 }
 function projectFormatter(value, row) {

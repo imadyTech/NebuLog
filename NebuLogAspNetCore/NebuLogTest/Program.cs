@@ -7,6 +7,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 
 namespace NebuLogTestApp
 {
@@ -14,9 +15,14 @@ namespace NebuLogTestApp
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            //CreateWebHostBuilder(args).Build().Run();
+            CreateHostBuilder(args)
+                .Build()
+                .Run();
         }
 
+        // Frank 2020.09.07 已过时：asp.net core 2.2
+        /*
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging((hostingContext, logging) =>
@@ -27,5 +33,20 @@ namespace NebuLogTestApp
                     })
                 .UseUrls("http://*:5001")
                 .UseStartup<Startup>();
+        */
+
+
+        //--- ASP.NET CORE 3.0
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.ConfigureKestrel(serverOptions =>
+                {
+                    // Set properties and call methods on options
+                })
+                .UseUrls("http://*:5001")
+                .UseStartup<Startup>();
+            });
     }
 }

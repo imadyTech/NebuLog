@@ -26,7 +26,8 @@ namespace NebuLogTestApp
             _context = context;
 
             connection = new HubConnectionBuilder()
-                .WithUrl("https://nebulog.yingyu88.cn/NebuLogHub")
+                //.WithUrl("https://nebulog.yingyu88.cn/NebuLogHub")
+                .WithUrl("http://localhost:5999/NebuLogHub")
                 .Build();
 
             connection.Closed += async (error) =>

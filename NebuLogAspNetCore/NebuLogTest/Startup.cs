@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Hosting;
 using NebuLog;
 
 namespace NebuLogTestApp
@@ -20,7 +20,7 @@ namespace NebuLogTestApp
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            Console.WriteLine("---------------------" );
+            Console.WriteLine("---------------------");
 
         }
 
@@ -29,7 +29,7 @@ namespace NebuLogTestApp
         public IServiceCollection Services { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public IServiceProvider ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
             Services = services;
 
@@ -41,33 +41,36 @@ namespace NebuLogTestApp
             });
 
 
-            Services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            // Frank 2020.09.07 已过时：asp.net core 3.0
+            //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            //services.AddMvc();
+            //--- ASP.NET CORE 3.0
+            services.AddControllersWithViews(options =>
+                options.SuppressAsyncSuffixInActionNames = false);
 
             //===================================================================================
             Services.Configure<NebuLogOption>(Configuration.GetSection("NebuLogOption"));
             //如果想使用INebuLog的扩展则通过使用AddNebuLog
             Services.AddNebuLog();
             //设置系统日志输出的最小级别
-            Services.AddLogging( builder =>
-            {
-                builder
-                    //.AddConfiguration(Configuration.GetSection("NebuLogOption"))
-                    // filter for all providers
-                    //.AddFilter("System", LogLevel.Trace)
-                    // Only for Debug logger, using the provider type or it's alias
-                    //.AddFilter("Debug", LogLevel.Trace)
-                    // Only for Console logger by provider type
-                    .AddFilter<NebuLogProvider>("Microsoft", LogLevel.Trace)
-                    .AddConsole()
-                    .AddDebug();
-            });
+            Services.AddLogging(builder =>
+           {
+               builder
+                   //.AddConfiguration(Configuration.GetSection("NebuLogOption"))
+                   // filter for all providers
+                   //.AddFilter("System", LogLevel.Trace)
+                   // Only for Debug logger, using the provider type or it's alias
+                   //.AddFilter("Debug", LogLevel.Trace)
+                   // Only for Console logger by provider type
+                   .AddFilter<NebuLogProvider>("Microsoft", LogLevel.Trace)
+                   .AddConsole()
+                   .AddDebug();
+           });
             //===================================================================================
-            return Services.BuildServiceProvider();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -86,17 +89,31 @@ namespace NebuLogTestApp
 
             //===================================================================================
             //如果想开启系统日志输出到INebuLog则使用以下代码
-            var option = Services.BuildServiceProvider().GetService< IOptions<NebuLogOption>>();
+            var option = Services.BuildServiceProvider().GetService<IOptions<NebuLogOption>>();
             loggerFactory.UseNebuLog(Services);//extension方式添加NebuLog，两种写法效果等同
             //loggerFactory.AddProvider(new NebuLogProvider(option));
             //===================================================================================
 
+            //--- ASP.NET CORE 3.0
+            app.UseRouting();
+            //app.UseCors();
+            //app.UseAuthentication();
+            //app.UseAuthorization();
+            app.UseEndpoints(points =>
+            {
+                points.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+            });
+
+            // Frank 2020.09.07 已过时：asp.net core 2.2
+            /*
             app.UseMvc(routes =>    
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+            */
+
         }
     }
 }

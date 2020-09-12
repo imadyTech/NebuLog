@@ -1,6 +1,6 @@
 using System;
 
-namespace NebuLogServer
+namespace imady.NebuLogServer
 {
     public class ErrorViewModel
     {

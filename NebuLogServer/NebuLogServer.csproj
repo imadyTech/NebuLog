@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AssemblyName>NebuLogServer</AssemblyName>
-    <RootNamespace>MyLoggerServer</RootNamespace>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>imady.NebuLogServer</AssemblyName>
+    <RootNamespace>imady.NebuLogServer</RootNamespace>
     <PackageId>imady.NebuLogServer</PackageId>
     <Version>0.1.0</Version>
     <Authors>Zhen Qun (Frank) Shen</Authors>
@@ -16,6 +16,7 @@
     <PackageIconUrl>https://avatars2.githubusercontent.com/u/7894361?s=460&amp;v=4</PackageIconUrl>
     <PackageReleaseNotes>Development and trial version.</PackageReleaseNotes>
     <UserSecretsId>592d2931-6dac-4f2f-9d2c-472976180a51</UserSecretsId>
+    <StartupObject></StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -1091,10 +1092,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="microsoft.aspnetcore.app" Version="2.2.3" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="1.1.5" />
+    <PackageReference Include="microsoft.aspnetcore.signalr.protocols.messagepack" Version="3.1.8" />
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties package_1json__JSONSchema="http://json.schemastore.org/project-1.0.0-beta4" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties package_1json__JSONSchema="http://json.schemastore.org/project-1.0.0-beta4" />
+    </VisualStudio>
+  </ProjectExtensions>
 
 </Project>

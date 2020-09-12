@@ -1,5 +1,5 @@
 {
-  "name": "NebuLog",
+  "name": "imady.NebuLogServer",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aspnet/signalr": "^1.1.0",
+    "@microsoft/signalr": "^1.1.0",
     "datatables.net-dt": "^1.10.19",
     "echarts": "^4.2.0-rc.2"
   },

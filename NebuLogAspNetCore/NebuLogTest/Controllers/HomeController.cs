@@ -27,11 +27,14 @@ namespace NebuLogTestApp.Controllers
         public IActionResult Index()
         {
             //(_logger as INebuLog).LogException(new Exception("exception test"));
+            //_logger.Log<HomeController>(LogLevel.Debug, new EventId(0, "Index"), this, null, (t, e)=> "=================="+ t.ToString());
+            _logger.LogCustom(this.GetType().Name, "Home/Privacy");
             return View();
         }
 
         public IActionResult Privacy()
         {
+            _logger.LogWarning("Home/Privacy");
 
             return View();
         }

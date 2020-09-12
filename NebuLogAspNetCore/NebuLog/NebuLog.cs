@@ -39,7 +39,11 @@ namespace NebuLog
                         return newHandler;
                     };
                 })
-                .AddJsonProtocol()
+                // Frank 2020.09.07 已过时：asp.net core 2.2
+                //.AddJsonProtocol()
+                //--- ASP.NET CORE 3.0
+                //.AddJsonProtocol()
+                .AddMessagePackProtocol()
                 .Build();
 
             connection.Closed += async (error) =>
@@ -48,7 +52,7 @@ namespace NebuLog
                 await connection.StartAsync();
             };
             connection.StartAsync().Wait();
-
+            //Console.WriteLine("==============Nebulog init==============");
         }
         #endregion
 
@@ -93,10 +97,11 @@ namespace NebuLog
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
+            //Console.WriteLine ("************** Nebulog Log *****************");
             var datetime = DateTime.Now.ToString().Replace('/', '-');
             var task = connection.SendAsync(
                 "OnILogging",
-                datetime,
+                DateTime.Now,
                 _option.ProjectName,
                 _categoryName,
                 logLevel.ToString(),
@@ -110,6 +115,7 @@ namespace NebuLog
         #region =====INebuLog扩展实现=====
         public void LogCustom(string sender, string message)
         {
+            //Console.WriteLine ("============== Nebulog LogCustom ================n");
             //this._categoryName = sender;
             this.LogInformation(message);
         }
