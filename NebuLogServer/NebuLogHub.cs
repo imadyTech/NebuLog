@@ -83,6 +83,7 @@ namespace imady.NebuLogServer
 
         public override Task OnConnectedAsync()
         {
+            Console.WriteLine("====== client connected. ======" + base.Context.ConnectionId);
             return base.OnConnectedAsync();
         }
 

@@ -2,16 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 
 namespace NebuLog
 {
+
     public static class NebuLogExceptionMiddleWareExtensions
     {
 
         public static IApplicationBuilder UseNebuLogException(
             this IApplicationBuilder app, 
             NebuLogExceptionMiddleWareOption option,
-            INebuLog<NebuLogExceptionMiddleWare> logger)
+            INebuLogger<NebuLogExceptionMiddleWare> logger)
         {
             return app.UseMiddleware<NebuLogExceptionMiddleWare>(option, logger);
         }

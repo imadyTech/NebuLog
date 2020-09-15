@@ -10,23 +10,31 @@ using System.Diagnostics;
 
 namespace NebuLog
 {
-    public class NebuLog : INebuLog
+    public class NebuLogger : INebuLogger
     {
         string _categoryName { get; set; }
         NebuLogOption _option;
-        HubConnection connection;
+        HubConnection _connection;
 
-        #region =====构造函数=====
-        public NebuLog(IOptions<NebuLogOption> nebulogOption) : this(nebulogOption.Value, "")
+        #region ===== 构造函数 =====
+        public NebuLogger(IOptions<NebuLogOption> nebulogOption) : this(nebulogOption.Value, nebulogOption.Value.ProjectName)
         {
         }
 
-        public NebuLog(NebuLogOption nebulogOption, string categoryName)
+        public NebuLogger(NebuLogOption nebulogOption, HubConnection hubConnection, string categoryName)
+        {
+            _option = nebulogOption;
+            _connection = hubConnection;
+            _categoryName = categoryName;
+
+        }
+
+        public NebuLogger(NebuLogOption nebulogOption, string categoryName)
         {
             _option = nebulogOption;
             _categoryName = categoryName;
 
-            connection = new HubConnectionBuilder()
+            _connection = new HubConnectionBuilder()
                 .WithUrl(_option.NebuLogHubUrl, httpconnectionoptions =>
                 {
                     httpconnectionoptions.HttpMessageHandlerFactory = (handler) =>
@@ -46,12 +54,12 @@ namespace NebuLog
                 .AddMessagePackProtocol()
                 .Build();
 
-            connection.Closed += async (error) =>
+            _connection.Closed += async (error) =>
             {
-                await Task.Delay(2000);
-                await connection.StartAsync();
+                await Task.Delay(1000);
+                await _connection.StartAsync();
             };
-            connection.StartAsync().Wait();
+            _connection.StartAsync().Wait();
             //Console.WriteLine("==============Nebulog init==============");
         }
         #endregion
@@ -65,7 +73,7 @@ namespace NebuLog
         }
         protected async void Dispose(bool Diposing)
         {
-            await connection.StopAsync();
+            await _connection.StopAsync();
 
             if (!IsDisposed)
             {
@@ -77,7 +85,7 @@ namespace NebuLog
             }
             IsDisposed = true;
         }
-        ~NebuLog()
+        ~NebuLogger()
         {
             Dispose(false);
         }
@@ -99,7 +107,7 @@ namespace NebuLog
         {
             //Console.WriteLine ("************** Nebulog Log *****************");
             var datetime = DateTime.Now.ToString().Replace('/', '-');
-            var task = connection.SendAsync(
+            var task = _connection.SendAsync(
                 "OnILogging",
                 DateTime.Now,
                 _option.ProjectName,
@@ -123,7 +131,7 @@ namespace NebuLog
 
         public void LogException(string exceptionMessage)
         {
-            var task = connection.SendAsync(
+            var task = _connection.SendAsync(
                 "OnNebuLogException",
                 DateTime.Now,
                 _option.ProjectName,
@@ -144,7 +152,7 @@ namespace NebuLog
             //故此要求抛出exception的源需要将异常信息序列化后再传输。
             var formatter = new Func<Exception, string>(ExceptionFormatter);
 
-            var task = connection.SendAsync(
+            var task = _connection.SendAsync(
                 "OnNebuLogException",
                 DateTime.Now,
                 _option.ProjectName,
@@ -165,7 +173,7 @@ namespace NebuLog
             //Frank: exception已经被序列化，是为了减少服务器端拆箱/装箱的开销。
             //故此要求抛出exception的源需要将异常信息序列化后再传输。
 
-            var task = connection.SendAsync(
+            var task = _connection.SendAsync(
                 "OnNebuLogException",
                 DateTime.Now,
                 _option.ProjectName,
@@ -185,7 +193,7 @@ namespace NebuLog
         /// <param name="color">需要显示的颜色</param>
         public void AddCustomStats(string statId, string statTitle, string color)
         {
-            var task = connection.SendAsync(
+            var task = _connection.SendAsync(
                 "OnAddCustomStats",
                 statId,
                 statTitle,
@@ -201,7 +209,7 @@ namespace NebuLog
         /// <param name="message">需要更新的信息</param>
         public void LogCustomStats(string statId, string message)
         {
-            var task = connection.SendAsync(
+            var task = _connection.SendAsync(
                 "OnLogCustomStats",
                 statId,
                 message
@@ -260,7 +268,7 @@ namespace NebuLog
 
 
 
-    public class NebuLog<TCategory> : NebuLog, INebuLog<TCategory>
+    public class NebuLog<TCategory> : NebuLogger, INebuLogger<TCategory>
     {
         #region =====构造函数=====
         public NebuLog(IOptions<NebuLogOption> nebulogOption) : base(nebulogOption.Value, typeof(TCategory).Name)

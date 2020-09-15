@@ -20,7 +20,7 @@ namespace NebuLogTestApp
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            Console.WriteLine("---------------------");
+            Console.WriteLine("----------Startup------------");
 
         }
 
@@ -54,8 +54,8 @@ namespace NebuLogTestApp
             Services.AddNebuLog();
             //设置系统日志输出的最小级别
             Services.AddLogging(builder =>
-           {
-               builder
+            {
+                builder
                    //.AddConfiguration(Configuration.GetSection("NebuLogOption"))
                    // filter for all providers
                    //.AddFilter("System", LogLevel.Trace)
@@ -65,7 +65,7 @@ namespace NebuLogTestApp
                    .AddFilter<NebuLogProvider>("Microsoft", LogLevel.Trace)
                    .AddConsole()
                    .AddDebug();
-           });
+            });
             //===================================================================================
         }
 

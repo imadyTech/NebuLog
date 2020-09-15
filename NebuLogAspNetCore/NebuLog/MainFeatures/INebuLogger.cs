@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NebuLog
 {
-    public interface INebuLog: ILogger, IDisposable
+    public interface INebuLogger: ILogger, IDisposable
     {
         /// <summary>
         /// 发送自定义的字符串信息；
@@ -51,7 +51,7 @@ namespace NebuLog
         void LogCustomStats(string statId, string message);
     }
 
-    public interface INebuLog<out TCategoryName> : INebuLog
+    public interface INebuLogger<out TCategoryName> : INebuLogger
     {
 
     }

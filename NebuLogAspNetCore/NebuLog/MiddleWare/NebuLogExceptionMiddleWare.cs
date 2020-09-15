@@ -14,7 +14,7 @@ namespace NebuLog
 
         private NebuLogExceptionMiddleWareOption _option;
 
-        private INebuLog<NebuLogExceptionMiddleWare> _logger;
+        private INebuLogger<NebuLogExceptionMiddleWare> _logger;
 
 
         public NebuLogExceptionMiddleWare(RequestDelegate nextDelegate)
@@ -24,7 +24,7 @@ namespace NebuLog
 
         public NebuLogExceptionMiddleWare(
             NebuLogExceptionMiddleWareOption option,
-            INebuLog<NebuLogExceptionMiddleWare> logger)
+            INebuLogger<NebuLogExceptionMiddleWare> logger)
         {
             _option = option;
             _logger = logger;
@@ -33,7 +33,7 @@ namespace NebuLog
         public NebuLogExceptionMiddleWare(
             RequestDelegate next, 
             NebuLogExceptionMiddleWareOption option,
-            INebuLog<NebuLogExceptionMiddleWare> logger)
+            INebuLogger<NebuLogExceptionMiddleWare> logger)
         {
             _next = next;
             _option = option;

@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "imady.NebuLog", "NebuLog\imady.NebuLog.csproj", "{AE4BD2D0-D125-4C4C-B407-B49DB1C9D973}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebuLogTestApp", "NebuLogTest\NebuLogTestApp.csproj", "{83F130C1-CB9A-4FDC-9FAD-1C5C2ECD5FFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebuLogWpfCoreSample", "NebuLogWpfCoreSample\NebuLogWpfCoreSample.csproj", "{C7B6074A-7D25-447A-9217-AAC407AD31E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebuLogMvcSample", "NebuLogMvcSample\NebuLogMvcSample.csproj", "{2B34AF47-9BCF-463E-99DE-06A907B14ABD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +19,14 @@ Global
 		{AE4BD2D0-D125-4C4C-B407-B49DB1C9D973}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE4BD2D0-D125-4C4C-B407-B49DB1C9D973}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE4BD2D0-D125-4C4C-B407-B49DB1C9D973}.Release|Any CPU.Build.0 = Release|Any CPU
-		{83F130C1-CB9A-4FDC-9FAD-1C5C2ECD5FFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{83F130C1-CB9A-4FDC-9FAD-1C5C2ECD5FFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{83F130C1-CB9A-4FDC-9FAD-1C5C2ECD5FFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{83F130C1-CB9A-4FDC-9FAD-1C5C2ECD5FFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7B6074A-7D25-447A-9217-AAC407AD31E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7B6074A-7D25-447A-9217-AAC407AD31E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7B6074A-7D25-447A-9217-AAC407AD31E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7B6074A-7D25-447A-9217-AAC407AD31E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B34AF47-9BCF-463E-99DE-06A907B14ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B34AF47-9BCF-463E-99DE-06A907B14ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B34AF47-9BCF-463E-99DE-06A907B14ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B34AF47-9BCF-463E-99DE-06A907B14ABD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
