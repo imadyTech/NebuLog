@@ -172,7 +172,7 @@ namespace NebuLogWpfCoreSample
             serviceProvider = services.BuildServiceProvider();
             var factory = serviceProvider.GetService<ILoggerFactory>();
             var option = serviceProvider.GetRequiredService<IOptions<NebuLogOption>>();
-            factory.UseNebuLogWpf(option.Value, GetConnection());
+            factory.UseNebuLogWpf(option.Value, GetConnection(option.Value));
             //===================================================================================
 
             //测试能否获取logger实例并发送信息
@@ -180,10 +180,10 @@ namespace NebuLogWpfCoreSample
             //logger.Log<App>(LogLevel.Information, new EventId(0, ""), this, null, (app, e) => "NebuLogWpfCoreSample");
         }
 
-        private HubConnection GetConnection()
+        private HubConnection GetConnection(NebuLogOption option)
         {
             HubConnection connection = new HubConnectionBuilder()
-            .WithUrl("http://localhost:5999/NebuLogHub", httpconnectionoptions =>
+            .WithUrl(option.NebuLogHubUrl, httpconnectionoptions =>
             {
                 httpconnectionoptions.HttpMessageHandlerFactory = (handler) =>
                 {
