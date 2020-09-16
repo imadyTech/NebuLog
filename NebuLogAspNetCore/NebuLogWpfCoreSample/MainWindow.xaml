@@ -8,6 +8,8 @@
         Name="MainWin"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <Button x:Name="TestButton" Content="Send Test" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0,0" Click="OnTestButtonClick"/>
+        <TextBox x:Name="TestMessageBox" HorizontalAlignment="Center" Text="Input test message here..." TextWrapping="Wrap" VerticalAlignment="Top" Width="277" Margin="0,127,0,0" Height="50" MaxLength="128"/>
 
     </Grid>
 </Window>

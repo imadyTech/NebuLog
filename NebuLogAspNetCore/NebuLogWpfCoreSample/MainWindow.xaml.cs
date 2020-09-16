@@ -49,5 +49,23 @@ namespace NebuLogWpfCoreSample
 
             InitializeComponent();
         }
+
+        private void OnTestButtonClick(object sender, RoutedEventArgs e)
+        {
+            var message = TestMessageBox.Text;
+            try
+            {
+                _logger.Log<MainWindow>(
+                    LogLevel.Information, //loglevel
+                    new EventId(0, sender.GetType().Name), //eventId
+                    this, //state
+                    null, //exception
+                    (app, e) => $"{(sender as Button).Name}: {message}");
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex.Message);
+            }
+        }
     }
 }
