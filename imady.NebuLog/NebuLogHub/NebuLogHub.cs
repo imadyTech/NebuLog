@@ -8,12 +8,30 @@ using System.Threading.Tasks;
 
 namespace imady.NebuLog
 {
+    /// <summary>
+    /// 通过C#的Event消息机制通知同一进程内的监听者。
+    /// </summary>
+    public class OnILoggingEventArgs: EventArgs
+    {
+        public NebuLogMessage LoggingMessage { get; set; }
+
+        public OnILoggingEventArgs(NebuLogMessage message)
+        {
+            LoggingMessage = message;
+        }
+    }
+
+
     public class NebuLogHub: Hub
     {
+        public delegate void OnILoggingEventHandler(object sender, OnILoggingEventArgs e);
+        public static OnILoggingEventHandler onILoggingEventHandler;
 
+        //public static event EventHandler OnILoggingEvent;
         public NebuLogHub()
         {
-            //Console.WriteLine($"=========={DateTime.Now} NebuLogHub ============");
+            Console.WriteLine($"=========={DateTime.Now} NebuLogHub ============");
+
         }
 
 
@@ -21,6 +39,20 @@ namespace imady.NebuLog
         [HubMethodName("OnILogging")]
         public async Task OnILogging(DateTime time, string projectname, string sourcename, string loglevel, string message)
         {
+            var nebulogMessage = new NebuLogMessage()
+            {
+                TimeOfLog = time,
+                ProjectName = projectname,
+                SenderName = sourcename,
+                LogLevel = loglevel,
+                LoggingMessage = message
+            };
+
+            //===================================================================================
+            // 如果将NebuLogHub宿主在WPF客户端中，可以通过Event方式将收到的log消息发送给前端进行显示，而不必通过桌面客户端注册SignalR.Client来获取消息。
+            onILoggingEventHandler(this, new OnILoggingEventArgs(nebulogMessage));
+            //===================================================================================
+
             //Console.WriteLine($"=========={DateTime.Now}:: OnILogging {message} ============");
             await Clients.All.SendAsync("OnILogging", time.ToString("yyyy-MM-dd hh:mm:ss.fff"), projectname, sourcename, loglevel, message);
             var context = Context;
@@ -46,7 +78,7 @@ namespace imady.NebuLog
         }
 
         [HubMethodName("OnNebuLogCustom")]
-        public async Task OnNebuLogCustom(string username, LogInfo log)
+        public async Task OnNebuLogCustom(string username, NebuLogMessage log)
         {
             await Clients.All.SendAsync("OnLogging", username, log);
         }

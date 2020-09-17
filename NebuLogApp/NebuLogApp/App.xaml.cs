@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.SignalR.Client;
 using System.Net.Http;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Hosting;
 
 namespace NebuLogApp
 {
@@ -25,12 +27,36 @@ namespace NebuLogApp
         private IServiceProvider serviceProvider;
         public App()
         {
+
             IServiceCollection services = new ServiceCollection();
 
             ConfigureServices(services);
 
             this.Configure(services);//2020-09-14 实际上没有使用loggerfactory.UseNebuLogWpf()来获取logger实例
 
+
+            #region DEBUG 在WPF框架中运行SignalR Hub服务器的测试代码
+            //===================================================================================
+            //https://stackoverflow.com/questions/60152000/wpf-signalr-server/60153020
+            //https://docs.microsoft.com/en-us/aspnet/core/signalr/hubcontext?view=aspnetcore-3.1
+            IHost _host;
+
+            //_host?.Dispose();
+            _host = Host.CreateDefaultBuilder()
+                .ConfigureWebHostDefaults(webBuilder => webBuilder
+                    .UseUrls("http://localhost:5999")
+                    .ConfigureServices(services => services.AddSignalR().AddMessagePackProtocol())
+                    .Configure(app =>
+                    {
+                        app.UseRouting();
+                        app.UseEndpoints(endpoints => endpoints.MapHub<NebuLogHub>("/NebuLogHub"));
+                    }))
+               .Build();
+
+
+            _host.Start();
+            //===================================================================================
+            #endregion
 
             #region DEBUG 截获WPF信息的测试代码
             /*

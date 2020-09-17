@@ -6,8 +6,8 @@
                  xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                  Title="MainWindow"
-                 Width="800"
-                 Height="480"
+                 Width="1920"
+                 Height="1080"
                  Icon="mahapps.metro.logo2.ico"
                  GlowBrush="{DynamicResource MahApps.Brushes.Accent}"
                  ResizeMode="CanResizeWithGrip"
@@ -44,8 +44,18 @@
     </mah:MetroWindow.RightWindowCommands>
 
     <Grid>
-        <Button x:Name="TestButton" Content="Send Test" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0,0" Click="OnTestButtonClick"/>
-        <TextBox x:Name="TestMessageBox" HorizontalAlignment="Center" Text="Input test message here..." TextWrapping="Wrap" VerticalAlignment="Top" Width="276" Margin="0,140,0,0" Height="50" MaxLength="128"/>
+        <DataGrid x:Name="MessageData" AutoGenerateColumns="False" VerticalAlignment="Top" Height="800" HorizontalAlignment="Stretch">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Time" Binding="{Binding TimeOfLog}" Width="100"/>
+                <DataGridTextColumn Header="LogLevel" Binding="{Binding LogLevel}"/>
+                <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="120"/>
+                <DataGridTextColumn Header="Sender" Binding="{Binding SenderName}" Width="120"/>
+                <DataGridTextColumn Header="Message" Binding="{Binding LoggingMessage}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+                        
+        <!--Button x:Name="TestButton" Content="Send Test" HorizontalAlignment="Left" Margin="592,902,0,0" VerticalAlignment="Top" RenderTransformOrigin="0,0" Click="OnTestButtonClick"/-->
+        <TextBox x:Name="TestMessageBox" HorizontalAlignment="Left" Text="Total messages." TextWrapping="Wrap" VerticalAlignment="Top" Width="276" Margin="264,895,0,0" Height="50" MaxLength="128"/>
 
     </Grid>
 

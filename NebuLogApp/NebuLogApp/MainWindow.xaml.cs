@@ -22,6 +22,7 @@ using System.Net.Http;
 using imady.NebuLog;
 using Microsoft.Extensions.Options;
 using System.Reflection;
+using Microsoft.Extensions.Hosting;
 
 namespace NebuLogApp
 {
@@ -36,6 +37,8 @@ namespace NebuLogApp
         //INebuLogger _logger;
         //===================================================================================
 
+
+        public List<NebuLogMessage> messageList { get; set; }
 
 
         public MainWindow(IServiceProvider services, ILoggerFactory factory) : base()
@@ -53,7 +56,46 @@ namespace NebuLogApp
             // ILogger记录的日志信息能够被NebuLog服务器收到，可能是asp.net core日志系统已经添加了INebuLogger，但是程序代码获取实例写得不正确。
             //===================================================================================
 
+            
+            
+            NebuLogHub.onILoggingEventHandler += OnLoggingMessageReceived;
+            messageList = new List<NebuLogMessage>();
+            //MessageData.ItemsSource = messageList;
+
             InitializeComponent();
+        }
+
+        private void OnLoggingMessageReceived(object sender, OnILoggingEventArgs e)
+        {
+            if (e.LoggingMessage == null) return;
+
+            try
+            {
+                messageList.Add(e.LoggingMessage);
+
+                this.Dispatcher.Invoke (() =>
+                {
+                    var log = e.LoggingMessage;
+                    MessageData.Items.Add(log);
+                    MessageData.ScrollIntoView(log);//注意：AutoScroll会导致客户端渲染速度大幅下降
+                    TestMessageBox.Text = $"Total received {messageList.Count} messages.";
+
+                }
+                //MessageData.Add(new DataGridTextColumn {  })
+                );
+            }
+            catch(Exception ex)
+            {
+                messageList.Add(new NebuLogMessage()
+                {
+                    LogLevel= "Server",
+                    LoggingMessage = ex.Message,
+                     ProjectName= Application.Current.MainWindow.Name,
+                     SenderName = Assembly.GetExecutingAssembly().GetName().Name,
+                      TimeOfLog = DateTime.Now
+                });
+                 //this.Dispatcher.Invoke(()=> TestMessageBox.Text = ex.Message);
+            }
         }
 
         private void OnTestButtonClick(object sender, RoutedEventArgs e)

@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+  <FrameworkReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
+</ItemGroup>
+  
+  
+  <ItemGroup>
     <None Remove="mahapps.metro.logo2.ico" />
   </ItemGroup>
 
@@ -21,8 +26,9 @@
     <PackageReference Include="MahApps.Metro" Version="2.2.0" />
     <PackageReference Include="MahApps.Metro.IconPacks" Version="4.4.0" />
     <PackageReference Include="MahApps.Metro.Resources" Version="0.6.1" />
+    <PackageReference Include="microsoft.aspnetcore.hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.extensions.dependencyinjection" Version="3.1.8" />
-    <PackageReference Include="Microsoft.extensions.dependencyinjection.abstractions" Version="3.1.8" />
+    <PackageReference Include="microsoft.extensions.hosting" Version="3.1.8" />
   </ItemGroup>
 
   <ItemGroup>
