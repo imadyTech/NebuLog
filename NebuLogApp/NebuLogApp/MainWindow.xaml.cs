@@ -23,6 +23,8 @@ using imady.NebuLog;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 using Microsoft.Extensions.Hosting;
+using MahApps.Metro.Controls.Dialogs;
+using ControlzEx.Theming;
 
 namespace NebuLogApp
 {
@@ -37,67 +39,102 @@ namespace NebuLogApp
         //INebuLogger _logger;
         //===================================================================================
 
+        private List<NebuLogMessageRequest> _messageList;
+        public List<NebuLogMessageRequest> messageList
+        {
+            get { if (_messageList == null) _messageList = new List<NebuLogMessageRequest>(); return _messageList; }
+            set => _messageList = value;
+        }
 
-        public List<NebuLogMessage> messageList { get; set; }
+        private List<NebuLogAddStatRequest> _statList;
+        private long _messageCount;
+        public List<NebuLogAddStatRequest> statList
+        {
+            get { if (_statList == null) _statList = new List<NebuLogAddStatRequest>(); return _statList; }
+            set => _statList = value;
+        }
 
 
         public MainWindow(IServiceProvider services, ILoggerFactory factory) : base()
         {
-            //====================================sample code演示=================================
-            // 注意：无法直接从DI框架获取ILogger实例，如果通过构造器注入会得到null
-            // 调用CreateLogger也不能直接用this.Name，因为MainWindow是在App.Xaml.cs中OnStartup()通过依赖注入的，XAML中的Name属性标签无效。
-            _logger = factory.CreateLogger(this.GetType().Name);
-            _logger.Log<MainWindow>(
-                LogLevel.Information, //loglevel
-                new EventId(0, this.Name), //eventId
-                this, //state
-                null, //exception
-                (app, e) => $"{Assembly.GetExecutingAssembly().GetName().Name}.{app.GetType().Name} initated.");
-            // ILogger记录的日志信息能够被NebuLog服务器收到，可能是asp.net core日志系统已经添加了INebuLogger，但是程序代码获取实例写得不正确。
-            //===================================================================================
+            ThemeManager.Current.ChangeTheme(this, "Dark.Blue");
 
-            
-            
-            NebuLogHub.onILoggingEventHandler += OnLoggingMessageReceived;
-            messageList = new List<NebuLogMessage>();
-            //MessageData.ItemsSource = messageList;
+            //================================ Server console 演示 =============================
+            NebuLogHub.OnILoggingMessageReceived += OnLoggingMessageReceived;
+            NebuLogHub.OnAddStatRequestReceived += OnAddStatRequestReceived;
+            //================================ Server console 演示 =============================
 
             InitializeComponent();
         }
-
-        private void OnLoggingMessageReceived(object sender, OnILoggingEventArgs e)
+        public void OnLoggingMessageReceived(object sender, NebuLogMessageRequest e)
         {
-            if (e.LoggingMessage == null) return;
+            var arg = e ;
+            if (arg == null) return;
 
             try
             {
-                messageList.Add(e.LoggingMessage);
+                messageList.Add(arg);
 
-                this.Dispatcher.Invoke (() =>
+                this.Dispatcher.Invoke(() =>
                 {
-                    var log = e.LoggingMessage;
+                    var log = arg;
                     MessageData.Items.Add(log);
                     MessageData.ScrollIntoView(log);//注意：AutoScroll会导致客户端渲染速度大幅下降
-                    TestMessageBox.Text = $"Total received {messageList.Count} messages.";
+                    _messageCount++;
+                    TestMessageBox.Text = $"Total received {_messageCount} messages.";
 
                 }
                 //MessageData.Add(new DataGridTextColumn {  })
                 );
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                messageList.Add(new NebuLogMessage()
+                messageList.Add(new NebuLogMessageRequest()
                 {
-                    LogLevel= "Server",
+                    LogLevel = "Server",
                     LoggingMessage = ex.Message,
-                     ProjectName= Application.Current.MainWindow.Name,
-                     SenderName = Assembly.GetExecutingAssembly().GetName().Name,
-                      TimeOfLog = DateTime.Now
+                    ProjectName = Application.Current.MainWindow.Name,
+                    SenderName = Assembly.GetExecutingAssembly().GetName().Name,
+                    TimeOfLog = DateTime.Now
                 });
-                 //this.Dispatcher.Invoke(()=> TestMessageBox.Text = ex.Message);
+                //this.Dispatcher.Invoke(()=> TestMessageBox.Text = ex.Message);
             }
         }
+        public void OnAddStatRequestReceived(object sender, NebuLogAddStatRequest arg)
+        {
+            if (arg == null) return;
+            try
+            {
+                statList.Add(arg);
 
+                this.Dispatcher.Invoke(() =>
+                {
+                    var log = arg;
+                    StatDataGrid.Items.Add(log);
+                    //StatDataGrid.ScrollIntoView(log);//注意：AutoScroll会导致客户端渲染速度大幅下降
+                    _messageCount++;
+                    TestMessageBox.Text = $"Total received {_messageCount} messages.";
+
+                }
+                //MessageData.Add(new DataGridTextColumn {  })
+                );
+            }
+            catch (Exception ex)
+            {
+                messageList.Add(new NebuLogMessageRequest()
+                {
+                    LogLevel = "Server",
+                    LoggingMessage = ex.Message,
+                    ProjectName = Application.Current.MainWindow.Name,
+                    SenderName = Assembly.GetExecutingAssembly().GetName().Name,
+                    TimeOfLog = DateTime.Now
+                });
+                //this.Dispatcher.Invoke(()=> TestMessageBox.Text = ex.Message);
+            }
+
+        }
+
+        //================================ Client sample code演示=============================
         private void OnTestButtonClick(object sender, RoutedEventArgs e)
         {
             var message = TestMessageBox.Text;
@@ -115,19 +152,66 @@ namespace NebuLogApp
                 this._logger.LogError(ex.Message);
             }
         }
+        //================================ Client sample code演示=============================
 
 
-        private void LaunchGitHubSite(object sender, RoutedEventArgs e)
+        private async void LaunchGitHubSite(object sender, RoutedEventArgs e)
         {
             // Launch the GitHub site...
-            _logger.LogCustom("MainWindow", "LaunchGitHubSite");
+            await this.ShowMessageAsync("This is the title", "Some message");
+            //_logger.LogCustom("MainWindow", "LaunchGitHubSite");
         }
 
-        private void DeployCupCakes(object sender, RoutedEventArgs e)
+        private void ClearMessageList(object sender, RoutedEventArgs e)
         {
+            messageList.Clear();
+            MessageData.Items.Clear();
             // deploy some CupCakes...
-            _logger.LogCustom("MainWindow", "DeployCupCakes");
+            //_logger.LogCustom("MainWindow", "DeployCupCakes");
         }
+
+        #region ============================= 退出时的处理 =============================
+        private bool _shutdown;
+        private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (e.Cancel)
+            {
+                return;
+            }
+
+            if (_shutdown == false)
+            {
+                e.Cancel = true;
+
+                // We have to delay the execution through BeginInvoke to prevent potential re-entrancy
+                Dispatcher.BeginInvoke(new Action(async () => await this.ConfirmShutdown()));
+            }
+            else
+            {
+            }
+        }
+        private async Task ConfirmShutdown()
+        {
+            var mySettings = new MetroDialogSettings
+            {
+                AffirmativeButtonText = "Quit",
+                NegativeButtonText = "Cancel",
+                AnimateShow = true,
+                AnimateHide = false
+            };
+
+            var result = await this.ShowMessageAsync("Quit application?",
+                                                     "Sure you want to quit application?",
+                                                     MessageDialogStyle.AffirmativeAndNegative, mySettings);
+
+            _shutdown = result == MessageDialogResult.Affirmative;
+
+            if (_shutdown)
+            {
+                Application.Current.Shutdown();
+            }
+        }
+        #endregion
     }
 
 }

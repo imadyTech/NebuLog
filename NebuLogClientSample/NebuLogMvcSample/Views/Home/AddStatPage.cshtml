@@ -1,0 +1,29 @@
+﻿
+@{
+    Layout = null;
+    ViewData["Title"] = "Add a StatItem";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+
+    <title>首页</title>
+
+</head>
+
+
+<body>
+    <h1>@ViewData["Title"]</h1>
+    <p>Use this page to detail your site's privacy policy.</p>
+    <div>
+        <form action="~/Home/AddStat" method="post">
+            <input type="text" name="statID" />
+            <input type="text" name="statTitle" />
+            <input type="submit" value="AddStat" />
+        </form>
+    </div>
+
+</body>
+</html>

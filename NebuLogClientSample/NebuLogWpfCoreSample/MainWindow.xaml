@@ -8,8 +8,12 @@
         Name="MainWin"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Button x:Name="TestButton" Content="Send Test" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0,0" Click="OnTestButtonClick"/>
-        <TextBox x:Name="TestMessageBox" HorizontalAlignment="Center" Text="Input test message here..." TextWrapping="Wrap" VerticalAlignment="Top" Width="277" Margin="0,127,0,0" Height="50" MaxLength="128"/>
+        <TextBox x:Name="TestMessageBox" HorizontalAlignment="Left" Text="Input test message here..." TextWrapping="Wrap" VerticalAlignment="Top" Width="614" Margin="26,32,0,0" Height="24" MaxLength="128"/>
+        <Button x:Name="TestButton" Content="Log a message" HorizontalAlignment="Left" Margin="675,32,0,0" Width="100" Height="24" VerticalAlignment="Top" RenderTransformOrigin="0,0" Click="OnTestButtonClick"/>
+        <TextBox x:Name="AddStatsMessageBox" HorizontalAlignment="Left" Text="Input stats name here..." Margin="26,96,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="614" Height="24" MaxLength="24"/>
+        <Button x:Name="AddStatsButton" Content="Add a stat" HorizontalAlignment="Left" Margin="675,96,0,0" Width="100" Height="24" VerticalAlignment="Top" RenderTransformOrigin="0,0" Click="OnAddStatsButtonClick"/>
+        <TextBox x:Name="RefreshStatsMessageBox" HorizontalAlignment="Left" Text="stats value here..." Margin="26,128,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="614" Height="24" MaxLength="10"/>
+        <Button x:Name="RefreshStatsButton" Content="Refresh stat" HorizontalAlignment="Left" Margin="675,128,0,0" Width="100" Height="24" VerticalAlignment="Top" RenderTransformOrigin="0,0" Click="OnRefreshStatsButtonClick"/>
 
     </Grid>
 </Window>

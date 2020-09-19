@@ -4,7 +4,7 @@ using System.Text;
 
 namespace imady.NebuLog
 {
-    public class NebuLogMessage
+    public class NebuLogMessageRequest: INebuLogRequest
     {
         /// <summary>
         /// 日志等级

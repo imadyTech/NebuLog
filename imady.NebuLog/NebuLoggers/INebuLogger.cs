@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -41,7 +42,8 @@ namespace imady.NebuLog
         /// <param name="statId">要增加的状态监控对象statId（必须保证不与其它id冲突）</param>
         /// <param name="statTitle">状态监控对象的标题</param>
         /// <param name="color">需要显示的颜色</param>
-        void AddCustomStats(string statId, string statTitle, string color);
+        /// <param name="value">右侧显示的初始值</param>
+        void AddCustomStats(string statId, string statTitle, string color, string value);
 
         /// <summary>
         /// 更新已经增加的stat条目

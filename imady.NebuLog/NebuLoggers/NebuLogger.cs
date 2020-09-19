@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace imady.NebuLog
 {
@@ -191,13 +192,14 @@ namespace imady.NebuLog
         /// <param name="statId">要增加的状态监控对象statId（必须保证不与其它id冲突）</param>
         /// <param name="statTitle">状态监控对象的标题</param>
         /// <param name="color">需要显示的颜色</param>
-        public void AddCustomStats(string statId, string statTitle, string color)
+        public void AddCustomStats(string statId, string statTitle, string color, string value)
         {
             var task = _connection.SendAsync(
                 "OnAddCustomStats",
                 statId,
                 statTitle,
-                color);
+                color,
+                value ?? "NA");
             task.Wait();
 
         }

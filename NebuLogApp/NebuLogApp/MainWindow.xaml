@@ -12,7 +12,8 @@
                  GlowBrush="{DynamicResource MahApps.Brushes.Accent}"
                  ResizeMode="CanResizeWithGrip"
                  WindowStartupLocation="CenterScreen"
-                 mc:Ignorable="d">
+                 mc:Ignorable="d"
+                 Closing="MetroWindow_Closing">
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
             <Button Click="LaunchGitHubSite" ToolTip="Open up the GitHub site">
@@ -25,14 +26,29 @@
 
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
-            <Button Click="DeployCupCakes" Content="Deploy CupCakes">
+            <Button Click="ClearMessageList" Content="Clear">
                 <Button.ContentTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
                             <iconPacks:PackIconModern Width="22"
                                         Height="22"
                                         VerticalAlignment="Center"
-                                        Kind="FoodCupcake" />
+                                        Kind="Clear" />
+                            <TextBlock Margin="4 0 0 0"
+                         VerticalAlignment="Center"
+                         Text="{Binding}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
+            <Button Click="ClearMessageList" Content="Refresh">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconIonicons Width="22"
+                                        Height="22"
+                                        VerticalAlignment="Center"
+                                        Kind="RefreshCircleMD" />
                             <TextBlock Margin="4 0 0 0"
                          VerticalAlignment="Center"
                          Text="{Binding}" />
@@ -43,20 +59,32 @@
         </mah:WindowCommands>
     </mah:MetroWindow.RightWindowCommands>
 
-    <Grid>
-        <DataGrid x:Name="MessageData" AutoGenerateColumns="False" VerticalAlignment="Top" Height="800" HorizontalAlignment="Stretch">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Time" Binding="{Binding TimeOfLog}" Width="100"/>
-                <DataGridTextColumn Header="LogLevel" Binding="{Binding LogLevel}"/>
-                <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="120"/>
-                <DataGridTextColumn Header="Sender" Binding="{Binding SenderName}" Width="120"/>
-                <DataGridTextColumn Header="Message" Binding="{Binding LoggingMessage}"/>
-            </DataGrid.Columns>
-        </DataGrid>
-                        
-        <!--Button x:Name="TestButton" Content="Send Test" HorizontalAlignment="Left" Margin="592,902,0,0" VerticalAlignment="Top" RenderTransformOrigin="0,0" Click="OnTestButtonClick"/-->
-        <TextBox x:Name="TestMessageBox" HorizontalAlignment="Left" Text="Total messages." TextWrapping="Wrap" VerticalAlignment="Top" Width="276" Margin="264,895,0,0" Height="50" MaxLength="128"/>
+    <StackPanel Orientation="Horizontal">
+        <Grid Width="320" Background="LightBlue">
+            <DataGrid x:Name="StatDataGrid">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Status" Binding="{Binding StatTitle}" Width="120"/>
+                    <DataGridTextColumn Header="Value" Binding="{Binding StatValue}" Width="120"/>
+                </DataGrid.Columns>
 
-    </Grid>
+            </DataGrid>
+        </Grid>
+        <Grid HorizontalAlignment="Stretch">
+            <DataGrid x:Name="MessageData" AutoGenerateColumns="False" VerticalAlignment="Top" Height="960" HorizontalAlignment="Stretch">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Time" Binding="{Binding TimeOfLog}" Width="150"/>
+                    <DataGridTextColumn Header="LogLevel" Binding="{Binding LogLevel}" Width="120"/>
+                    <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="200"/>
+                    <DataGridTextColumn Header="Sender" Binding="{Binding SenderName}" Width="200"/>
+                    <DataGridTextColumn Header="Message" Binding="{Binding LoggingMessage}" Width="960"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Button x:Name="TestButton" Content="Send Test" HorizontalAlignment="Left" Margin="1400,1000,0,0" VerticalAlignment="Top" RenderTransformOrigin="0,0" Click="OnTestButtonClick" Width="160"/>
+            <TextBox x:Name="TestMessageBox" HorizontalAlignment="Left" Text="Total messages." TextWrapping="Wrap" VerticalAlignment="Top" Width="1231" Margin="27,1000,0,0" Height="32" MaxLength="128"/>
+
+        </Grid>
+
+    </StackPanel>
 
 </mah:MetroWindow>

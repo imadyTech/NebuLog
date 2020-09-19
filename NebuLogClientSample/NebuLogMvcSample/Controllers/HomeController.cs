@@ -32,11 +32,15 @@ namespace NebuLogTestApp.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult AddStatPage()
         {
-            _logger.LogWarning("Home/Privacy");
+            //_logger.LogWarning("Home/Privacy");
 
             return View();
+        }
+        public void AddStat(string statID, string statTitle)
+        {
+            _logger.AddCustomStats(statID, statTitle, "green", "NA");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

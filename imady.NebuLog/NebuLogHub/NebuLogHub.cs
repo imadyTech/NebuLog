@@ -8,24 +8,17 @@ using System.Threading.Tasks;
 
 namespace imady.NebuLog
 {
-    /// <summary>
-    /// 通过C#的Event消息机制通知同一进程内的监听者。
-    /// </summary>
-    public class OnILoggingEventArgs: EventArgs
-    {
-        public NebuLogMessage LoggingMessage { get; set; }
-
-        public OnILoggingEventArgs(NebuLogMessage message)
-        {
-            LoggingMessage = message;
-        }
-    }
 
 
     public class NebuLogHub: Hub
     {
-        public delegate void OnILoggingEventHandler(object sender, OnILoggingEventArgs e);
-        public static OnILoggingEventHandler onILoggingEventHandler;
+        public delegate void OnILoggingEventHandler<R>(object sender, R request) where R: INebuLogRequest;
+
+        public static OnILoggingEventHandler<NebuLogMessageRequest> OnILoggingMessageReceived;
+        public static OnILoggingEventHandler<NebuLogAddStatRequest> OnAddStatRequestReceived;
+        public static OnILoggingEventHandler<NebuLogRefreshStatRequest> OnRefreshStatRequestReceived;
+
+
 
         //public static event EventHandler OnILoggingEvent;
         public NebuLogHub()
@@ -39,7 +32,7 @@ namespace imady.NebuLog
         [HubMethodName("OnILogging")]
         public async Task OnILogging(DateTime time, string projectname, string sourcename, string loglevel, string message)
         {
-            var nebulogMessage = new NebuLogMessage()
+            var nebulogMessage = new NebuLogMessageRequest()
             {
                 TimeOfLog = time,
                 ProjectName = projectname,
@@ -50,7 +43,7 @@ namespace imady.NebuLog
 
             //===================================================================================
             // 如果将NebuLogHub宿主在WPF客户端中，可以通过Event方式将收到的log消息发送给前端进行显示，而不必通过桌面客户端注册SignalR.Client来获取消息。
-            onILoggingEventHandler(this, new OnILoggingEventArgs(nebulogMessage));
+            OnILoggingMessageReceived(this,  (nebulogMessage));
             //===================================================================================
 
             //Console.WriteLine($"=========={DateTime.Now}:: OnILogging {message} ============");
@@ -78,7 +71,7 @@ namespace imady.NebuLog
         }
 
         [HubMethodName("OnNebuLogCustom")]
-        public async Task OnNebuLogCustom(string username, NebuLogMessage log)
+        public async Task OnNebuLogCustom(string username, NebuLogMessageRequest log)
         {
             await Clients.All.SendAsync("OnLogging", username, log);
         }
@@ -90,10 +83,20 @@ namespace imady.NebuLog
         /// <param name="statTitle">状态监控对象的标题</param>
         /// <param name="color">需要显示的颜色</param>
         [HubMethodName("OnAddCustomStats")]
-        public async Task AddCustomStats(string statId, string statTitle, string color)
+        public async Task AddCustomStats(string statId, string statTitle, string color, [Optional]string value)
         {
+            var requst = new NebuLogAddStatRequest()
+            {
+                StatId = statId,
+                StatTitle = statTitle,
+                StatColor = color,
+                StatValue = (value == null) ? "???" : value
+            };
+
+            OnAddStatRequestReceived(this,  ( requst ));
+
             //await Clients.All.SendAsync("OnILogging", DateTime.Now, "OnAddCustomStats", statId, "Debug", statTitle);
-            await Clients.All.SendAsync("OnAddCustomStats", statId, statTitle, color);
+            await Clients.All.SendAsync("OnAddCustomStats", statId, statTitle, color, value);
 
             //var context = Context;
             //var manager = Groups
@@ -104,12 +107,19 @@ namespace imady.NebuLog
         /// 更新已经增加的stat条目
         /// </summary>
         /// <param name="statId">状态监控对象的Id</param>
-        /// <param name="message">需要更新的信息</param>
+        /// <param name="value">需要更新的信息</param>
         [HubMethodName("OnLogCustomStats")]
-        public async Task LogCustomStats(string statId, string message)
+        public async Task LogCustomStats(string statId, string value)
         {
+            var request = new NebuLogRefreshStatRequest()
+            {
+                StatId = statId,
+                StatValue = value
+            };
+            OnRefreshStatRequestReceived(this, (request));
+
             //await Clients.All.SendAsync("OnILogging", DateTime.Now, "OnLogCustomStats", statId, "Debug", message);
-            await Clients.All.SendAsync("OnLogCustomStats", statId, message);
+            await Clients.All.SendAsync("OnLogCustomStats", statId, value);
         }
 
 

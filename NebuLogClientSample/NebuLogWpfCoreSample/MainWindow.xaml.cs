@@ -32,10 +32,10 @@ namespace NebuLogWpfCoreSample
 
 
 
-        public MainWindow(IServiceProvider services, ILoggerFactory factory) : base()
+        public MainWindow(IServiceProvider services, ILoggerFactory factory, INebuLogger logger) : base()
         {
             //====================================sample code演示=================================
-            // 注意：无法直接从DI框架获取ILogger实例，如果通过构造器注入会得到null
+            // 注意：无法直接从DI框架获取INebuLogger实例，如果通过构造器注入会得到null
             // 调用CreateLogger也不能直接用this.Name，因为MainWindow是在App.Xaml.cs中OnStartup()通过依赖注入的，XAML中的Name属性标签无效。
             _logger = factory.CreateLogger(this.GetType().Name);
             _logger.Log<MainWindow>(
@@ -66,6 +66,46 @@ namespace NebuLogWpfCoreSample
             {
                 this._logger.LogError(ex.Message);
             }
+        }
+
+        private void OnAddStatsButtonClick(object sender, RoutedEventArgs e)
+        {
+            //===================================================================================
+            //目前还没找到从WPF框架获取INebuLogger实例的方法，此方法尚不能通过
+            var statName = AddStatsMessageBox.Text;
+            try
+            {
+                var logger = (INebuLogger)_logger;
+                logger.AddCustomStats(
+                    statName, //statID
+                    statName, //title
+                    "green",  //color
+                    "???");   //stat value
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex.Message);
+            }
+
+        }
+
+        private void OnRefreshStatsButtonClick(object sender, RoutedEventArgs e)
+        {
+            //===================================================================================
+            //目前还没找到从WPF框架获取INebuLogger实例的方法，此方法尚不能通过
+            var statName = AddStatsMessageBox.Text;
+            try
+            {
+                var logger = (INebuLogger)_logger;
+                logger.LogCustomStats(
+                    statName, //statID
+                    RefreshStatsMessageBox.Text); //updated stat value
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex.Message);
+            }
+
         }
     }
 }
