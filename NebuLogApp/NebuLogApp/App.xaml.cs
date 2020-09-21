@@ -25,27 +25,31 @@ namespace NebuLogApp
     public partial class App : Application
     {
         private IServiceProvider serviceProvider;
+        private IHost _host;
         public App()
         {
 
             IServiceCollection services = new ServiceCollection();
 
-            ConfigureServices(services);
-
-            this.Configure(services);//2020-09-14 实际上没有使用loggerfactory.UseNebuLogWpf()来获取logger实例
-
+            #region DEBUG WPF作为调试客户端的测试代码
+            //ConfigureServices(services);
+            //this.Configure(services);//2020-09-14 实际上没有使用loggerfactory.UseNebuLogWpf()来获取logger实例
+            #endregion
 
             #region DEBUG 在WPF框架中运行SignalR Hub服务器的测试代码
             //===================================================================================
             //https://stackoverflow.com/questions/60152000/wpf-signalr-server/60153020
             //https://docs.microsoft.com/en-us/aspnet/core/signalr/hubcontext?view=aspnetcore-3.1
-            IHost _host;
 
-            //_host?.Dispose();
+            if (_host!=null) _host.Dispose();
             _host = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder => webBuilder
-                    .UseUrls("http://localhost:5999")
-                    .ConfigureServices(services => services.AddSignalR().AddMessagePackProtocol())
+                    .UseUrls("http://*:5999")
+                    .ConfigureServices(services =>
+                    {
+                        services.AddSignalR().AddMessagePackProtocol();
+                        services.AddSingleton<MainWindow>();
+                    })
                     .Configure(app =>
                     {
                         app.UseRouting();
@@ -141,10 +145,14 @@ namespace NebuLogApp
 
         protected void OnStartup(object sender, StartupEventArgs e)
         {
-            var mainWindow = serviceProvider.GetService<MainWindow>();
+            //var mainWindow = serviceProvider.GetService<MainWindow>();
+            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
             mainWindow.Show();
         }
-
+        protected void OnExit(object sender, ExitEventArgs e)
+        {
+            if (_host != null) _host.Dispose();
+        }
         private void ConfigureServices(IServiceCollection services)
         {
             //===================================================================================

@@ -53,7 +53,7 @@ namespace imady.NebuLogServer
                     {
                         // Set properties and call methods on options
                     })
-                    .UseUrls("http://localhost:5999")
+                    .UseUrls("http://*:5999")
                     .UseIISIntegration()
                     .UseStartup<Startup>();
                 });

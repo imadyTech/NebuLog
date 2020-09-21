@@ -73,6 +73,7 @@ namespace imady.NebuLogServer
             //--- ASP.NET CORE 3.0
             app.UseRouting();
             app.UseCors();
+
             //app.UseAuthentication();
             //app.UseAuthorization();
             //Warning:

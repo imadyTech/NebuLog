@@ -35,7 +35,7 @@ namespace NebuLogApp
     {
         //===================================================================================
         // 注意：factory.CreateLogger获取的虽然是INebuLogger实例，但只能声明为ILogger，否则会出现null。
-        ILogger _logger;
+        //ILogger _logger;
         //INebuLogger _logger;
         //===================================================================================
 
@@ -62,24 +62,26 @@ namespace NebuLogApp
             //================================ Server console 演示 =============================
             NebuLogHub.OnILoggingMessageReceived += OnLoggingMessageReceived;
             NebuLogHub.OnAddStatRequestReceived += OnAddStatRequestReceived;
+            NebuLogHub.OnRefreshStatRequestReceived += OnRefreshStatRequestRecieved;
             //================================ Server console 演示 =============================
 
             InitializeComponent();
         }
-        public void OnLoggingMessageReceived(object sender, NebuLogMessageRequest e)
+
+
+        #region 响应来自NebuLogHub的事件，进行前端视图的处理
+        public void OnLoggingMessageReceived(object sender, NebuLogMessageRequest request)
         {
-            var arg = e ;
-            if (arg == null) return;
+            if (request == null) return;
 
             try
             {
-                messageList.Add(arg);
+                messageList.Add(request);
 
                 this.Dispatcher.Invoke(() =>
                 {
-                    var log = arg;
-                    MessageData.Items.Add(log);
-                    MessageData.ScrollIntoView(log);//注意：AutoScroll会导致客户端渲染速度大幅下降
+                    MessageData.Items.Add( request);
+                    MessageData.ScrollIntoView( request);//注意：AutoScroll会导致客户端渲染速度大幅下降
                     _messageCount++;
                     TestMessageBox.Text = $"Total received {_messageCount} messages.";
 
@@ -100,17 +102,16 @@ namespace NebuLogApp
                 //this.Dispatcher.Invoke(()=> TestMessageBox.Text = ex.Message);
             }
         }
-        public void OnAddStatRequestReceived(object sender, NebuLogAddStatRequest arg)
+        public void OnAddStatRequestReceived(object sender, NebuLogAddStatRequest request)
         {
-            if (arg == null) return;
+            if (request == null) return;
             try
             {
-                statList.Add(arg);
+                statList.Add(request);
 
                 this.Dispatcher.Invoke(() =>
                 {
-                    var log = arg;
-                    StatDataGrid.Items.Add(log);
+                    StatDataGrid.Items.Add(request);
                     //StatDataGrid.ScrollIntoView(log);//注意：AutoScroll会导致客户端渲染速度大幅下降
                     _messageCount++;
                     TestMessageBox.Text = $"Total received {_messageCount} messages.";
@@ -134,7 +135,43 @@ namespace NebuLogApp
 
         }
 
+        private void OnRefreshStatRequestRecieved(object sender, NebuLogRefreshStatRequest request)
+        {
+            if (request == null) return;
+            try
+            {
+                var item = statList.Find(stat=> stat.StatId.Equals( request.StatId ));
+
+                this.Dispatcher.Invoke(() =>
+                {
+                    item.StatValue = request.StatValue;
+                    StatDataGrid.Items.Refresh();
+                    _messageCount++;
+                    TestMessageBox.Text = $"Total received {_messageCount} messages.";
+
+                }
+                //MessageData.Add(new DataGridTextColumn {  })
+                );
+            }
+            catch (Exception ex)
+            {
+                messageList.Add(new NebuLogMessageRequest()
+                {
+                    LogLevel = "Server",
+                    LoggingMessage = ex.Message,
+                    ProjectName = Application.Current.MainWindow.Name,
+                    SenderName = Assembly.GetExecutingAssembly().GetName().Name,
+                    TimeOfLog = DateTime.Now
+                });
+                //this.Dispatcher.Invoke(()=> TestMessageBox.Text = ex.Message);
+            }
+
+        }
+        #endregion
+
+
         //================================ Client sample code演示=============================
+        /*
         private void OnTestButtonClick(object sender, RoutedEventArgs e)
         {
             var message = TestMessageBox.Text;
@@ -152,6 +189,7 @@ namespace NebuLogApp
                 this._logger.LogError(ex.Message);
             }
         }
+        */
         //================================ Client sample code演示=============================
 
 

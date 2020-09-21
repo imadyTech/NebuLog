@@ -71,6 +71,21 @@
         </Grid>
         <Grid HorizontalAlignment="Stretch">
             <DataGrid x:Name="MessageData" AutoGenerateColumns="False" VerticalAlignment="Top" Height="960" HorizontalAlignment="Stretch">
+                <!--DataGrid.Resources>
+                    <Style x:Key="EditErrorStyle" TargetType="{x:Type DataGridTextColumn}">
+                        <Style.Triggers>
+                            <Trigger Property="Validation.HasError" Value="True">
+                                <Setter Property="Background" Value="Red"/>
+                                <Setter Property="ToolTip" 
+                            Value="{Binding RelativeSource={RelativeSource Self},
+                                    Path=(Validation.Errors)[0].ErrorContent}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style x:Key="NumberElementStyle" TargetType="{x:Type TextBlock}">
+                        <Setter Property="TextAlignment" Value="Right"/>
+                    </Style>
+                </-->
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Time" Binding="{Binding TimeOfLog}" Width="150"/>
                     <DataGridTextColumn Header="LogLevel" Binding="{Binding LogLevel}" Width="120"/>
@@ -80,7 +95,7 @@
                 </DataGrid.Columns>
             </DataGrid>
 
-            <Button x:Name="TestButton" Content="Send Test" HorizontalAlignment="Left" Margin="1400,1000,0,0" VerticalAlignment="Top" RenderTransformOrigin="0,0" Click="OnTestButtonClick" Width="160"/>
+            <!--Button x:Name="TestButton" Content="Send Test" HorizontalAlignment="Left" Margin="1400,1000,0,0" VerticalAlignment="Top" RenderTransformOrigin="0,0" Click="OnTestButtonClick" Width="160"/-->
             <TextBox x:Name="TestMessageBox" HorizontalAlignment="Left" Text="Total messages." TextWrapping="Wrap" VerticalAlignment="Top" Width="1231" Margin="27,1000,0,0" Height="32" MaxLength="128"/>
 
         </Grid>

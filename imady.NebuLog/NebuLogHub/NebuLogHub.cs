@@ -43,7 +43,7 @@ namespace imady.NebuLog
 
             //===================================================================================
             // 如果将NebuLogHub宿主在WPF客户端中，可以通过Event方式将收到的log消息发送给前端进行显示，而不必通过桌面客户端注册SignalR.Client来获取消息。
-            OnILoggingMessageReceived(this,  (nebulogMessage));
+            OnILoggingMessageReceived?.Invoke(this, nebulogMessage);
             //===================================================================================
 
             //Console.WriteLine($"=========={DateTime.Now}:: OnILogging {message} ============");
@@ -93,7 +93,7 @@ namespace imady.NebuLog
                 StatValue = (value == null) ? "???" : value
             };
 
-            OnAddStatRequestReceived(this,  ( requst ));
+            OnAddStatRequestReceived ?.Invoke( this, requst);
 
             //await Clients.All.SendAsync("OnILogging", DateTime.Now, "OnAddCustomStats", statId, "Debug", statTitle);
             await Clients.All.SendAsync("OnAddCustomStats", statId, statTitle, color, value);
@@ -116,7 +116,7 @@ namespace imady.NebuLog
                 StatId = statId,
                 StatValue = value
             };
-            OnRefreshStatRequestReceived(this, (request));
+            OnRefreshStatRequestReceived ?.Invoke( this, request);
 
             //await Clients.All.SendAsync("OnILogging", DateTime.Now, "OnLogCustomStats", statId, "Debug", message);
             await Clients.All.SendAsync("OnLogCustomStats", statId, value);
