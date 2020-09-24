@@ -1,0 +1,29 @@
+﻿@page "/Adding"
+
+@inject AppState appState
+
+<h2>Add Expense</h2>
+<Total></Total>
+<div class="row">
+    <div class="col-md-4">
+        <input class="form-control" @bind="expense.Description" placeholder="Enter Description..." />
+    </div>
+    <div class="col-md-2">
+        <input class="form-control" @bind="expense.Amount" placeholder="Enter Amount..." />
+    </div>
+    <div class="col-md-6">
+        <button @onclick=AddExpense class="btn btn-primary">
+            Add
+        </button>
+    </div>
+</div>
+
+@functions {
+    private Expense expense = new Expense();
+
+    private void AddExpense(MouseEventArgs args)
+    {
+        appState.AddExpense(expense);
+        expense = new Expense();
+    }
+}

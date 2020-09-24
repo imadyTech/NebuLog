@@ -1,0 +1,85 @@
+﻿@page "/NebuLogger"
+@using imady.NebuLog
+@inject NebuLogMessagePool pool
+
+<h1>NebuLog</h1>
+
+<p>A distributed logger for .net core</p>
+<h3>Total received log messages:</h3><h2>@messageCount</h2>
+
+@if (Messages == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<div>
+    <table class="table" style="position:absolute; bottom:0px; height:90%">
+        <thead>
+            <tr>
+                <th>TimeOfLog</th>
+                <th>Project</th>
+                <th>Sender</th>
+                <th>Sender</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>           
+            @for (int i = 0; i <(_messages.Count < tableLength? _messages.Count: tableLength); i++)
+                //不可以用foreach，否则页面刷新渲染没完成messages就改变了，会造成冲突。
+            {
+                <tr>
+                    <td>@Messages[i].TimeOfLog</td>
+                    <td>@Messages[i].ProjectName</td>
+                    <td>@Messages[i].SenderName</td>
+                    <td>@Messages[i].LogLevel</td>
+                    <td>@Messages[i].LoggingMessage</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+}
+
+@code {
+    private readonly List<NebuLogMessageRequest> _messages = new List<NebuLogMessageRequest>();
+    public List<NebuLogMessageRequest> Messages
+    {
+        get
+        {
+            if (_messages.Count < tableLength)
+                return _messages;
+            else
+                return _messages.TakeLast<NebuLogMessageRequest>( tableLength ).ToList();
+        }
+    }
+
+    public int messageCount; // 累计收到message的计数器
+    public const int tableLength = 10;
+
+
+    protected override void OnInitialized()
+    {
+        messageCount = 0;
+        pool._blazorHandler += LogMessageReceived;
+    }
+
+    private async void LogMessageReceived(object sender, NebuLogMessageRequest request)
+    {
+        messageCount++;
+        _messages.Add(request);
+
+        await InvokeAsync(() =>
+        {
+            //让table滚动到底部可以考虑调用JS：window.scrollTo(0, document.body.scrollHeight)
+            base.StateHasChanged();
+
+        });
+    }
+
+    public void Dispose()
+    {
+        pool._blazorHandler -= LogMessageReceived;
+    }
+}

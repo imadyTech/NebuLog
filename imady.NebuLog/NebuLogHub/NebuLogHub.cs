@@ -12,6 +12,8 @@ namespace imady.NebuLog
 
     public class NebuLogHub: Hub
     {
+        public static bool isHubAlive = true;
+
         public delegate void OnILoggingEventHandler<R>(object sender, R request) where R: INebuLogRequest;
 
         public static OnILoggingEventHandler<NebuLogMessageRequest> OnILoggingMessageReceived;
@@ -131,6 +133,7 @@ namespace imady.NebuLog
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
+            Console.WriteLine("====== OnDisconnectedAsync ======");
             return base.OnDisconnectedAsync(exception);
         }
 

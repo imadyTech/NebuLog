@@ -1,0 +1,13 @@
+﻿@using NebuLogBlazorServerSample
+@inject AppState appState
+
+<h2>Current Total: £@totalExpenses</h2>
+
+@functions {
+    private decimal totalExpenses => appState.Expenses.Sum(x => x.Amount);
+
+    protected override void OnInitialized()
+    {
+        appState.OnExpenseAdded += StateHasChanged;
+    }
+}
