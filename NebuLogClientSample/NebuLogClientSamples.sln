@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebuLogMvcSample", "NebuLog
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "imady.NebuLog", "..\imady.NebuLog\imady.NebuLog.csproj", "{ABD397A2-EE5B-486F-914E-AAED563E9B00}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebuLogBlazorClientSample", "NebuLogBlazorClientSample\NebuLogBlazorClientSample.csproj", "{B414E538-2603-4380-B5E1-68EB973E740B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{ABD397A2-EE5B-486F-914E-AAED563E9B00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABD397A2-EE5B-486F-914E-AAED563E9B00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABD397A2-EE5B-486F-914E-AAED563E9B00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B414E538-2603-4380-B5E1-68EB973E740B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B414E538-2603-4380-B5E1-68EB973E740B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B414E538-2603-4380-B5E1-68EB973E740B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B414E538-2603-4380-B5E1-68EB973E740B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

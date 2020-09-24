@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace NebuLogBlazorSample.Client
+namespace NebuLogBlazorClientSample
 {
     public class Program
     {
