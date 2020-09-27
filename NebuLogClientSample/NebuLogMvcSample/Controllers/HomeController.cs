@@ -29,6 +29,10 @@ namespace NebuLogTestApp.Controllers
             //(_logger as INebuLog).LogException(new Exception("exception test"));
             //_logger.Log<HomeController>(LogLevel.Debug, new EventId(0, "Index"), this, null, (t, e)=> "=================="+ t.ToString());
             _logger.LogCustom(this.GetType().Name, "Home/Privacy");
+            //测试exception记录
+            _logger.LogException(
+                new Exception("This is a test for logging an exception."));
+
             return View();
         }
 

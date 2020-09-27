@@ -38,8 +38,8 @@ namespace imady.NebuLogServer
             });
             services.AddCors();
             services
-                .AddSignalR(
-                  )
+                .AddSignalR( )
+                .AddJsonProtocol()
                 .AddMessagePackProtocol();
                 //.AddJsonProtocol();
 
