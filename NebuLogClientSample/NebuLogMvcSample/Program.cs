@@ -45,7 +45,7 @@ namespace NebuLogTestApp
                 {
                     // Set properties and call methods on options
                 })
-                .UseUrls("http://*:5001")
+                .UseUrls("http://*:5888")
                 .UseStartup<Startup>();
             });
     }

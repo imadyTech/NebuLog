@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.Http;
 using imady.NebuLog;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace NebuLogTestApp.Controllers
 {
@@ -36,6 +37,17 @@ namespace NebuLogTestApp.Controllers
             return View();
         }
 
+        public IActionResult TypeListing()
+        {
+            Assembly a = Assembly.GetExecutingAssembly();
+
+            Type[] mytypes = a.GetTypes();
+            foreach (Type t in mytypes)
+            {
+                _logger.LogWarning($"Type {t.Name} is currently in executing assembly.");
+            }
+            return View();
+        }
         public IActionResult AddStatPage()
         {
             //_logger.LogWarning("Home/Privacy");

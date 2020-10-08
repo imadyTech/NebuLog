@@ -1,0 +1,98 @@
+﻿@page "/NebuLogger"
+@using imady.NebuLog
+@using System.Threading
+@inject NebuLogMessagePool pool
+
+<h1>NebuLog</h1>
+
+<p>A distributed logger for .net core</p>
+<h3>Total received log messages:</h3>
+<h2>@messageCount</h2>
+
+@if (_messages == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <DxDataGrid Data="@DataSource" @ref="@_gridNebuLog">
+        <DxDataGridDateEditColumn Field=@nameof(NebuLogMessageRequest.TimeOfLog) Width="200" />
+        <DxDataGridColumn Field=@nameof(NebuLogMessageRequest.ProjectName) Caption="Project" />
+        <DxDataGridColumn Field=@nameof(NebuLogMessageRequest.SenderName) Caption="Sender" />
+        <DxDataGridColumn Field=@nameof(NebuLogMessageRequest.LogLevel) Caption="LogLevel" />
+        <DxDataGridColumn Field=@nameof(NebuLogMessageRequest.LoggingMessage) Caption="Message" Width="" />
+    </DxDataGrid>
+}
+
+@code {
+    async Task<IEnumerable<NebuLogMessageRequest>> LoadDataAsync(CancellationToken token)
+    {
+        if (_messages.Count < tableLength)
+        {
+            return await Task<List<NebuLogMessageRequest>>.Run(() =>
+            {
+                return _messages;
+            });
+        }
+        else
+        {
+            return await Task<List<NebuLogMessageRequest>>.Run(() =>
+            {
+                return _messages.TakeLast<NebuLogMessageRequest>(tableLength).ToList();
+            });
+        }
+    }
+
+    IEnumerable<NebuLogMessageRequest> DataSource;
+    IEnumerable<NebuLogMessageRequest> LoadData()
+    {
+        int rowCount = _messages.Count < tableLength ? _messages.Count : tableLength;
+        for (var i = 1; i < rowCount; i++)
+        {
+            yield return new NebuLogMessageRequest()
+            {
+                ProjectName = _messages[_messages.Count - i].ProjectName,
+                LoggingMessage = _messages[_messages.Count - i].LoggingMessage
+            };
+        }
+    }
+
+
+
+    public int messageCount; // 累计收到message的计数器
+    public const int tableLength = 10;
+    private readonly List<NebuLogMessageRequest> _messages = new List<NebuLogMessageRequest>();
+
+
+    protected override void OnInitialized()
+    {
+        DataSource = LoadData();
+
+        pool._blazorHandler += LogMessageReceived;
+    }
+
+    DxDataGrid<NebuLogMessageRequest> _gridNebuLog;
+    private async void LogMessageReceived(object sender, NebuLogMessageRequest request)
+    {
+        messageCount++;
+        _messages.Add(request);
+
+        await InvokeAsync(() =>
+        {
+            //We changed our code so that the StateHasChanged method doesn't affect the grid in version 19.2.1. Now the Refresh method should be called instead
+            //https://supportcenter.devexpress.com/ticket/details/t815632/data-grid-for-blazor-how-to-refresh-dxdatagrid-after-changing-its-data-source
+            //base.StateHasChanged();
+
+
+            DataSource = LoadData();
+            _gridNebuLog.Refresh();
+        });
+    }
+
+
+    public void Dispose()
+    {
+        pool._blazorHandler -= LogMessageReceived;
+    }
+
+}

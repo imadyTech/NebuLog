@@ -72,6 +72,14 @@ namespace NebuLogTestApp
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            //===================================================================================
+            //这段代码在前几个git更新中丢失了，从其他项目里找回来的。未进行测试。
+            var myLogger = Services.BuildServiceProvider().GetService<INebuLogger<NebuLogExceptionMiddleWare>>();
+            app.UseNebuLogException(
+                new NebuLogExceptionMiddleWareOption(errorHandingPath: "/home/error"),
+                myLogger);
+            //===================================================================================
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

@@ -170,34 +170,23 @@ namespace NebuLogApp
         #endregion
 
 
-        //================================ Client sample code演示=============================
-        /*
-        private void OnTestButtonClick(object sender, RoutedEventArgs e)
-        {
-            var message = TestMessageBox.Text;
-            try
-            {
-                _logger.Log<MainWindow>(
-                    LogLevel.Information, //loglevel
-                    new EventId(0, sender.GetType().Name), //eventId
-                    this, //state
-                    null, //exception
-                    (app, e) => $"{(sender as Button).Name}: {message}");
-            }
-            catch (Exception ex)
-            {
-                this._logger.LogError(ex.Message);
-            }
-        }
-        */
-        //================================ Client sample code演示=============================
 
 
         private async void LaunchGitHubSite(object sender, RoutedEventArgs e)
         {
             // Launch the GitHub site...
-            await this.ShowMessageAsync("This is the title", "Some message");
-            //_logger.LogCustom("MainWindow", "LaunchGitHubSite");
+            string hashtagUrl = "https://github.com/imadyTech/NebuLog";
+
+            try
+            {
+                System.Diagnostics.Process.Start(hashtagUrl);
+            }
+            catch
+            {
+                // TODO: Warn the user? Log the error? Do nothing since Witty itself is not affected?
+            }
+
+            e.Handled = true;
         }
 
         private void ClearMessageList(object sender, RoutedEventArgs e)

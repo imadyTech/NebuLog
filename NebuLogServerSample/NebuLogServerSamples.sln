@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebuLogWpfServerSample", "N
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebuLogMvcServerSample", "NebuLogMvcServerSample\NebuLogMvcServerSample.csproj", "{DFDEB2E3-EFFE-4B47-8C56-DDFE6646F1E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebuLogBlazorServerSample", "NebuLogBlazorServerSample\NebuLogBlazorServerSample.csproj", "{56DE64AA-13D2-46C0-8D0B-32A928D87662}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebuLogBlazorServerSample", "NebuLogBlazorServerSample\NebuLogBlazorServerSample.csproj", "{56DE64AA-13D2-46C0-8D0B-32A928D87662}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebuLogBlazorDevExpressServer", "NebuLogBlazorDevExpressServer\NebuLogBlazorDevExpressServer.csproj", "{F12C28AB-457F-4BFE-98C2-068A014F5059}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{56DE64AA-13D2-46C0-8D0B-32A928D87662}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56DE64AA-13D2-46C0-8D0B-32A928D87662}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56DE64AA-13D2-46C0-8D0B-32A928D87662}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F12C28AB-457F-4BFE-98C2-068A014F5059}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F12C28AB-457F-4BFE-98C2-068A014F5059}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F12C28AB-457F-4BFE-98C2-068A014F5059}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F12C28AB-457F-4BFE-98C2-068A014F5059}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

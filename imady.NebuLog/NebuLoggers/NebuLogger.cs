@@ -57,7 +57,7 @@ namespace imady.NebuLog
 
             _connection.Closed += async (error) =>
             {
-                await Task.Delay(1000);
+                await Task.Delay(2000);
                 await _connection.StartAsync();
             };
             _connection.StartAsync().Wait();
