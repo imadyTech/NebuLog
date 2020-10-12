@@ -10,7 +10,7 @@ namespace NebuLogBlazorDevExpressServer
 {
     public class NebuLogMessagePool
     {
-        public delegate void OnNewMessgeReceivedHanlder(object sender, NebuLogMessageRequest request);
+        public delegate Task OnNewMessgeReceivedHanlder(object sender, NebuLogMessageRequest request);
         public OnNewMessgeReceivedHanlder _blazorHandler;
 
         public NebuLogMessagePool()
