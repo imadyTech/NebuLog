@@ -25,6 +25,7 @@ namespace NebuLogBlazorDevExpressServer
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<NebuLogMessagePool>();
+            services.AddSingleton<NebuLogHub>();
             services.AddDevExpressBlazor();
 
             services.AddCors();

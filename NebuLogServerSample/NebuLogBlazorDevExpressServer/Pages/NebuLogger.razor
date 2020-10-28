@@ -2,6 +2,7 @@
 @using imady.NebuLog
 @using System.Threading
 @inject NebuLogMessagePool pool
+@inject NebuLogHub hub
 
 <h1>NebuLog</h1>
 
@@ -15,7 +16,7 @@
 }
 else
 {
-    <DxDataGrid Data="@DataSource" @ref="@_gridNebuLog" DataNavigationMode="DataGridNavigationMode.ShowAllDataRows">
+    <DxDataGrid Data="@_messages" @ref="@_gridNebuLog" DataNavigationMode="DataGridNavigationMode.VirtualScrolling" @bind-PageIndex="pageindex" PageSize="10">
         <DxDataGridDateEditColumn Field=@nameof(NebuLogMessageRequest.TimeOfLog) Width="200" />
         <DxDataGridColumn Field=@nameof(NebuLogMessageRequest.ProjectName) Caption="Project" />
         <DxDataGridColumn Field=@nameof(NebuLogMessageRequest.SenderName) Caption="Sender" />
@@ -58,9 +59,9 @@ else
     }
 
 
-
+    public int pageindex;
     public int messageCount; // 累计收到message的计数器
-    public const int tableLength = 10;
+    public const int tableLength = 20;
     private readonly List<NebuLogMessageRequest> _messages = new List<NebuLogMessageRequest>();
 
 
@@ -68,37 +69,31 @@ else
     {
         //DataSource = LoadData();
 
-        pool._blazorHandler += LogMessageReceived;
+        //pool._blazorHandler += LogMessageReceived;
+        NebuLogHub.OnILoggingMessageReceived += LogMessageReceived;
     }
 
     DxDataGrid<NebuLogMessageRequest> _gridNebuLog;
-    private async Task LogMessageReceived(object sender, NebuLogMessageRequest request)
+    async void LogMessageReceived(object sender, NebuLogMessageRequest request)
     {
-
         messageCount++;
         _messages.Add(request);
 
-        if (_messages.Count < tableLength)
-        {
-            DataSource = _messages;
-        }
-        else
-        {
-            DataSource = _messages.TakeLast<NebuLogMessageRequest>(tableLength).ToList();
-        }
-
-        await _gridNebuLog.Refresh();
         //DataSource = LoadDataAsync(CancellationToken.None).Result;
         await this.InvokeAsync(() =>
         {
+            //_gridNebuLog.Refresh();
+            pageindex = _messages.Count / tableLength;
             StateHasChanged();
+
         });
     }
 
 
     public void Dispose()
     {
-        pool._blazorHandler -= LogMessageReceived;
+        //pool._blazorHandler -= LogMessageReceived;
+        NebuLogHub.OnILoggingMessageReceived -= LogMessageReceived;
     }
 
 }
