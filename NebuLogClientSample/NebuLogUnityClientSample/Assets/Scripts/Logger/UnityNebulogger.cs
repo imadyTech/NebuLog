@@ -23,7 +23,7 @@ namespace UnityNebulog
         public static bool IsHubConnected = false;
 
 #if DEVELOPMENT_DEBUG
-        public static string defaulNebulogHubUri = "http://192.168.0.20/NebuLogHub";
+        public static string defaulNebulogHubUri = "http://localhost:5999/NebuLogHub";
 #else
         //public static string defaulNebulogHubUri = "https://nebulog.yingyu88.cn/NebuLogHub";
 #endif
