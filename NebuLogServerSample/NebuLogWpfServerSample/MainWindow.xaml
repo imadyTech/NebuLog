@@ -70,7 +70,7 @@
             </DataGrid>
         </Grid>
         <Grid HorizontalAlignment="Stretch">
-            <DataGrid x:Name="MessageData" AutoGenerateColumns="False" VerticalAlignment="Top" Height="960" HorizontalAlignment="Stretch">
+            <DataGrid x:Name="MessageData" AutoGenerateColumns="False" VerticalAlignment="Top" Height="960" Margin="0,0,0,0">
                 <!--DataGrid.Resources>
                     <Style x:Key="EditErrorStyle" TargetType="{x:Type DataGridTextColumn}">
                         <Style.Triggers>

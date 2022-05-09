@@ -37,9 +37,6 @@ namespace NebulogUnityServer
     public class App : NebuSingleton<App>
     {
         #region GameObjects & Managers对象定义
-        public static IUnityNebulog logger;
-        //public static NebuMessengger messenger;
-
         //Nebu辅助开发工具，用于监控运行时进程
         public GameObject NebuEventMgrGO;
         public GameObject NebuSceneMgrGO;
@@ -66,7 +63,6 @@ namespace NebulogUnityServer
 
             InitializeAppConfiguration();
             InitializeManagers(null, null);
-            InitNebulog();
         }
 
         void Update()
@@ -90,29 +86,6 @@ namespace NebulogUnityServer
         {
         }
 
-        private void InitNebulog()
-        {
-            logger = new UnityNebulogger();
-
-            //注册到HubConnrvyion连接完成事件，进行业务模块加载
-            logger.NebulogConnected += (sender, args) =>
-            {
-                //==================================================================
-                //等待UnityNebuLogger初始化完成（HubConnection连接后）才加载业务逻辑
-                //否则可能引起HubConnection未连接就被调用，而导致进程锁死
-                NebuEventMgrGO.AddComponent<NebulogManager>();
-                ////==================================================================
-                //hubStatusText.text += "\nSignalR HubConnection连接完成。";
-                Debug.Log("App initiation completed.");
-            };
-
-            ////================================ Server console 演示 =============================
-            //NebuLogHub.OnILoggingMessageReceived += nebulogManager.OnLoggingMessageReceived;
-            //NebuLogHub.OnAddStatRequestReceived += nebulogManager.OnAddStatRequestReceived;
-            //NebuLogHub.OnRefreshStatRequestReceived += nebulogManager.OnRefreshStatRequestRecieved;
-            ////================================ Server console 演示 =============================
-        }
-
 
         /// <summary>
         /// Add the manager objects and components after the logger is ready
@@ -134,14 +107,6 @@ namespace NebulogUnityServer
             //.AddDataService(satelliteService);
             Debug.Log("[Nebu剧场对象管理器]：NebuTheatreManager 初始化完成。");
 
-
-            //if (mascotGO != null) mascot = (NebuAudioMascot)mascotGO
-            //    .AddComponent<NebuAudioMascot>()
-            //    .AddApp(this)
-            //    .AddEventManager(this.eventManager);
-            //Debug.Log("[Nebu场景内引导物管理器]：NebuMascot 吉祥物初始化完成。");
-
-
             //添加用户界面管理器
             if (NebuUiMgrGO != null) uiManager = ((NebuUIManager)NebuUiMgrGO
                 .AddComponent<NebuUIManager>()
@@ -151,19 +116,14 @@ namespace NebulogUnityServer
             uiManager.mainView.AddSystemLog("UI启动完成", this.name);
             Debug.Log("[Nebu用户界面管理器]：NebuUIMananger UI管理器初始化完成。");
 
-
-
-            //加载多人协同管理器
-            //networkManager = (NebuNetworkManager)this.gameObject
-            //    .AddComponent<NebuNetworkManager>()
-            //    .AddMessgenger(messenger)
-            //    .AddApp(this)
-            //    .AddEventManager(this.eventManager);
-            //Debug.Log("[Nebu网络协同管理器]：网络管理器初始化完成。");
-
             //重要：EventSystem进行匹配subscribe。
             theatreManager.Initialize(this.eventManager);//这是为自己管理的对象注册到eventsystem
             uiManager.mainView.AddSystemLog("对象加载完成！", this.name);
+
+            nebulogManager = NebuEventMgrGO
+                .AddComponent<NebulogManager>()
+                .AddEventManager(this.eventManager) as NebulogManager;
+
 
             eventManager.MappingEventObjects();
             Debug.Log("[Nebu消息系统]：imadyEventManager初始化完成。");
@@ -174,6 +134,7 @@ namespace NebulogUnityServer
             Debug.Log("[Nebu应用管理器]: 应用程序加载完成！");
             uiManager.mainView.AddSystemLog("应用程序启动完成。", this.name);
         }
+
 
         /// <summary>
         /// 完成管理器加载后要处理的事务

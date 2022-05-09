@@ -27,13 +27,13 @@ namespace imady.Message
 
     #region 具象消息的封装定义 - 非扩展需求下此框架冗余，抽象需求下此框架有利于消息响应调度（简单需求慎用）
     #region 场景模式切换相关消息体
-    public class SimulationStartMsg : MadYUnityButtonInput, IMadYInput
+    public class InitNebulogServerMsg : MadYUnityButtonInput, IMadYInput
     {
-        public SimulationStartMsg() { msg = "SimulationStartMsg"; }
+        public InitNebulogServerMsg() { msg = "InitNebulogServerMsg"; }
     }
-    public class SimulationEndMsg : MadYUnityButtonInput, IMadYInput
+    public class ShutdownNebulogServerMsg : MadYUnityButtonInput, IMadYInput
     {
-        public SimulationEndMsg() { msg = "SimulationEndMsg"; }
+        public ShutdownNebulogServerMsg() { msg = "ShutdownNebulogServerMsg"; }
     }
    #endregion
 

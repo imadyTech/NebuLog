@@ -23,5 +23,7 @@ namespace NebulogUnityServer
 
         public readonly static Vector2 defaultScreenSize = new Vector2(Screen.width, Screen.height);
 
+        public readonly static string multiSateProductName = "NebuLogUnityClientSample\\NebuLogApp.exe";
+
     }
 }

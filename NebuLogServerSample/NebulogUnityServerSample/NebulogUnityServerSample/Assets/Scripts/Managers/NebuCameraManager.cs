@@ -21,8 +21,6 @@ namespace NebulogUnityServer.Manager
     {
         public Camera mainCamera;
         public float testorPos;
-        //public Camera sateSideCamera;//卫星追踪模式相机//这个要挂在SatelliteObject上
-        //public Camera sateRearCamera;//卫星侧面模式相机//这个要挂在SatelliteObject上
 
         [Header("指示场景的3D/2D模式状态")]
         public string m_earthDisplayMode = "2D";

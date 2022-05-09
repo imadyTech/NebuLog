@@ -16,7 +16,7 @@ namespace NebulogUnityServer.Manager
     public class NebuTheatreManager : MadYEventObjectBase,
         IMadYProvider<MadYUnityUIMessage<PlayMsg>>, IMadYProvider<MadYUnityUIMessage<PauseMsg>>,
         IMadYObserver<MadYUnityUIMessage<MadYUnityButtonInput>>,
-        IMadYObserver<MadYUnityUIMessage<SimulationStartMsg>>, IMadYObserver<MadYUnityUIMessage<SimulationEndMsg>>
+        IMadYObserver<MadYUnityUIMessage<InitNebulogServerMsg>>, IMadYObserver<MadYUnityUIMessage<ShutdownNebulogServerMsg>>
     {
         private MadYObjectPool objectPool;
 
@@ -124,7 +124,7 @@ namespace NebulogUnityServer.Manager
         /// UI界面按下“start”按钮 -> 启动模拟
         /// </summary>
         /// <param name="message"></param>
-        public void OnNext(MadYUnityUIMessage<SimulationStartMsg> message)
+        public void OnNext(MadYUnityUIMessage<InitNebulogServerMsg> message)
         {
 
         }
@@ -133,7 +133,7 @@ namespace NebulogUnityServer.Manager
         /// </summary>
         /// <param name="message"></param>
 
-        public void OnNext(MadYUnityUIMessage<SimulationEndMsg> message)
+        public void OnNext(MadYUnityUIMessage<ShutdownNebulogServerMsg> message)
         {
         }
         #endregion

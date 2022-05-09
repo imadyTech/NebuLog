@@ -6,12 +6,20 @@ using System.Threading.Tasks;
 using imady.Event;
 using imady.Message;
 using imady.NebuLog;
+using UnityEngine;
 
 
 namespace NebulogUnityServer
 {
-    public class NebulogManager : MadYEventObjectBase
+    public class NebulogManager : MadYEventObjectBase,
+        IMadYObserver<MadYUnityUIMessage<InitNebulogServerMsg>>
     {
+        public static IUnityNebulog logger;
+
+        //public static NebuMessengger messenger;
+
+
+
         private List<NebuLogMessageRequest> _messageList;
         public List<NebuLogMessageRequest> messageList
         {
@@ -128,5 +136,35 @@ namespace NebulogUnityServer
         }
         #endregion
 
+
+        #region imadyEventSystem INTERFACE IMPLEMENTATION
+        private void InitNebulog()
+        {
+        }
+
+        public void OnNext(MadYUnityUIMessage<InitNebulogServerMsg> message)
+        {
+            System.Diagnostics.Process.Start(Application.streamingAssetsPath + "\\" + NebulogAppConfiguration.multiSateProductName);
+            
+            logger = new UnityNebulogger();
+
+            //注册到HubConnrvyion连接完成事件，进行业务模块加载
+            logger.NebulogConnected += (sender, args) =>
+            {
+                //==================================================================
+                //等待UnityNebuLogger初始化完成（HubConnection连接后）才加载业务逻辑
+                //否则可能引起HubConnection未连接就被调用，而导致进程锁死
+                ////==================================================================
+                //hubStatusText.text += "\nSignalR HubConnection连接完成。";
+                Debug.Log("UnityNebulogger initiation completed.");
+            };
+
+            ////================================ Server console 演示 =============================
+            //NebuLogHub.OnILoggingMessageReceived += nebulogManager.OnLoggingMessageReceived;
+            //NebuLogHub.OnAddStatRequestReceived += nebulogManager.OnAddStatRequestReceived;
+            //NebuLogHub.OnRefreshStatRequestReceived += nebulogManager.OnRefreshStatRequestRecieved;
+            ////================================ Server console 演示 =============================
+        }
+        #endregion
     }
 }

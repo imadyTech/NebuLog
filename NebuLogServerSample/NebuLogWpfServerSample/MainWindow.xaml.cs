@@ -1,4 +1,9 @@
-﻿using System;
+﻿//This demo project used MahApps.Metro code and resources under Mit License//
+//----------https://github.com/MahApps/MahApps.Metro----------
+
+
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

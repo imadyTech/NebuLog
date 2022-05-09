@@ -25,7 +25,7 @@ namespace NebulogUnityServer.View
 
         #region ---------- UIView包含的Button对象的引用声明 -- 请在unity editor中进行预赋值 ------------
         //---------- PlayMode Setting Button Group 场景模式---------//
-        public Button Toggle_SimulationStart_Button;//开始
+        public Button Toggle_Start_Button;//Start nebulogServer process
 
         //---------- 3D/2D Button Group ---------//
         public Button Toggle_Earth_3D2D_Button;//3D-2D视图切换
@@ -48,11 +48,9 @@ namespace NebulogUnityServer.View
         /// </summary>
         protected override void BindButtonActions()
         {
-            //侦察场景
-            Toggle_SimulationStart_Button.onClick.AddListener(() => {
-                m_manager.NotifyObservers(new MadYUnityUIMessage<SimulationStartMsg>());
+            Toggle_Start_Button.onClick.AddListener(() => {
+                m_manager.NotifyObservers(new MadYUnityUIMessage<InitNebulogServerMsg>());
             });
-            Toggle_SimulationStart_Button.interactable = false;//APP初始启动后先禁用，点击OK后才激活
 
             //----------Satellite Data Play Button Group 卫星数据控制---------//
             Toggle_SpeedDown_Button.onClick.AddListener(this.OnToggle_SpeedDown_Clicked);//减速

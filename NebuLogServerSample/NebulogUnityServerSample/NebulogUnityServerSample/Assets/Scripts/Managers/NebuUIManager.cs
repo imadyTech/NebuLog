@@ -14,7 +14,7 @@ namespace NebulogUnityServer.Manager
         IMadYProvider<MadYUnityUIMessage<MadYUnityButtonInput>>,
         IMadYProvider<MadYUnityUIMessage<MouseDragMsg>>,
         IMadYProvider<MadYUnityUIMessage<Nebu2DViewMsg>>, IMadYProvider<MadYUnityUIMessage<Nebu3DViewMsg>>,
-        IMadYProvider<MadYUnityUIMessage<SimulationStartMsg>>,
+        IMadYProvider<MadYUnityUIMessage<InitNebulogServerMsg>>,
         IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler//鼠标拖拽、滚动
     {
         private MadYUIViewPool viewPool;
@@ -76,7 +76,7 @@ namespace NebulogUnityServer.Manager
                         {
                             //Close message box
                             HideMessageBox();
-                            topButtonGroupView.Toggle_SimulationStart_Button.interactable = true;
+                            topButtonGroupView.Toggle_Start_Button.interactable = true;
                         }));
             return this;
         }
