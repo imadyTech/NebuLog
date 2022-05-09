@@ -14,7 +14,7 @@ namespace NebulogUnityServer.Manager
         IMadYProvider<MadYUnityUIMessage<MadYUnityButtonInput>>,
         IMadYProvider<MadYUnityUIMessage<MouseDragMsg>>,
         IMadYProvider<MadYUnityUIMessage<Nebu2DViewMsg>>, IMadYProvider<MadYUnityUIMessage<Nebu3DViewMsg>>,
-        IMadYProvider<MadYUnityUIMessage<InitNebulogServerMsg>>,
+        IMadYProvider<MadYUnityUIMessage<NebulogServerInitiateMsg>>,
         IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler//鼠标拖拽、滚动
     {
         private MadYUIViewPool viewPool;

@@ -40,7 +40,7 @@ namespace NebulogUnityServer.View
 
         public void AddSystemLog(string content, string sender)
         {
-            mainSystemLogPanel.AddLog(content, sender);
+            mainSystemLogPanel.AddLog(DateTime.Now, App.Instance.name, sender, "Trace", content);
         }
 
         public override void ToggleOnOff()

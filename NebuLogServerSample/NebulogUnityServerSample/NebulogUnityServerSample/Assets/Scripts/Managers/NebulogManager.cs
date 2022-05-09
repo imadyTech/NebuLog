@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using imady.Event;
 using imady.Message;
@@ -12,7 +14,8 @@ using UnityEngine;
 namespace NebulogUnityServer
 {
     public class NebulogManager : MadYEventObjectBase,
-        IMadYObserver<MadYUnityUIMessage<InitNebulogServerMsg>>
+        IMadYObserver<MadYUnityUIMessage<NebulogServerInitiateMsg>>,
+        IMadYProvider<NebuLogMsg>
     {
         public static IUnityNebulog logger;
 
@@ -20,24 +23,25 @@ namespace NebulogUnityServer
 
 
 
-        private List<NebuLogMessageRequest> _messageList;
-        public List<NebuLogMessageRequest> messageList
+        private List<NebuLogMsg> _messageList;
+        public List<NebuLogMsg> messageList
         {
-            get { if (_messageList == null) _messageList = new List<NebuLogMessageRequest>(); return _messageList; }
+            get { if (_messageList == null) _messageList = new List<NebuLogMsg>(); return _messageList; }
             set => _messageList = value;
         }
 
-        private List<NebuLogAddStatRequest> _statList;
+        private List<NebuLogStatMsg> _statList;
         private long _messageCount;
-        public List<NebuLogAddStatRequest> statList
+        public List<NebuLogStatMsg> statList
         {
-            get { if (_statList == null) _statList = new List<NebuLogAddStatRequest>(); return _statList; }
+            get { if (_statList == null) _statList = new List<NebuLogStatMsg>(); return _statList; }
             set => _statList = value;
         }
 
 
         #region 响应来自NebuLogHub的事件，进行前端视图的处理
-        public void OnLoggingMessageReceived(object sender, NebuLogMessageRequest request)
+        [Obsolete]
+        public void OnLoggingMessageReceived(object sender, NebuLogMsg request)
         {
             if (request == null) return;
 
@@ -69,7 +73,8 @@ namespace NebulogUnityServer
             //    //this.Dispatcher.Invoke(()=> TestMessageBox.Text = ex.Message);
             //}
         }
-        public void OnAddStatRequestReceived(object sender, NebuLogAddStatRequest request)
+        [Obsolete]
+        public void OnAddStatRequestReceived(object sender, NebuLogStatMsg request)
         {
             if (request == null) return;
             //try
@@ -101,8 +106,8 @@ namespace NebulogUnityServer
             //}
 
         }
-
-        public void OnRefreshStatRequestRecieved(object sender, NebuLogRefreshStatRequest request)
+        [Obsolete]
+        public void OnRefreshStatRequestRecieved(object sender, NebuLogRefreshStatMsg request)
         {
             if (request == null) return;
             //try
@@ -134,19 +139,55 @@ namespace NebulogUnityServer
             //}
 
         }
+
+
+        int tempNebulogMsgLocker = 0;
+        ConcurrentQueue<NebuLogMsg> messagesCache = new ConcurrentQueue<NebuLogMsg>();
+        public void ReceiveOnILogging(DateTime time, string projectname, string sourcename, string loglevel, string message)
+        {
+            if (0 == Interlocked.Exchange(ref tempNebulogMsgLocker, 1))
+            {
+                messagesCache.Enqueue(new NebuLogMsg()
+                {
+                    TimeOfLog = time,
+                    ProjectName = projectname,
+                    SenderName = sourcename,
+                    LogLevel = loglevel,
+                    LoggingMessage = message
+                });
+                Interlocked.Exchange(ref tempNebulogMsgLocker, 0);
+            }
+            else //... TODO: 这里可能出现接受数据不成功状况，应回复发送者，要求重新发送
+                Debug.LogError($"[ReceiveOnILogging Thread Conflict] {time}/{projectname}/{sourcename}/{loglevel} not received.");
+        }
+
         #endregion
+
+        NebuLogMsg tempMsg = null;
+        public void Update()
+        {
+            if (messagesCache.IsEmpty) return;
+
+            if (0 == Interlocked.Exchange(ref tempNebulogMsgLocker, 1))
+            {
+                messagesCache.TryDequeue(out tempMsg);
+                messageList.Add(tempMsg);
+                Debug.Log($"[Nebulog ReceiveOnILogging] {messageList.Count}");
+                base.NotifyObservers(tempMsg);
+                Interlocked.Exchange(ref tempNebulogMsgLocker, 0);
+            }
+            else
+                Debug.LogWarning($"[Render Thread Conflict]...");
+        }
 
 
         #region imadyEventSystem INTERFACE IMPLEMENTATION
-        private void InitNebulog()
-        {
-        }
-
-        public void OnNext(MadYUnityUIMessage<InitNebulogServerMsg> message)
+        public void OnNext(MadYUnityUIMessage<NebulogServerInitiateMsg> message)
         {
             System.Diagnostics.Process.Start(Application.streamingAssetsPath + "\\" + NebulogAppConfiguration.multiSateProductName);
-            
-            logger = new UnityNebulogger();
+
+            logger = new UnityNebulogger().AddManager(this);
+
 
             //注册到HubConnrvyion连接完成事件，进行业务模块加载
             logger.NebulogConnected += (sender, args) =>
@@ -158,12 +199,6 @@ namespace NebulogUnityServer
                 //hubStatusText.text += "\nSignalR HubConnection连接完成。";
                 Debug.Log("UnityNebulogger initiation completed.");
             };
-
-            ////================================ Server console 演示 =============================
-            //NebuLogHub.OnILoggingMessageReceived += nebulogManager.OnLoggingMessageReceived;
-            //NebuLogHub.OnAddStatRequestReceived += nebulogManager.OnAddStatRequestReceived;
-            //NebuLogHub.OnRefreshStatRequestReceived += nebulogManager.OnRefreshStatRequestRecieved;
-            ////================================ Server console 演示 =============================
         }
         #endregion
     }

@@ -19,7 +19,7 @@ namespace imady.Event
 
         public static string MessageLog = string.Empty;
 
-
+        protected MadYEventManager eventsystemCache;
 
         protected MadYEventObjectBase()
         {
@@ -40,6 +40,7 @@ namespace imady.Event
         public virtual MadYEventObjectBase AddEventManager(MadYEventManager eventSystem)
         {
             eventSystem.Register(this);
+            eventsystemCache = eventSystem;
             return this;
         }
 

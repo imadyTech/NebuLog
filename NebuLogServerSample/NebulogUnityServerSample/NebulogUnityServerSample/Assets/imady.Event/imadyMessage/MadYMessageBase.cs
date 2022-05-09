@@ -8,7 +8,7 @@ namespace imady.Message
 
         public Guid senderId { get; set; }
 
-        public string senderName { get; set; }
+        public string sender { get; set; }
 
 
         public MadYMessageBase()
@@ -21,7 +21,7 @@ namespace imady.Message
         }
         public MadYMessageBase(string userName) : this()
         {
-            senderName = userName;
+            sender = userName;
         }
 
 

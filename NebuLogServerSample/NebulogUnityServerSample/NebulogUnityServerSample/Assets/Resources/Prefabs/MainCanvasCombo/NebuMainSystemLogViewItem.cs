@@ -14,11 +14,19 @@ namespace NebulogUnityServer.View
     public class NebuMainSystemLogViewModel
     {
         [MadYViewProperty]
-        public string LeeVM_Id { get; set; }
+        public DateTime LeeVM_Time { get; set; }
+
+        [MadYViewProperty]
+        public string LeeVM_Loglevel { get; set; }
+
+        [MadYViewProperty]
+        public string LeeVM_Project { get; set; }
+
         [MadYViewProperty]
         public string LeeVM_Sender { get; set; }
+
         [MadYViewProperty]
-        public string LeeVM_Content { get; set; }
+        public string LeeVM_Message { get; set; }
 
         public NebuMainSystemLogViewModel()
         {

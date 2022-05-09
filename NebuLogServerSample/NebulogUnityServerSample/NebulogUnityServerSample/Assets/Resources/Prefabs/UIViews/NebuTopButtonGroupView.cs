@@ -49,7 +49,7 @@ namespace NebulogUnityServer.View
         protected override void BindButtonActions()
         {
             Toggle_Start_Button.onClick.AddListener(() => {
-                m_manager.NotifyObservers(new MadYUnityUIMessage<InitNebulogServerMsg>());
+                m_manager.NotifyObservers(new MadYUnityUIMessage<NebulogServerInitiateMsg>());
             });
 
             //----------Satellite Data Play Button Group 卫星数据控制---------//

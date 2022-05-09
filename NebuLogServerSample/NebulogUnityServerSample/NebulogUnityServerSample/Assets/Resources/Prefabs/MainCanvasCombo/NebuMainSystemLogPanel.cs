@@ -1,3 +1,6 @@
+using imady.Event;
+using imady.Message;
+using imady.NebuLog;
 using NebulogUnityServer.DataModels;
 using NebulogUnityServer.View;
 using System;
@@ -10,7 +13,8 @@ using UnityEngine.UI;
 namespace NebulogUnityServer.View
 {
     [MadYResourcePath("LeeMainCanvasCombo/")]
-    public class NebuMainSystemLogPanel : MadYViewBase, IMadYView
+    public class NebuMainSystemLogPanel : MadYViewBase, IMadYView,
+        IMadYObserver<NebuLogMsg>
     {
         public NebuMainSystemLogViewItem itemTemplate; //单一记录的视图模板，在unity editor中预赋值
         public VerticalLayoutGroup systemLogContainer;//容器，在unity editor中预赋值
@@ -101,15 +105,17 @@ namespace NebulogUnityServer.View
         /// </summary>
         /// <param name="content"></param>
         /// <param name="sender"></param>
-        public void AddLog(string content, string sender)
+        public void AddLog(DateTime time, string projectname, string sendername, string loglevel, string message)
         {
             if (m_logVMs == null)
                 throw new InvalidOperationException("MainSystemLogPanel is not initialized yet!");
             var itemVM = new NebuMainSystemLogViewModel()
             {
-                LeeVM_Id = (logCountIndex + 1).ToString(),
-                LeeVM_Content = content,
-                LeeVM_Sender = sender
+                LeeVM_Time = time,
+                LeeVM_Loglevel = loglevel,
+                LeeVM_Project = projectname,
+                LeeVM_Sender = sendername,
+                LeeVM_Message = message
             };
             m_logVMs.Enqueue(itemVM);
             m_logView.Enqueue(RenderItem(itemVM, this.systemLogContainer));
@@ -123,6 +129,11 @@ namespace NebulogUnityServer.View
 
             systemLogContainer.GetComponent<RectTransform>().anchoredPosition3D = logViewCurrentPos += logItemHeight;//自动滚动一行
             //Debug.Log($"logViewCurrentPos {content} - Pos:{logViewCurrentPos}");
+        }
+
+        public void OnNext(NebuLogMsg message)
+        {
+            AddLog(message.TimeOfLog, message.ProjectName, message.SenderName, message.LogLevel, message.LoggingMessage);
         }
     }
 

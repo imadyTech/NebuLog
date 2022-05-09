@@ -1,6 +1,8 @@
-﻿namespace imady.NebuLog
+﻿using imady.Message;
+
+namespace imady.NebuLog
 {
-    public class NebuLogAddStatRequest: INebuLogRequest
+    public class NebuLogStatMsg : MadYMessageBase, INebuLogRequest
     {
         public string StatId { get; set; }
         public string StatTitle { get; set; }

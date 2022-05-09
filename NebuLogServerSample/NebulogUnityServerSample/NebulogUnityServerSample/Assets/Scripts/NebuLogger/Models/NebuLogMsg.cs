@@ -1,10 +1,11 @@
 ﻿using System;
+using imady.Message;
 using System.Collections.Generic;
 using System.Text;
 
 namespace imady.NebuLog
 {
-    public class NebuLogMessageRequest: INebuLogRequest
+    public class NebuLogMsg : MadYMessageBase, INebuLogRequest
     {
         /// <summary>
         /// 日志等级
@@ -32,6 +33,8 @@ namespace imady.NebuLog
     }
 
     #region 实现INotifyPropertyChanged的代码（但是破坏了model的POCO状态因此不用）
+    //It is not suggested to use INotifyPropertyChanged implementation as it disrupted the POCO status of the Msg body.
+
     /*
     public class NebuLogMessage : INotifyPropertyChanged
     {

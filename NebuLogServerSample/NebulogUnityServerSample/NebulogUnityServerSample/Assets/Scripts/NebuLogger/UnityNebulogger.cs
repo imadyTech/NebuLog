@@ -1,4 +1,6 @@
-﻿using imady.NebuLog;
+﻿using imady.Event;
+using imady.Message;
+using imady.NebuLog;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -14,8 +16,12 @@ using UnityEngine.SceneManagement;
 
 namespace NebulogUnityServer
 {
-    public class UnityNebulogger :IUnityNebulog, IDisposable
+    public class UnityNebulogger : IUnityNebulog, IDisposable
     {
+
+        private HubConnection nebulogHubConnection;
+        private NebulogManager manager;
+
         public event EventHandler NebulogConnected;
 
         /// <summary>
@@ -25,7 +31,6 @@ namespace NebulogUnityServer
 
         public static string defaulNebulogHubUri = "http://localhost:5999/NebuLogHub";
 
-        private HubConnection nebulogHubConnection;
         public UnityNebulogger()
         {
             Action initiateNebulogHubConnection =
@@ -37,6 +42,11 @@ namespace NebulogUnityServer
 
         }
 
+        public UnityNebulogger AddManager(NebulogManager manager)
+        {
+            this.manager = manager;
+            return this;
+        }
 
         async Task StartSignalRAsync(string nebulogURI)
         {
@@ -59,7 +69,8 @@ namespace NebulogUnityServer
                 IsHubConnected = true;
                 Debug.Log("Signalr connected ...");
 
-                //nebulogHubConnection.On<DateTime, string, string, string, string>("OnILogging", ReceiveOnILogging);
+                //TODO: improve the imady.Event system to support dynamic provider/observer mapping.
+                nebulogHubConnection.On<DateTime, string, string, string, string>("OnILogging", manager.ReceiveOnILogging);
 
                 //触发一个连接完成的事件，通知事件监听者加载后续模块
                 NebulogConnected(this, new EventArgs());
@@ -71,7 +82,12 @@ namespace NebulogUnityServer
 
         }
 
-#region 析构函数（断开signalR连接）
+        public void ReceiveOnILoggingTestor(DateTime time, string projectname, string sourcename, string loglevel, string message)
+        {
+            Debug.Log($"[Nebulog ReceiveOnILogging] {projectname}-{sourcename}");
+        }
+
+        #region 析构函数（断开signalR连接）
         private bool IsDisposed = false;
         public void Dispose()
         {
@@ -266,12 +282,9 @@ namespace NebulogUnityServer
             task.Wait();
 
         }
-#endregion
+        #endregion
 
-        private void ReceiveOnILogging(DateTime time, string projectname, string sourcename, string loglevel, string message)
-        {
 
-        }
 
 #region =====private methods 支撑方法=====
         //private string ExceptionFormatterResult;
