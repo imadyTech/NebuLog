@@ -6,7 +6,7 @@ using NebulogUnityServer.Manager;
 namespace NebulogUnityServer.View
 {
     [MadYResourcePath("UIViews/")]
-    public class NebulogSettingView : MadYViewBase
+    public class NebuSettingView : MadYViewBase
     {
         #region 子层级视图combo控件的引用
         public GameObject satellitePropertyPanel;
@@ -32,7 +32,7 @@ namespace NebulogUnityServer.View
 
 
         #region Inherited functions from ViewBase
-        public new NebulogSettingView SetManager(NebuUIManager uiManager) => base.SetManager(uiManager) as NebulogSettingView;
+        public new NebuSettingView SetManager(NebuUIManager uiManager) => base.SetManager(uiManager) as NebuSettingView;
 
 
         //public LeeSettingView SetCurrentUser(LeeUser user)

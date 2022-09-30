@@ -5,29 +5,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.DependencyInjection;
-using System.Configuration;
-using Microsoft.AspNetCore.SignalR.Client;
-using System.Net.Http;
 using imady.NebuLog;
-using Microsoft.Extensions.Options;
 using System.Reflection;
-using Microsoft.Extensions.Hosting;
 using MahApps.Metro.Controls.Dialogs;
 using ControlzEx.Theming;
 
@@ -62,7 +45,9 @@ namespace NebuLogApp
 
         public MainWindow(IServiceProvider services, ILoggerFactory factory) : base()
         {
+
             ThemeManager.Current.ChangeTheme(this, "Dark.Blue");
+
 
             //================================ Server console 演示 =============================
             NebuLogHub.OnILoggingMessageReceived += OnLoggingMessageReceived;

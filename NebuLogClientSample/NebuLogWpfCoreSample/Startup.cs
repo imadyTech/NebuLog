@@ -55,13 +55,13 @@ namespace NebuLogWpfCoreSample
 
             services.Configure<NebuLogOption>(option =>
             {
-                option.NebuLogHubUrl = ConfigurationManager.AppSettings["NebuLogHubUrl"];
+                option.NebuLogHubUrl = System.Configuration.ConfigurationManager.AppSettings["NebuLogHubUrl"];
 
                 object level = LogLevel.Trace;
-                Enum.TryParse(typeof(LogLevel), ConfigurationManager.AppSettings["LogLevel"], out level);
+                Enum.TryParse(typeof(LogLevel), System.Configuration.ConfigurationManager.AppSettings["LogLevel"], out level);
                 option.LogLevel = (LogLevel)level;
 
-                option.ProjectName = ConfigurationManager.AppSettings["ProjectName"];
+                option.ProjectName = System.Configuration.ConfigurationManager.AppSettings["ProjectName"];
             });
 
             //如果想使用INebuLog的扩展则通过使用AddNebuLog

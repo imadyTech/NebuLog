@@ -205,13 +205,13 @@ namespace NebulogUnityServer.Manager
         /// <summary>
         /// MainCanvas --> Setting View
         /// </summary>
-        public NebulogSettingView OnToggle_SettingView_Button_Clicked()
+        public NebuSettingView OnToggle_SettingView_Button_Clicked()
         {
             //Debug.Log("PerformReviewEndButton/ReturnToMainButton_Clicked");
             //viewPool.ClearPrevious();
 
-            var view = (WakeView(typeof(NebulogSettingView), mainCanvasContainer, false)
-                as NebulogSettingView);
+            var view = (WakeView(typeof(NebuSettingView), mainCanvasContainer, false)
+                as NebuSettingView);
             view.SetManager(this);
             // Refresh the user operation log panel
             //.SetUserHistory(NglAppInstance.userLogManager.GetUserHistory(NglAppInstance.userManager.currentUser));

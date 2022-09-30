@@ -36,7 +36,7 @@ public class UnityNebuLogTest : MonoBehaviour
         if (counter > 500) return;
 
         //demo -- 连续输出日志
-        if (counter % 30 == 0) Debug.Log(counter.ToString()); //hubconnection重连等待100，30可以，
+        if (counter % 10 == 0) Debug.Log(counter.ToString()); //hubconnection重连等待100，30可以，
         counter++;
         //人为搅个错误
         if (counter==300) throw new Exception("测试一把人为报错");

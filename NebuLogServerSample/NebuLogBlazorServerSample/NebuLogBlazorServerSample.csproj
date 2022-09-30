@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="microsoft.aspnetcore.signalr.protocols.messagepack" Version="3.1.8" />
+    <PackageReference Include="microsoft.aspnetcore.signalr.protocols.messagepack" Version="6.0.9" />
   </ItemGroup>
 
   <ItemGroup>
