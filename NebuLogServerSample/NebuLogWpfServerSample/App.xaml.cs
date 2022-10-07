@@ -7,15 +7,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using imady.NebuLog;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.SignalR.Client;
 using System.Net.Http;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
+using imady.NebuLog;
 
 namespace NebuLogApp
 {

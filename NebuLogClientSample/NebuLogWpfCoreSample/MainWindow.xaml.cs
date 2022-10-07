@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using imady.NebuLog;
+using imady.NebuLog.Loggers;
 
 namespace NebuLogWpfCoreSample
 {

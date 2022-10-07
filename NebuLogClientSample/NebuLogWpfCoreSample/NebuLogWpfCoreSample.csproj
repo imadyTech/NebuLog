@@ -9,7 +9,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\imady.NebuLog\imady.NebuLog.csproj" />
+    <ProjectReference Include="..\..\imady.NebuLog\imady.Nebulog.Client\imady.NebuLog.AspNetClient.csproj" />
   </ItemGroup>
 
 </Project>

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using imady.NebuLog;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using imady.NebuLog.Loggers;
 
 namespace NebuLogTestApp.Controllers
 {

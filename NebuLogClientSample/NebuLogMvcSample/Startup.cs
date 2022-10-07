@@ -12,6 +12,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Hosting;
 using imady.NebuLog;
+using imady.NebuLog.DataModel;
+using imady.NebuLog.AspNetClient;
+using imady.NebuLog.Loggers;
 
 namespace NebuLogTestApp
 {

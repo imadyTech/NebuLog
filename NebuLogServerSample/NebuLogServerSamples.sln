@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30503.244
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "imady.NebuLog", "..\imady.NebuLog\imady.NebuLog.csproj", "{B2F46F4A-8F24-471D-8FD4-721DE67AE0BB}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebuLogWpfServerSample", "NebuLogWpfServerSample\NebuLogWpfServerSample.csproj", "{5B1D2BBD-D9F3-43A6-AEA3-1B8BC2CB7914}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebuLogMvcServerSample", "NebuLogMvcServerSample\NebuLogMvcServerSample.csproj", "{DFDEB2E3-EFFE-4B47-8C56-DDFE6646F1E6}"
@@ -13,16 +11,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebuLogBlazorServerSample",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebuLogBlazorDevExpressServer", "NebuLogBlazorDevExpressServer\NebuLogBlazorDevExpressServer.csproj", "{F12C28AB-457F-4BFE-98C2-068A014F5059}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "imady.NebuLog.Hub", "..\imady.NebuLog\imady.Nebulog.Hub\imady.NebuLog.Hub.csproj", "{80F97D2C-38A9-4FB9-AEAC-8CB4ADAEAD51}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B2F46F4A-8F24-471D-8FD4-721DE67AE0BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B2F46F4A-8F24-471D-8FD4-721DE67AE0BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B2F46F4A-8F24-471D-8FD4-721DE67AE0BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B2F46F4A-8F24-471D-8FD4-721DE67AE0BB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5B1D2BBD-D9F3-43A6-AEA3-1B8BC2CB7914}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5B1D2BBD-D9F3-43A6-AEA3-1B8BC2CB7914}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B1D2BBD-D9F3-43A6-AEA3-1B8BC2CB7914}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +35,10 @@ Global
 		{F12C28AB-457F-4BFE-98C2-068A014F5059}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F12C28AB-457F-4BFE-98C2-068A014F5059}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F12C28AB-457F-4BFE-98C2-068A014F5059}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80F97D2C-38A9-4FB9-AEAC-8CB4ADAEAD51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80F97D2C-38A9-4FB9-AEAC-8CB4ADAEAD51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80F97D2C-38A9-4FB9-AEAC-8CB4ADAEAD51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80F97D2C-38A9-4FB9-AEAC-8CB4ADAEAD51}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

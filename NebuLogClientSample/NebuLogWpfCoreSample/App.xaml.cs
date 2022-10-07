@@ -12,7 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using imady.NebuLog;
-
+using imady.NebuLog.DataModel;
+using imady.NebuLog.AspNetClient;
 
 namespace NebuLogWpfCoreSample
 {

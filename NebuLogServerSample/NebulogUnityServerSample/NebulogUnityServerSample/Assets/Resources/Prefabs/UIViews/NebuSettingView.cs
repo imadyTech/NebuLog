@@ -8,29 +8,6 @@ namespace NebulogUnityServer.View
     [MadYResourcePath("UIViews/")]
     public class NebuSettingView : MadYViewBase
     {
-        #region 子层级视图combo控件的引用
-        public GameObject satellitePropertyPanel;
-        public GameObject carrierPropertyPanel;
-        public GameObject destroyerPropertyPanel;
-        public GameObject supplierPropertyPanel;
-        public GameObject civilshipPropertyPanel;
-        public GameObject missilelauncherPropertyPanel;
-        public GameObject commCenterPropertyPanel;
-        #endregion
-
-        #region Unity Button对象引用 -- 请在UnityEditor中预赋值设置
-        public Button Toggle_Satellite_Button;
-        public Button Toggle_Carrier_Button;
-        public Button Toggle_Destroyer_Button;
-        public Button Toggle_Supplier_Button;
-        public Button Toggle_CivilShip_Button;
-        public Button Toggle_MissileLauncher_Button;
-        public Button Toggle_CommCenter_Button;
-        #endregion
-
-
-
-
         #region Inherited functions from ViewBase
         public new NebuSettingView SetManager(NebuUIManager uiManager) => base.SetManager(uiManager) as NebuSettingView;
 

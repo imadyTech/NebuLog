@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\imady.NebuLog\imady.NebuLog.csproj" />
+    <ProjectReference Include="..\..\imady.NebuLog\imady.Nebulog.Hub\imady.NebuLog.Hub.csproj" />
   </ItemGroup>
 
 </Project>

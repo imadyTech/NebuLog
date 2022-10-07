@@ -15,6 +15,8 @@ using imady.NebuLog;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Net.Http;
 using System.Configuration;
+using imady.NebuLog.DataModel;
+using imady.NebuLog.AspNetClient;
 
 namespace NebuLogWpfCoreSample
 {

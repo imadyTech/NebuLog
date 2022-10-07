@@ -13,6 +13,7 @@ using imady.NebuLog;
 using System.Reflection;
 using MahApps.Metro.Controls.Dialogs;
 using ControlzEx.Theming;
+using imady.NebuLog.DataModel;
 
 namespace NebuLogApp
 {

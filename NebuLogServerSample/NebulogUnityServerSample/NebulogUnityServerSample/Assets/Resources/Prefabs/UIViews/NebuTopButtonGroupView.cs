@@ -52,7 +52,7 @@ namespace NebulogUnityServer.View
                 m_manager.NotifyObservers(new MadYUnityUIMessage<NebulogServerInitiateMsg>());
             });
 
-            //----------Satellite Data Play Button Group 卫星数据控制---------//
+            //----------Data Play Button Group 卫星数据控制---------//
             Toggle_SpeedDown_Button.onClick.AddListener(this.OnToggle_SpeedDown_Clicked);//减速
             Toggle_Play_Button.onClick.AddListener(this.OnToggle_Play_Clicked);//播放
             Toggle_Pause_Button.onClick.AddListener(this.OnToggle_Pause_Clicked);//暂停

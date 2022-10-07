@@ -104,7 +104,6 @@ namespace NebulogUnityServer
                 .AddComponent<NebuTheatreManager>()
                 .AddEventManager(this.eventManager))//这是NebuTheatreManager自己注册到eventsystem
                 .AddPool(this.NebuSceneMgrGO.transform);
-            //.AddDataService(satelliteService);
             Debug.Log("[Nebu剧场对象管理器]：NebuTheatreManager 初始化完成。");
 
             //添加用户界面管理器
