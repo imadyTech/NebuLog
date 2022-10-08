@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -7,14 +8,19 @@ using System.Threading.Tasks;
 
 namespace imady.NebuLog.Loggers
 {
-    public interface INebuLogger: ILogger, IDisposable
+    public interface INebuLogger : ILogger, IDisposable
     {
+        /// <summary>
+        /// 对外暴露hubconnection，使client也能够接收消息推送。
+        /// </summary>
+        HubConnection NebulogHubConnection { get; }
+
         /// <summary>
         /// 发送自定义的字符串信息；
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="message"></param>
-        Task LogCustom( string sender, string message);
+        Task LogCustom(string sender, string message);
 
         /// <summary>
         /// 发送序列化以后的exception字符信息。

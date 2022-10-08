@@ -49,6 +49,14 @@ namespace imady.NebuLog.Loggers
             };
             initiateNebulogHubConnection.Invoke();
         }
+
+        public NebuLogger(HubConnection connection, string categoryName)
+        {
+            _categoryName = categoryName;
+            _connection = connection;
+        }
+
+
         #endregion
 
         #region 析构函数（断开signalR连接）
@@ -60,8 +68,6 @@ namespace imady.NebuLog.Loggers
         }
         protected async void Dispose(bool Diposing)
         {
-            await _connection.StopAsync();
-
             if (!IsDisposed)
             {
                 if (Diposing)
@@ -69,6 +75,7 @@ namespace imady.NebuLog.Loggers
                     //Clean Up managed resources  
                 }
                 //Clean up unmanaged resources  
+                await _connection.StopAsync();
                 //can't remove all registered listeners from eventhandler by a single line command...... you may improve......
                 if (NebulogConnected != null)
                 {
