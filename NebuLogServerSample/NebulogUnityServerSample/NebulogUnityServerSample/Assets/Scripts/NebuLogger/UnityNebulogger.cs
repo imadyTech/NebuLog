@@ -70,7 +70,7 @@ namespace NebulogUnityServer
                 Debug.Log("Signalr connected ...");
 
                 //TODO: improve the imady.Event system to support dynamic provider/observer mapping.
-                nebulogHubConnection.On<DateTime, string, string, string, string>("OnILogging", manager.ReceiveOnILogging);
+                nebulogHubConnection.On<string, string, string, string, string>("OnILogging", this.ReceiveOnILoggingTestor);
 
                 //触发一个连接完成的事件，通知事件监听者加载后续模块
                 NebulogConnected(this, new EventArgs());
@@ -82,7 +82,7 @@ namespace NebulogUnityServer
 
         }
 
-        public void ReceiveOnILoggingTestor(DateTime time, string projectname, string sourcename, string loglevel, string message)
+        public void ReceiveOnILoggingTestor(string time, string projectname, string sourcename, string loglevel, string message)
         {
             Debug.Log($"[Nebulog ReceiveOnILogging] {projectname}-{sourcename}");
         }

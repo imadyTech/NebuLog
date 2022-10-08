@@ -19,7 +19,7 @@ public class App : MonoBehaviour
         //logger = new UnityNebulogger();
         var option = new NebuLogOption()
         {
-            NebuLogHubUrl = "http://localhost/NebuLogHub",
+            NebuLogHubUrl = "http://localhost:5999/NebuLogHub",
             ProjectName = Application.productName,
             LogLevel = LogLevel.Trace
         };

@@ -19,6 +19,11 @@ namespace imady.NebuLog.Loggers
         private HubConnection _connection;
         private bool _isHubConnected;
 
+        /// <summary>
+        /// 对外暴露hubconnection，使client也能够接收消息推送。
+        /// </summary>
+        public HubConnection NebulogHubConnection { get { return _connection; } }
+
 
         #region ===== 构造函数 =====
         public NebuLogger(IOptions<NebuLogOption> nebulogOption, HubConnection hubConnection, string categoryName)
