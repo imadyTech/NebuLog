@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NebuLog.Contracts;
 using NebuLog.Server.Api;
+using NebuLog.Server.Authentication;
 using NebuLog.Server.Diagnostics;
 using NebuLog.Server.Hubs;
 using NebuLog.Server.Infrastructure;
@@ -31,24 +32,22 @@ public static class NebuLogEndpointRouteBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(endpoints);
 
-        // The rate limiter must sit after routing to see each endpoint's policy metadata, and
-        // before the endpoint middleware that runs them. Registering it here puts it in exactly
-        // that window, which a startup filter (which runs before routing) cannot do.
+        // These must sit after routing (so endpoint metadata is visible) and before the endpoint
+        // middleware that acts on it. Registering them here puts them in exactly that window,
+        // which a startup filter — which runs before routing — cannot do.
         if (endpoints is IApplicationBuilder app)
         {
+            app.UseCors();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseRateLimiter();
-        }
-
-        // CORS must sit between routing and the endpoints so the OTLP policy is applied and
-        // preflight requests are answered.
-        if (endpoints is IApplicationBuilder corsApp)
-        {
-            corsApp.UseCors();
         }
 
         endpoints.MapHub<NebuLogHub>(HubRoutes.Path);
         endpoints.MapNebuLogApi();
         endpoints.MapNebuLogOtlp();
+        endpoints.MapNebuLogAuth();
+        endpoints.MapNebuLogApiKeys();
 
         endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
         {
@@ -81,8 +80,17 @@ public static class NebuLogEndpointRouteBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(app);
 
+        // GET and HEAD only: the dashboard's client-side routes are navigations. Answering a POST
+        // to an unknown path with index.html would make endpoints that do not exist look like they
+        // succeeded.
         app.MapFallback(async context =>
         {
+            if (!HttpMethods.IsGet(context.Request.Method) && !HttpMethods.IsHead(context.Request.Method))
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                return;
+            }
+
             foreach (var prefix in ReservedPrefixes)
             {
                 if (context.Request.Path.StartsWithSegments(prefix, StringComparison.OrdinalIgnoreCase))

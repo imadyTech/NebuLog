@@ -9,6 +9,9 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Google.Protobuf" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
     <!-- Needed for the OTLP endpoint's OpenAPI operation transformer. Note that this package's
          XML-comment source generator then emits roughly 1,900 lines of documentation-support code
          into this assembly; ExcludeAssets="analyzers" does not suppress it. That code is generated,

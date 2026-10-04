@@ -3,7 +3,7 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddNebuLogServer(builder.Configuration);
+builder.Services.AddNebuLogServer(builder.Configuration, builder.Environment);
 builder.Services.AddOpenApi();
 builder.AddHostObservability();
 

@@ -20,7 +20,8 @@ internal static class LogApiEndpoints
     {
         var api = endpoints.MapGroup("/api")
             .WithTags("NebuLog")
-            .RequireRateLimiting(RateLimitPolicy);
+            .RequireRateLimiting(RateLimitPolicy)
+            .RequireAuthorization(NebuLogPolicies.Viewer);
 
         api.MapGet("/logs", GetLogs)
             .WithName("GetLogs")
@@ -53,7 +54,6 @@ internal static class LogApiEndpoints
         return endpoints;
     }
 
-    /// <summary>Policy: <see cref="NebuLogPolicies.Viewer"/> once WO-0005 enables authentication.</summary>
     private static Ok<IReadOnlyList<NebuLogEntry>> GetLogs(
         LogRingBuffer buffer,
         long? afterId,
@@ -73,19 +73,15 @@ internal static class LogApiEndpoints
         return TypedResults.Ok(buffer.Query(query, search));
     }
 
-    /// <summary>Policy: <see cref="NebuLogPolicies.Viewer"/> once WO-0005 enables authentication.</summary>
     private static Ok<LiveSummaryDto> GetSummary(LiveSummary summary, LogRingBuffer buffer) =>
         TypedResults.Ok(summary.Snapshot(buffer.Count));
 
-    /// <summary>Policy: <see cref="NebuLogPolicies.Viewer"/> once WO-0005 enables authentication.</summary>
     private static Ok<IReadOnlyList<ConnectedClientInfo>> GetClients(ConnectedClientRegistry clients) =>
         TypedResults.Ok(clients.Snapshot());
 
-    /// <summary>Policy: <see cref="NebuLogPolicies.Viewer"/> once WO-0005 enables authentication.</summary>
     private static Ok<IReadOnlyList<StatSnapshot>> GetCustomStats(StatRegistry stats) =>
         TypedResults.Ok(stats.Snapshot());
 
-    /// <summary>Policy: <see cref="NebuLogPolicies.Viewer"/> once WO-0005 enables authentication.</summary>
     private static Ok<ServerInfoDto> GetInfo(
         LogRingBuffer buffer,
         ServerStartTime startTime,

@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Microsoft.AspNetCore.SignalR.Client;
 using NebuLog.Contracts;
 using NebuLog.Server.Api;
+using NebuLog.Server.Identity;
 using Xunit;
 
 namespace NebuLog.Server.Tests;
@@ -25,8 +26,8 @@ public sealed class ThroughputSmokeTests
             ["NebuLog:RateLimit:ApiPermitsPerWindow"] = "1000",
         });
 
-        await using var viewer = await factory.ConnectAsync("viewer");
-        await using var producer = await factory.ConnectAsync("producer", "load");
+        await using var viewer = await factory.ConnectViewerAsync();
+        await using var producer = await factory.ConnectProducerAsync("load");
 
         var deliveredToViewer = 0;
         var latencies = new List<double>(TotalEntries / BatchSize);
@@ -74,7 +75,7 @@ public sealed class ThroughputSmokeTests
             $"Only sustained {achieved:N0} entries/s against a target of {TargetPerSecond:N0}.");
 
         // Let the pipeline drain what is still queued before inspecting the buffer.
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
         var buffered = 0;
         for (var attempt = 0; attempt < 50 && buffered < TotalEntries; attempt++)
         {

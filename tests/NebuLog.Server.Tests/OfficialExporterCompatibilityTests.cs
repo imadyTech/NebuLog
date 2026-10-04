@@ -2,6 +2,7 @@ using System.Diagnostics.Tracing;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 using NebuLog.Contracts;
+using NebuLog.Server.Authentication;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
@@ -25,12 +26,14 @@ public sealed class OfficialExporterCompatibilityTests
         using var diagnostics = new ExporterDiagnostics();
 
         await using var factory = new NebuLogAppFactory();
-        await using var viewer = await factory.ConnectAsync("viewer");
+        await using var viewer = await factory.ConnectViewerAsync();
 
         var received = new TaskCompletionSource<IReadOnlyList<NebuLogEntry>>(
             TaskCreationOptions.RunContinuationsAsynchronously);
         viewer.On<IReadOnlyList<NebuLogEntry>>(HubRoutes.ReceiveLogs, batch => received.TrySetResult(batch));
 
+        // The exporter authenticates like any other producer: an API key in X-Api-Key.
+        var (_, apiKey) = await factory.IssueApiKeyAsync("official-exporter");
         using var recorder = new RecordingHandler(factory.Server.CreateHandler());
 
         using (var loggerFactory = LoggerFactory.Create(builder => builder
@@ -45,6 +48,7 @@ public sealed class OfficialExporterCompatibilityTests
                 {
                     otlp.Protocol = OtlpExportProtocol.HttpProtobuf;
                     otlp.Endpoint = new Uri(factory.Server.BaseAddress, "v1/logs");
+                    otlp.Headers = $"{ApiKeyAuthenticationOptions.HeaderName}={apiKey}";
                     otlp.HttpClientFactory = () => new HttpClient(recorder, disposeHandler: false);
                     otlp.ExportProcessorType = global::OpenTelemetry.ExportProcessorType.Simple;
                 });

@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NebuLog.Server;
 using Xunit;
@@ -8,12 +10,24 @@ namespace NebuLog.Server.Tests;
 
 public sealed class ServerOptionsValidationTests
 {
+    /// <summary>A minimal environment so the options under test can be resolved without a host.</summary>
+    private sealed class TestHostEnvironment : IHostEnvironment
+    {
+        public string EnvironmentName { get; set; } = Environments.Development;
+
+        public string ApplicationName { get; set; } = "NebuLog.Tests";
+
+        public string ContentRootPath { get; set; } = Path.Combine(Path.GetTempPath(), "nebulog-tests");
+
+        public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
+    }
+
     private static NebuLogServerOptions Resolve(Dictionary<string, string?> settings)
     {
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddNebuLogServer(configuration);
+        services.AddNebuLogServer(configuration, new TestHostEnvironment());
 
         using var provider = services.BuildServiceProvider();
         return provider.GetRequiredService<IOptions<NebuLogServerOptions>>().Value;

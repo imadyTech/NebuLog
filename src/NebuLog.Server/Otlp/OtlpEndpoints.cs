@@ -44,17 +44,18 @@ internal static class OtlpEndpoints
             .AddOpenApiOperationTransformer(OtlpOpenApiTransformer.TransformAsync)
             .Produces(StatusCodes.Status200OK, contentType: ProtobufContentType)
             .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status413PayloadTooLarge)
             .Produces(StatusCodes.Status415UnsupportedMediaType)
             .Produces(StatusCodes.Status429TooManyRequests)
             .Produces(StatusCodes.Status503ServiceUnavailable)
             .RequireRateLimiting(NebuLogRateLimitOptions.IngestPolicy)
+            .RequireAuthorization(NebuLogPolicies.Producer)
             .RequireCors(NebuLogCorsOptions.PolicyName);
 
         return endpoints;
     }
 
-    /// <summary>Policy: <see cref="NebuLogPolicies.Producer"/> once WO-0005 enables authentication.</summary>
     private static async Task HandleAsync(
         HttpContext context,
         ILogIngestor ingestor,

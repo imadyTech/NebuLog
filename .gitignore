@@ -27,3 +27,4 @@ coverage/
 Thumbs.db
 desktop.ini
 src/NebuLog.Server.Host/wwwroot/
+App_Data/

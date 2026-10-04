@@ -1,7 +1,10 @@
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using NebuLog.Contracts;
 using NebuLog.Server.Diagnostics;
+using NebuLog.Server.Authentication;
+using NebuLog.Server.Identity;
 using NebuLog.Server.Ingestion;
 
 namespace NebuLog.Server.Hubs;
@@ -10,12 +13,13 @@ namespace NebuLog.Server.Hubs;
 /// The hub producers push logs into and dashboards read from.
 /// </summary>
 /// <remarks>
-/// Roles come from the <c>role</c> query parameter for now. WO-0005 replaces that with the
-/// authenticated identity and activates the <see cref="NebuLogPolicies"/> names noted on each member.
+/// Every connection must be authenticated. The client kind comes from its identity, not from the
+/// request: a principal in the Producer role (one that authenticated with an API key) is a
+/// producer, and any other authenticated user is a dashboard.
 /// </remarks>
+[Authorize]
 public sealed class NebuLogHub : Hub<INebuLogHubClient>
 {
-    private const string RoleQueryKey = "role";
     private const string ServiceQueryKey = "service";
     private const string InstanceQueryKey = "instance";
 
@@ -53,14 +57,14 @@ public sealed class NebuLogHub : Hub<INebuLogHubClient>
     public override async Task OnConnectedAsync()
     {
         var query = Context.GetHttpContext()?.Request.Query;
-        var role = query?[RoleQueryKey].ToString();
-        var isProducer = string.Equals(role, ConnectedClientRegistry.ProducerKind, StringComparison.OrdinalIgnoreCase);
+        var isProducer = Context.User?.IsInRole(NebuLogRoles.Producer) == true;
 
         _clients.Add(new ConnectedClientInfo
         {
             ConnectionId = Context.ConnectionId,
             Kind = isProducer ? ConnectedClientRegistry.ProducerKind : ConnectedClientRegistry.ViewerKind,
-            ServiceName = Trimmed(query?[ServiceQueryKey].ToString()),
+            ServiceName = Trimmed(Context.User?.FindFirst(ApiKeyAuthenticationOptions.ServiceNameClaim)?.Value)
+                ?? Trimmed(query?[ServiceQueryKey].ToString()),
             ServiceInstanceId = Trimmed(query?[InstanceQueryKey].ToString()),
             ConnectedUnixMs = _timeProvider.GetUtcNow().ToUnixTimeMilliseconds(),
         });
@@ -86,9 +90,10 @@ public sealed class NebuLogHub : Hub<INebuLogHubClient>
         await base.OnDisconnectedAsync(exception).ConfigureAwait(false);
     }
 
-    /// <summary>Accepts a batch of log entries from a producer. Policy: <see cref="NebuLogPolicies.Producer"/>.</summary>
+    /// <summary>Accepts a batch of log entries from a producer.</summary>
     /// <param name="entries">The entries to ingest.</param>
     /// <exception cref="HubException">The ingest queue is full.</exception>
+    [Authorize(NebuLogPolicies.Producer)]
     public void PublishLogs(IReadOnlyList<NebuLogEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
@@ -100,8 +105,9 @@ public sealed class NebuLogHub : Hub<INebuLogHubClient>
         }
     }
 
-    /// <summary>Declares a live statistic. Policy: <see cref="NebuLogPolicies.Producer"/>.</summary>
+    /// <summary>Declares a live statistic.</summary>
     /// <param name="definition">The statistic to declare.</param>
+    [Authorize(NebuLogPolicies.Producer)]
     public async Task DefineStat(StatDefinition definition)
     {
         ArgumentNullException.ThrowIfNull(definition);
@@ -110,8 +116,9 @@ public sealed class NebuLogHub : Hub<INebuLogHubClient>
         await Clients.Group(NebuLogGroups.Viewers).StatDefined(definition).ConfigureAwait(false);
     }
 
-    /// <summary>Publishes a new value for a live statistic. Policy: <see cref="NebuLogPolicies.Producer"/>.</summary>
+    /// <summary>Publishes a new value for a live statistic.</summary>
     /// <param name="update">The value to publish.</param>
+    [Authorize(NebuLogPolicies.Producer)]
     public async Task UpdateStat(StatUpdate update)
     {
         ArgumentNullException.ThrowIfNull(update);
@@ -120,10 +127,11 @@ public sealed class NebuLogHub : Hub<INebuLogHubClient>
         await Clients.Group(NebuLogGroups.Viewers).StatUpdated(update).ConfigureAwait(false);
     }
 
-    /// <summary>Replays buffered history to a dashboard. Policy: <see cref="NebuLogPolicies.Viewer"/>.</summary>
+    /// <summary>Replays buffered history to a dashboard.</summary>
     /// <param name="query">The history filter.</param>
     /// <param name="cancellationToken">Cancels the stream when the dashboard goes away.</param>
     /// <returns>The matching entries, oldest first.</returns>
+    [Authorize(NebuLogPolicies.Viewer)]
     public async IAsyncEnumerable<NebuLogEntry> StreamHistory(
         HistoryQuery query,
         [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -139,13 +147,15 @@ public sealed class NebuLogHub : Hub<INebuLogHubClient>
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
-    /// <summary>Returns every declared statistic. Policy: <see cref="NebuLogPolicies.Viewer"/>.</summary>
+    /// <summary>Returns every declared statistic.</summary>
+    [Authorize(NebuLogPolicies.Viewer)]
     public IReadOnlyList<StatSnapshot> GetStats() => _stats.Snapshot();
 
-    /// <summary>Forwards a command to one producer. Policy: <see cref="NebuLogPolicies.Operator"/>.</summary>
+    /// <summary>Forwards a command to one producer.</summary>
     /// <param name="connectionId">The target producer's connection id.</param>
     /// <param name="command">The command to deliver.</param>
     /// <exception cref="HubException">The target is not a connected producer.</exception>
+    [Authorize(NebuLogPolicies.Operator)]
     public async Task SendCommand(string connectionId, NebuLogCommand command)
     {
         ArgumentNullException.ThrowIfNull(command);

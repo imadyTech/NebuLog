@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NebuLog.Server;
 using NebuLog.Server.Api;
@@ -33,6 +34,9 @@ public static class NebuLogServerServiceCollectionExtensions
     /// <param name="configuration">
     /// Configuration root the <c>NebuLog:*</c> sections are bound from.
     /// </param>
+    /// <param name="environment">
+    /// Hosting environment; development relaxes cookie security and the default storage paths.
+    /// </param>
     /// <returns>The same service collection, for chaining.</returns>
     /// <remarks>
     /// Forwarded headers, the exception handler, security headers and the rate limiter are inserted
@@ -40,10 +44,16 @@ public static class NebuLogServerServiceCollectionExtensions
     /// that a host only has to call this method and <c>MapNebuLog()</c>, and so that forwarded
     /// headers are guaranteed to run before anything the application adds.
     /// </remarks>
-    public static IServiceCollection AddNebuLogServer(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddNebuLogServer(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        IHostEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(environment);
+
+        services.AddNebuLogSecurity(configuration, environment);
 
         services.AddOptions<NebuLogServerOptions>()
             .Bind(configuration.GetSection(NebuLogServerOptions.SectionName))
@@ -101,7 +111,11 @@ public static class NebuLogServerServiceCollectionExtensions
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [IngestQueueHealthCheck.ReadyTag]);
 
-        services.AddRateLimiter(ConfigureRateLimiter);
+        services.AddRateLimiter(limiter =>
+        {
+            ConfigureRateLimiter(limiter);
+            NebuLogSecurityServiceCollectionExtensions.AddAuthRateLimitPolicy(limiter);
+        });
 
         services.Configure<ForwardedHeadersOptions>(options =>
         {

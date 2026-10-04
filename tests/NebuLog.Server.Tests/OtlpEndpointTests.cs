@@ -77,13 +77,13 @@ public sealed class OtlpEndpointTests
     {
         var token = TestContext.Current.CancellationToken;
         await using var factory = new NebuLogAppFactory();
-        await using var viewer = await factory.ConnectAsync("viewer");
+        await using var viewer = await factory.ConnectViewerAsync();
 
         var received = new TaskCompletionSource<IReadOnlyList<NebuLogEntry>>(
             TaskCreationOptions.RunContinuationsAsynchronously);
         viewer.On<IReadOnlyList<NebuLogEntry>>(HubRoutes.ReceiveLogs, batch => received.TrySetResult(batch));
 
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateProducerClientAsync();
         using var response = await client.PostAsync(
             new Uri("/v1/logs", UriKind.Relative), ProtobufContent(SampleRequest()), token);
 
@@ -111,7 +111,7 @@ public sealed class OtlpEndpointTests
     {
         var token = TestContext.Current.CancellationToken;
         await using var factory = new NebuLogAppFactory();
-        await using var viewer = await factory.ConnectAsync("viewer");
+        await using var viewer = await factory.ConnectViewerAsync();
 
         var received = new TaskCompletionSource<IReadOnlyList<NebuLogEntry>>(
             TaskCreationOptions.RunContinuationsAsynchronously);
@@ -120,7 +120,7 @@ public sealed class OtlpEndpointTests
         var json = await File.ReadAllTextAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "otlp-logs.json"), token);
 
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateProducerClientAsync();
         using var response = await client.PostAsync(new Uri("/v1/logs", UriKind.Relative), JsonContent(json), token);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -153,7 +153,7 @@ public sealed class OtlpEndpointTests
     {
         var token = TestContext.Current.CancellationToken;
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateProducerClientAsync();
 
         using var compressed = new MemoryStream();
         await using (var gzip = new GZipStream(compressed, CompressionLevel.SmallestSize, leaveOpen: true))
@@ -176,7 +176,7 @@ public sealed class OtlpEndpointTests
     {
         var token = TestContext.Current.CancellationToken;
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateProducerClientAsync();
 
         using var content = new StringContent("<logs/>", Encoding.UTF8);
         content.Headers.ContentType = new MediaTypeHeaderValue("application/xml");
@@ -194,7 +194,7 @@ public sealed class OtlpEndpointTests
         {
             ["NebuLog:Otlp:MaxRequestBodyBytes"] = "2048",
         });
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateProducerClientAsync();
 
         using var response = await client.PostAsync(
             new Uri("/v1/logs", UriKind.Relative),
@@ -209,7 +209,7 @@ public sealed class OtlpEndpointTests
     {
         var token = TestContext.Current.CancellationToken;
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateProducerClientAsync();
 
         using var content = new ByteArrayContent([0xff, 0xff, 0xff, 0xff, 0x0f]);
         content.Headers.ContentType = new MediaTypeHeaderValue(ProtobufContentType);
@@ -229,7 +229,7 @@ public sealed class OtlpEndpointTests
     {
         var token = TestContext.Current.CancellationToken;
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateProducerClientAsync();
 
         using var response = await client.PostAsync(
             new Uri("/v1/logs", UriKind.Relative), JsonContent("{\"resourceLogs\": \"not-an-array\"}"), token);
@@ -256,7 +256,7 @@ public sealed class OtlpEndpointTests
             ["NebuLog:RateLimit:IngestBucketCapacity"] = "100000",
             ["NebuLog:RateLimit:IngestTokensPerSecond"] = "100000",
         });
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateProducerClientAsync();
 
         var flood = new ExportLogsServiceRequest();
         var scope = new ScopeLogs { Scope = new InstrumentationScope { Name = "flood" } };
@@ -292,7 +292,7 @@ public sealed class OtlpEndpointTests
             ["NebuLog:RateLimit:IngestBucketCapacity"] = "2",
             ["NebuLog:RateLimit:IngestTokensPerSecond"] = "1",
         });
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateProducerClientAsync();
 
         HttpStatusCode? last = null;
         for (var i = 0; i < 5; i++)
@@ -319,7 +319,7 @@ public sealed class OtlpEndpointTests
         {
             ["NebuLog:Cors:AllowedOrigins"] = "https://nebulog.imady.co.nz, https://dash.example.test",
         });
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateProducerClientAsync();
 
         using var allowed = await SendPreflightAsync(client, "https://dash.example.test", token);
         Assert.Equal(HttpStatusCode.NoContent, allowed.StatusCode);
@@ -336,7 +336,7 @@ public sealed class OtlpEndpointTests
     {
         var token = TestContext.Current.CancellationToken;
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateProducerClientAsync();
 
         using var response = await SendPreflightAsync(client, "https://dash.example.test", token);
 

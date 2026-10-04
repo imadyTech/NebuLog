@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using NebuLog.Server.Identity;
 using Xunit;
 
 namespace NebuLog.Server.Tests;
@@ -11,7 +12,7 @@ public sealed class HostInfrastructureTests
     public async Task SecurityHeadersArePresentOnEveryResponse()
     {
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         using var response = await client.GetAsync(
             new Uri("/api/info", UriKind.Relative), TestContext.Current.CancellationToken);
@@ -29,7 +30,7 @@ public sealed class HostInfrastructureTests
     public async Task ScalarGetsItsOwnWiderPolicy()
     {
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         using var response = await client.GetAsync(
             new Uri("/scalar/v1", UriKind.Relative), TestContext.Current.CancellationToken);
@@ -50,7 +51,7 @@ public sealed class HostInfrastructureTests
     public async Task OpenApiDocumentListsEveryApiEndpoint()
     {
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         using var document = JsonDocument.Parse(await client.GetStringAsync(
             new Uri("/openapi/v1.json", UriKind.Relative), TestContext.Current.CancellationToken));
@@ -66,7 +67,7 @@ public sealed class HostInfrastructureTests
     public async Task OpenApiDocumentDescribesTheOtlpEndpointAndItsTwoEncodings()
     {
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         using var document = JsonDocument.Parse(await client.GetStringAsync(
             new Uri("/openapi/v1.json", UriKind.Relative), TestContext.Current.CancellationToken));
@@ -91,7 +92,7 @@ public sealed class HostInfrastructureTests
     public async Task ReadinessReportsTheIngestQueue()
     {
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         using var response = await client.GetAsync(
             new Uri("/health/ready", UriKind.Relative), TestContext.Current.CancellationToken);
@@ -107,7 +108,7 @@ public sealed class HostInfrastructureTests
     public async Task LivenessRunsNoChecks()
     {
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         using var response = await client.GetAsync(
             new Uri("/health/live", UriKind.Relative), TestContext.Current.CancellationToken);
@@ -128,7 +129,7 @@ public sealed class HostInfrastructureTests
     public async Task ReservedPrefixesDoNotFallBackToTheDashboard(string path)
     {
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         using var response = await client.GetAsync(new Uri(path, UriKind.Relative), TestContext.Current.CancellationToken);
 
@@ -139,7 +140,7 @@ public sealed class HostInfrastructureTests
     public async Task UnknownDashboardRouteServesIndexHtml()
     {
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         using var response = await client.GetAsync(
             new Uri("/logs/detail/42", UriKind.Relative), TestContext.Current.CancellationToken);
@@ -156,7 +157,7 @@ public sealed class HostInfrastructureTests
             ["NebuLog:RateLimit:ApiPermitsPerWindow"] = "3",
             ["NebuLog:RateLimit:ApiWindow"] = "00:00:30",
         });
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         for (var i = 0; i < 3; i++)
         {
@@ -183,7 +184,7 @@ public sealed class HostInfrastructureTests
             ["NebuLog:RateLimit:ApiPermitsPerWindow"] = "2",
             ["NebuLog:RateLimit:ApiWindow"] = "00:00:30",
         });
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         for (var i = 0; i < 3; i++)
         {
@@ -203,7 +204,7 @@ public sealed class HostInfrastructureTests
             ["NebuLog:RateLimit:ApiPermitsPerWindow"] = "2",
             ["NebuLog:RateLimit:ApiWindow"] = "00:00:30",
         });
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         HttpStatusCode? last = null;
         for (var i = 0; i < 3; i++)
@@ -224,7 +225,7 @@ public sealed class HostInfrastructureTests
             ["NebuLog:RateLimit:ApiPermitsPerWindow"] = "2",
             ["NebuLog:RateLimit:ApiWindow"] = "00:00:30",
         });
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         HttpStatusCode? last = null;
         for (var i = 0; i < 3; i++)
@@ -249,7 +250,7 @@ public sealed class HostInfrastructureTests
     public async Task UnhandledExceptionsBecomeProblemDetailsWithoutAStackTrace()
     {
         await using var factory = new NebuLogAppFactory(withThrowingEndpoint: true);
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         using var response = await client.GetAsync(
             new Uri(ThrowingEndpointStartupFilter.Path, UriKind.Relative), TestContext.Current.CancellationToken);
@@ -272,7 +273,7 @@ public sealed class HostInfrastructureTests
     public async Task ValidationProblemsAreReturnedAsProblemDetails()
     {
         await using var factory = new NebuLogAppFactory();
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
 
         using var response = await client.GetAsync(
             new Uri("/api/logs?limit=abc", UriKind.Relative), TestContext.Current.CancellationToken);

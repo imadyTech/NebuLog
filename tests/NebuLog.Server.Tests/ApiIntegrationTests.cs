@@ -5,6 +5,7 @@ using NebuLog.Contracts;
 using NebuLog.Server.Api;
 using NebuLog.Server.Diagnostics;
 using NebuLog.Server.Hubs;
+using NebuLog.Server.Identity;
 using Xunit;
 
 namespace NebuLog.Server.Tests;
@@ -22,8 +23,8 @@ public sealed class ApiIntegrationTests
             ["NebuLog:RateLimit:ApiPermitsPerWindow"] = "1000",
         });
 
-        await using (var viewer = await factory.ConnectAsync("viewer"))
-        await using (var producer = await factory.ConnectAsync("producer", "orders"))
+        await using (var viewer = await factory.ConnectViewerAsync())
+        await using (var producer = await factory.ConnectProducerAsync("orders"))
         {
             await HubIntegrationTests.PublishAndWaitAsync(viewer, producer,
             [
@@ -33,7 +34,7 @@ public sealed class ApiIntegrationTests
             ]);
         }
 
-        return (factory, factory.CreateClient());
+        return (factory, await factory.SignInAsAsync(NebuLogRoles.Viewer));
     }
 
     [Fact]
@@ -114,7 +115,7 @@ public sealed class ApiIntegrationTests
     public async Task CustomStatsSurviveTheProducerDisconnecting()
     {
         await using var factory = new NebuLogAppFactory();
-        await using (var producer = await factory.ConnectAsync("producer", "orders"))
+        await using (var producer = await factory.ConnectProducerAsync("orders"))
         {
             await producer.InvokeAsync(
                 HubRoutes.DefineStat,
@@ -126,7 +127,7 @@ public sealed class ApiIntegrationTests
                 TestContext.Current.CancellationToken);
         }
 
-        using var client = factory.CreateClient();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
         var stats = await client.GetFromJsonAsync<List<StatSnapshot>>(
             "/api/custom-stats", TestContext.Current.CancellationToken);
 

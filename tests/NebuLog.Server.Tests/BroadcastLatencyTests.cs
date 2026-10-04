@@ -14,8 +14,8 @@ public sealed class BroadcastLatencyTests
     {
         var token = TestContext.Current.CancellationToken;
         await using var factory = new NebuLogAppFactory();
-        await using var viewer = await factory.ConnectAsync("viewer");
-        await using var producer = await factory.ConnectAsync("producer", "latency");
+        await using var viewer = await factory.ConnectViewerAsync();
+        await using var producer = await factory.ConnectProducerAsync("latency");
 
         var arrivals = new Dictionary<string, TaskCompletionSource<long>>(StringComparer.Ordinal);
         viewer.On<IReadOnlyList<NebuLogEntry>>(HubRoutes.ReceiveLogs, batch =>

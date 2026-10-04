@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using NebuLog.Contracts;
+using NebuLog.Server.Identity;
 using Xunit;
 
 namespace NebuLog.Server.Tests;
@@ -15,8 +16,8 @@ public sealed class HubIntegrationTests
     public async Task PublishedLogsReachViewersInOneBatch()
     {
         await using var factory = new NebuLogAppFactory();
-        await using var viewer = await factory.ConnectAsync("viewer");
-        await using var producer = await factory.ConnectAsync("producer", "orders");
+        await using var viewer = await factory.ConnectViewerAsync();
+        await using var producer = await factory.ConnectProducerAsync("orders");
 
         var batches = new List<IReadOnlyList<NebuLogEntry>>();
         var received = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -57,8 +58,8 @@ public sealed class HubIntegrationTests
     public async Task StreamHistoryReplaysBufferedEntries()
     {
         await using var factory = new NebuLogAppFactory();
-        await using var viewer = await factory.ConnectAsync("viewer");
-        await using var producer = await factory.ConnectAsync("producer", "orders");
+        await using var viewer = await factory.ConnectViewerAsync();
+        await using var producer = await factory.ConnectProducerAsync("orders");
 
         await PublishAndWaitAsync(viewer, producer, [Entry("alpha"), Entry("beta", Severity.Error)]);
 
@@ -81,8 +82,10 @@ public sealed class HubIntegrationTests
     public async Task SendCommandReachesTheTargetProducer()
     {
         await using var factory = new NebuLogAppFactory();
-        await using var viewer = await factory.ConnectAsync("viewer");
-        await using var producer = await factory.ConnectAsync("producer", "orders");
+
+        // SendCommand is the one hub method that needs more than Viewer.
+        await using var viewer = await factory.ConnectViewerAsync(NebuLogRoles.Operator);
+        await using var producer = await factory.ConnectProducerAsync("orders");
 
         var delivered = new TaskCompletionSource<NebuLogCommand>(TaskCreationOptions.RunContinuationsAsynchronously);
         producer.On<NebuLogCommand>(HubRoutes.ReceiveCommand, command => delivered.TrySetResult(command));
@@ -102,7 +105,7 @@ public sealed class HubIntegrationTests
     public async Task SendCommandToAnUnknownTargetFails()
     {
         await using var factory = new NebuLogAppFactory();
-        await using var viewer = await factory.ConnectAsync("viewer");
+        await using var viewer = await factory.ConnectViewerAsync(NebuLogRoles.Operator);
 
         var error = await Assert.ThrowsAsync<HubException>(() => viewer.InvokeAsync(
             HubRoutes.SendCommand,
@@ -117,8 +120,8 @@ public sealed class HubIntegrationTests
     public async Task StatsAreBroadcastAndReadable()
     {
         await using var factory = new NebuLogAppFactory();
-        await using var viewer = await factory.ConnectAsync("viewer");
-        await using var producer = await factory.ConnectAsync("producer", "orders");
+        await using var viewer = await factory.ConnectViewerAsync();
+        await using var producer = await factory.ConnectProducerAsync("orders");
 
         var defined = new TaskCompletionSource<StatDefinition>(TaskCreationOptions.RunContinuationsAsynchronously);
         var updated = new TaskCompletionSource<StatUpdate>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -142,7 +145,7 @@ public sealed class HubIntegrationTests
     public async Task ConnectedClientsAreAnnouncedToViewers()
     {
         await using var factory = new NebuLogAppFactory();
-        await using var viewer = await factory.ConnectAsync("viewer");
+        await using var viewer = await factory.ConnectViewerAsync();
 
         var announced = new TaskCompletionSource<IReadOnlyList<ConnectedClientInfo>>(
             TaskCreationOptions.RunContinuationsAsynchronously);
@@ -154,7 +157,7 @@ public sealed class HubIntegrationTests
             }
         });
 
-        await using var producer = await factory.ConnectAsync("producer", "orders");
+        await using var producer = await factory.ConnectProducerAsync("orders");
 
         var snapshot = await announced.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         var registered = Assert.Single(snapshot, client => client.Kind == "producer");
@@ -165,8 +168,8 @@ public sealed class HubIntegrationTests
     public async Task ViewersReceiveTheSummary()
     {
         await using var factory = new NebuLogAppFactory();
-        await using var viewer = await factory.ConnectAsync("viewer");
-        await using var producer = await factory.ConnectAsync("producer", "orders");
+        await using var viewer = await factory.ConnectViewerAsync();
+        await using var producer = await factory.ConnectProducerAsync("orders");
 
         var summaries = new TaskCompletionSource<LiveSummaryDto>(TaskCreationOptions.RunContinuationsAsynchronously);
         viewer.On<LiveSummaryDto>(HubRoutes.SummaryUpdated, summary =>
