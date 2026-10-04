@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!-- Stand-alone host; also serves the React dashboard build from wwwroot. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <UserSecretsId>imady-nebulog-host</UserSecretsId>
+    <ContainerRepository>imady/nebulog</ContainerRepository>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NebuLog.Server\NebuLog.Server.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Embeddable server: AddNebuLogServer() / MapNebuLog(). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <PackageId>Imady.NebuLog.Server</PackageId>
+    <Description>Embeddable NebuLog server: SignalR hub, OTLP/HTTP log receiver and dashboard APIs.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NebuLog.Contracts\NebuLog.Contracts.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- OpenTelemetry SDK extensions: NebuLogExporter, RedactionProcessor. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <PackageId>Imady.NebuLog.OpenTelemetry</PackageId>
+    <Description>OpenTelemetry .NET SDK extensions that stream logs to a NebuLog server.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NebuLog.Contracts\NebuLog.Contracts.csproj" />
+  </ItemGroup>
+</Project>
