@@ -11,6 +11,10 @@ indent_size = 4
 [*.{json,yml,yaml,ts,tsx,js,jsx,css,html,csproj,props,targets,slnx,xml}]
 indent_size = 2
 
+# Kept in step with the eol=crlf rules in .gitattributes.
+[*.{sln,slnx,cmd,bat,ps1}]
+end_of_line = crlf
+
 [*.md]
 trim_trailing_whitespace = false
 
