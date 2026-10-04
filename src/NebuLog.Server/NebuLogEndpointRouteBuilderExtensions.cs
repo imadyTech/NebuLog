@@ -10,6 +10,7 @@ using NebuLog.Server.Diagnostics;
 using NebuLog.Server.Hubs;
 using NebuLog.Server.Infrastructure;
 using NebuLog.Server.Ingestion;
+using NebuLog.Server.Otlp;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -38,8 +39,16 @@ public static class NebuLogEndpointRouteBuilderExtensions
             app.UseRateLimiter();
         }
 
+        // CORS must sit between routing and the endpoints so the OTLP policy is applied and
+        // preflight requests are answered.
+        if (endpoints is IApplicationBuilder corsApp)
+        {
+            corsApp.UseCors();
+        }
+
         endpoints.MapHub<NebuLogHub>(HubRoutes.Path);
         endpoints.MapNebuLogApi();
+        endpoints.MapNebuLogOtlp();
 
         endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
         {

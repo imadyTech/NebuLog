@@ -63,6 +63,31 @@ public sealed class HostInfrastructureTests
     }
 
     [Fact]
+    public async Task OpenApiDocumentDescribesTheOtlpEndpointAndItsTwoEncodings()
+    {
+        await using var factory = new NebuLogAppFactory();
+        using var client = factory.CreateClient();
+
+        using var document = JsonDocument.Parse(await client.GetStringAsync(
+            new Uri("/openapi/v1.json", UriKind.Relative), TestContext.Current.CancellationToken));
+
+        var operation = document.RootElement
+            .GetProperty("paths")
+            .GetProperty("/v1/logs")
+            .GetProperty("post");
+
+        var content = operation.GetProperty("requestBody").GetProperty("content");
+        Assert.True(content.TryGetProperty("application/x-protobuf", out _));
+        Assert.True(content.TryGetProperty("application/json", out _));
+
+        var responses = operation.GetProperty("responses");
+        foreach (var status in new[] { "200", "400", "413", "415", "429", "503" })
+        {
+            Assert.True(responses.TryGetProperty(status, out _), $"{status} is missing from /v1/logs.");
+        }
+    }
+
+    [Fact]
     public async Task ReadinessReportsTheIngestQueue()
     {
         await using var factory = new NebuLogAppFactory();

@@ -8,6 +8,13 @@
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Google.Protobuf" />
+    <!-- Needed for the OTLP endpoint's OpenAPI operation transformer. Note that this package's
+         XML-comment source generator then emits roughly 1,900 lines of documentation-support code
+         into this assembly; ExcludeAssets="analyzers" does not suppress it. That code is generated,
+         so coverage figures for this project are reported with it excluded. -->
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Grpc.Tools" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" />
   </ItemGroup>
   <ItemGroup>
@@ -15,5 +22,9 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="NebuLog.Server.Tests" />
+  </ItemGroup>
+  <!-- Message types only: NebuLog serves OTLP over plain HTTP, it does not host a gRPC service. -->
+  <ItemGroup>
+    <Protobuf Include="Protos\**\*.proto" ProtoRoot="Protos" GrpcServices="None" Access="Public" />
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Net;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -16,6 +17,7 @@ using NebuLog.Server.Diagnostics;
 using NebuLog.Server.Hubs;
 using NebuLog.Server.Infrastructure;
 using NebuLog.Server.Ingestion;
+using NebuLog.Server.Otlp;
 using IPNetwork = System.Net.IPNetwork;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -57,6 +59,18 @@ public static class NebuLogServerServiceCollectionExtensions
 
         services.AddOptions<NebuLogForwardedHeadersOptions>()
             .Bind(configuration.GetSection(NebuLogForwardedHeadersOptions.SectionName));
+
+        services.AddOptions<NebuLogOtlpOptions>()
+            .Bind(configuration.GetSection(NebuLogOtlpOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<NebuLogCorsOptions>()
+            .Bind(configuration.GetSection(NebuLogCorsOptions.SectionName));
+
+        services.AddCors();
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IConfigureOptions<CorsOptions>, ConfigureNebuLogCors>());
 
         services.TryAddSingleton(TimeProvider.System);
         services.AddMetrics();
