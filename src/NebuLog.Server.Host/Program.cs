@@ -1,16 +1,21 @@
+using NebuLog.Server.Host;
+using Scalar.AspNetCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddHealthChecks();
+builder.Services.AddNebuLogServer(builder.Configuration);
+builder.Services.AddOpenApi();
+builder.AddHostObservability();
 
 var app = builder.Build();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-app.MapHealthChecks("/health/live");
-
-// Client-side routes of the React dashboard fall back to index.html.
-app.MapFallbackToFile("index.html");
+app.MapOpenApi();
+app.MapScalarApiReference();
+app.MapNebuLog();
+app.MapNebuLogDashboardFallback();
 
 await app.RunAsync();
 

@@ -22,6 +22,10 @@ public interface INebuLogHubClient
     /// <param name="clients">The clients currently connected.</param>
     Task ClientsChanged(IReadOnlyList<ConnectedClientInfo> clients);
 
+    /// <summary>Delivers a refreshed activity summary to a dashboard.</summary>
+    /// <param name="summary">The current summary.</param>
+    Task SummaryUpdated(LiveSummaryDto summary);
+
     /// <summary>Delivers a command to a producer.</summary>
     /// <param name="command">The command to execute.</param>
     Task ReceiveCommand(NebuLogCommand command);
