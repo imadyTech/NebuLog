@@ -7,9 +7,15 @@
     <Description>OpenTelemetry .NET SDK extensions that stream logs to a NebuLog server.</Description>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
     <PackageReference Include="OpenTelemetry" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NebuLog.Contracts\NebuLog.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="NebuLog.OpenTelemetry.Tests" />
   </ItemGroup>
 </Project>

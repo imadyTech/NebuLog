@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Xunit;
 
 namespace NebuLog.Server.Tests;
 
