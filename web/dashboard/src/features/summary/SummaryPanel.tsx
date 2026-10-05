@@ -25,7 +25,7 @@ export default function SummaryPanel({ summary, buffered }: SummaryPanelProps) {
         {bands.map((band) => (
           <li key={band} className={styles.band}>
             <span className={`${styles.bandName} ${styles[`level${band}`]}`}>{band}</span>
-            <span className={styles.bandCount}>{(summary?.countsByBand[band] ?? 0).toLocaleString()}</span>
+            <span className={styles.bandCount}>{(summary?.countsByBand?.[band] ?? 0).toLocaleString()}</span>
           </li>
         ))}
       </ul>

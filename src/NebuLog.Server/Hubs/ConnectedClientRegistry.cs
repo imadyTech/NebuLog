@@ -41,8 +41,16 @@ public sealed class ConnectedClientRegistry
         string.Equals(client.Kind, ProducerKind, StringComparison.Ordinal);
 
     /// <summary>Returns every connected client, ordered by connection time.</summary>
+    /// <remarks>
+    /// Deliberately a plain array. A collection expression targeting <c>IReadOnlyList&lt;T&gt;</c>
+    /// produces a compiler-generated wrapper that MessagePack cannot construct, which fails at run
+    /// time only when the value is actually serialised to a MessagePack client.
+    /// </remarks>
     public IReadOnlyList<ConnectedClientInfo> Snapshot() =>
-        [.. _clients.Values.OrderBy(client => client.ConnectedUnixMs).ThenBy(client => client.ConnectionId, StringComparer.Ordinal)];
+        _clients.Values
+            .OrderBy(client => client.ConnectedUnixMs)
+            .ThenBy(client => client.ConnectionId, StringComparer.Ordinal)
+            .ToArray();
 
     private int CountOf(string kind) =>
         _clients.Count(pair => string.Equals(pair.Value.Kind, kind, StringComparison.Ordinal));

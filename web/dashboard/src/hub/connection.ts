@@ -5,7 +5,6 @@ import {
   type IRetryPolicy,
   type RetryContext,
 } from '@microsoft/signalr'
-import { MessagePackHubProtocol } from '@microsoft/signalr-protocol-msgpack'
 import type {
   ConnectedClientInfo,
   LiveSummaryDto,
@@ -68,9 +67,14 @@ export class NebuLogHubClient {
     this.closed = false
     this.handlers.onStatus('connecting')
 
+    // The default JSON protocol, deliberately.
+    //
+    // SignalR's MessagePack protocol serialises .NET objects under their CLR property names, so a
+    // browser receives `CountsByBand` where the REST API and these types say `countsByBand`. The
+    // .NET exporter keeps MessagePack — both ends share the CLR type, so the names line up — but
+    // for the dashboard JSON is the protocol whose field names match everything else it reads.
     const connection = new HubConnectionBuilder()
       .withUrl(HubRoutes.path)
-      .withHubProtocol(new MessagePackHubProtocol())
       .withAutomaticReconnect(new NeverGiveUpRetryPolicy())
       .build()
 

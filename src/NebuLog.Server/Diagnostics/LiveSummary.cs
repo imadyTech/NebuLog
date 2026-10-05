@@ -77,7 +77,7 @@ public sealed class LiveSummary
                 TotalIngested = _totalIngested,
                 CountsByBand = new Dictionary<string, long>(_countsByBand, StringComparer.Ordinal),
                 RatePerSecond = ordered,
-                Services = [.. _services],
+                Services = _services.ToArray(),
                 BufferedCount = bufferedCount,
                 TimestampUnixMs = _timeProvider.GetUtcNow().ToUnixTimeMilliseconds(),
             };

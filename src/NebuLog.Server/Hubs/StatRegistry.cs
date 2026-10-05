@@ -37,14 +37,14 @@ public sealed class StatRegistry
     }
 
     /// <summary>Returns every declared statistic together with its latest value, if any.</summary>
+    /// <remarks>A plain array, for the MessagePack reason noted on <see cref="ConnectedClientRegistry.Snapshot"/>.</remarks>
     public IReadOnlyList<StatSnapshot> Snapshot() =>
-    [
-        .. _definitions.Values
+        _definitions.Values
             .OrderBy(definition => definition.Id, StringComparer.Ordinal)
             .Select(definition => new StatSnapshot(
                 definition,
-                _values.TryGetValue(definition.Id, out var value) ? value : null)),
-    ];
+                _values.TryGetValue(definition.Id, out var value) ? value : null))
+            .ToArray();
 }
 
 /// <summary>A declared statistic paired with its most recent value.</summary>

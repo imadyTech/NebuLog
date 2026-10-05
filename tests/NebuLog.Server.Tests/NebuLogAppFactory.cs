@@ -172,11 +172,13 @@ internal sealed class NebuLogAppFactory : WebApplicationFactory<Program>
 
     /// <summary>Opens a hub connection authenticated by API key — that is, as a producer.</summary>
     /// <param name="apiKey">The clear-text key.</param>
-    public Task<HubConnection> ConnectAsProducerAsync(string apiKey) =>
-        ConnectAsync(options => options.Headers[ApiKeyAuthenticationOptions.HeaderName] = apiKey);
+    /// <param name="protocol">The hub protocol to negotiate.</param>
+    public Task<HubConnection> ConnectAsProducerAsync(string apiKey, HubProtocol protocol = HubProtocol.Json) =>
+        ConnectAsync(options => options.Headers[ApiKeyAuthenticationOptions.HeaderName] = apiKey, protocol);
 
     /// <summary>Opens a hub connection carrying the session cookie of an already signed-in client.</summary>
-    public Task<HubConnection> ConnectAsUserAsync()
+    /// <param name="protocol">The hub protocol to negotiate.</param>
+    public Task<HubConnection> ConnectAsUserAsync(HubProtocol protocol = HubProtocol.Json)
     {
         var header = Cookies.GetCookieHeader(CookieForwardingHandler.CookieScope);
         if (string.IsNullOrEmpty(header))
@@ -184,23 +186,29 @@ internal sealed class NebuLogAppFactory : WebApplicationFactory<Program>
             throw new InvalidOperationException("Sign in with SignInAsAsync before opening a hub connection.");
         }
 
-        return ConnectAsync(options => options.Headers["Cookie"] = header);
+        return ConnectAsync(options => options.Headers["Cookie"] = header, protocol);
     }
 
     /// <summary>Signs in with the given role and opens a dashboard hub connection.</summary>
     /// <param name="role">The role to sign in with; defaults to <see cref="NebuLogRoles.Viewer"/>.</param>
-    public async Task<HubConnection> ConnectViewerAsync(string role = NebuLogRoles.Viewer)
+    /// <param name="protocol">The hub protocol to negotiate.</param>
+    public async Task<HubConnection> ConnectViewerAsync(
+        string role = NebuLogRoles.Viewer,
+        HubProtocol protocol = HubProtocol.Json)
     {
         using var client = await SignInAsAsync(role);
-        return await ConnectAsUserAsync();
+        return await ConnectAsUserAsync(protocol);
     }
 
     /// <summary>Issues a key and opens a producer hub connection with it.</summary>
     /// <param name="serviceName">Optional pinned service name, reported to the client registry.</param>
-    public async Task<HubConnection> ConnectProducerAsync(string? serviceName = null)
+    /// <param name="protocol">The hub protocol to negotiate.</param>
+    public async Task<HubConnection> ConnectProducerAsync(
+        string? serviceName = null,
+        HubProtocol protocol = HubProtocol.Json)
     {
         var (_, clearText) = await IssueApiKeyAsync($"producer-{Guid.NewGuid():N}", serviceName);
-        return await ConnectAsProducerAsync(clearText);
+        return await ConnectAsProducerAsync(clearText, protocol);
     }
 
     /// <summary>Opens an unauthenticated hub connection.</summary>
@@ -240,17 +248,39 @@ internal sealed class NebuLogAppFactory : WebApplicationFactory<Program>
         }
     }
 
-    private async Task<HubConnection> ConnectAsync(Action<HttpConnectionOptions> configure)
+    /// <summary>Which hub protocol a test connection should negotiate.</summary>
+    /// <remarks>
+    /// Both are in use for real: .NET producers speak MessagePack, the browser dashboard speaks
+    /// JSON. They serialise differently enough that a type can work over one and fail over the
+    /// other, so tests have to be explicit about which they mean.
+    /// </remarks>
+    public enum HubProtocol
     {
-        var connection = new HubConnectionBuilder()
+        /// <summary>The default JSON protocol, as the browser dashboard uses.</summary>
+        Json,
+
+        /// <summary>MessagePack, as the .NET exporter uses.</summary>
+        MessagePack,
+    }
+
+    private async Task<HubConnection> ConnectAsync(
+        Action<HttpConnectionOptions> configure,
+        HubProtocol protocol = HubProtocol.Json)
+    {
+        var builder = new HubConnectionBuilder()
             .WithUrl(new Uri(Server.BaseAddress, HubRoutes.Path), options =>
             {
                 options.HttpMessageHandlerFactory = _ => Server.CreateHandler();
                 options.Transports = HttpTransportType.LongPolling;
                 configure(options);
-            })
-            .Build();
+            });
 
+        if (protocol == HubProtocol.MessagePack)
+        {
+            builder.AddMessagePackProtocol();
+        }
+
+        var connection = builder.Build();
         await connection.StartAsync();
         return connection;
     }
