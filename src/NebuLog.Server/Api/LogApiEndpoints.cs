@@ -92,8 +92,9 @@ internal static class LogApiEndpoints
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
                 ?? typeof(LogApiEndpoints).Assembly.GetName().Version?.ToString()
                 ?? "unknown",
-            StartedUnixMs = startTime.StartedUnixMs,
-            UptimeSeconds = (long)(timeProvider.GetUtcNow().ToUnixTimeMilliseconds() - startTime.StartedUnixMs) / 1000,
+            StartedUnixMs = startTime.GetStartedUnixMs(timeProvider),
+            UptimeSeconds = (timeProvider.GetUtcNow().ToUnixTimeMilliseconds()
+                - startTime.GetStartedUnixMs(timeProvider)) / 1000,
             BufferCapacity = buffer.Capacity,
             BufferedCount = buffer.Count,
         });

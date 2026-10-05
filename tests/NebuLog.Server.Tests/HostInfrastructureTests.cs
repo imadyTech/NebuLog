@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using NebuLog.Server.Api;
 using NebuLog.Server.Identity;
 using Xunit;
 
@@ -86,6 +87,25 @@ public sealed class HostInfrastructureTests
         {
             Assert.True(responses.TryGetProperty(status, out _), $"{status} is missing from /v1/logs.");
         }
+    }
+
+    [Fact]
+    public async Task UptimeCountsFromHostStartNotFromTheFirstRequest()
+    {
+        await using var factory = new NebuLogAppFactory();
+        using var client = await factory.SignInAsAsync(NebuLogRoles.Viewer);
+        var token = TestContext.Current.CancellationToken;
+
+        // The host is already running by the time SignInAsAsync returns. Wait, then ask for the
+        // first time: a start time captured lazily on first resolution would report zero here.
+        await Task.Delay(TimeSpan.FromSeconds(1.5), token);
+
+        var info = await client.GetFromJsonAsync<ServerInfoDto>(new Uri("/api/info", UriKind.Relative), token);
+
+        Assert.True(info!.StartedUnixMs > 0);
+        Assert.True(
+            info.UptimeSeconds >= 1,
+            $"Uptime was {info.UptimeSeconds}s, so the start time was captured on first use rather than at host start.");
     }
 
     [Fact]

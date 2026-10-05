@@ -1,7 +1,4 @@
-using NebuLog.OpenTelemetry;
 using NebuLog.Samples.DemoProducer;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Resources;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -10,27 +7,22 @@ builder.Services.AddOptions<DemoProducerOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-// The level switch is what the dashboard's set-min-level command drives.
+// The level switch is what the dashboard's set-min-level command drives, across all services.
 var levelSwitch = new LogLevelSwitch();
 builder.Services.AddSingleton(levelSwitch);
-builder.Logging.AddFilter((_, level) => levelSwitch.IsEnabled(level));
 
-var endpoint = builder.Configuration["NebuLog:Endpoint"] ?? "http://localhost:5080";
+var endpoint = new Uri(builder.Configuration["NebuLog:Endpoint"] ?? "http://localhost:5080");
 var apiKey = builder.Configuration["NebuLog:DemoProducer:ApiKey"] ?? string.Empty;
 
-builder.Services.AddOpenTelemetry()
-    .ConfigureResource(resource => resource.AddService(
-        serviceName: "nebulog-demo-producer",
-        serviceInstanceId: Environment.MachineName))
-    .WithLogging(logging => logging
-        .AddNebuLogRedaction()
-        .AddNebuLogExporter(options =>
-        {
-            options.Endpoint = new Uri(endpoint);
-            options.ApiKey = apiKey;
-        }));
+// Three simulated applications, each with its own service.name, so the dashboard's service filter
+// has something to filter. See SimulatedService for why each needs its own provider.
+var services = builder.Configuration
+    .GetSection("DemoProducer:Services")
+    .Get<string[]>() ?? ["orders-api", "payments-worker", "inventory-sync"];
 
-builder.Services.AddNebuLogClient();
+builder.Services.AddSingleton<IReadOnlyList<SimulatedService>>(
+    _ => [.. services.Select(name => SimulatedService.Create(name, endpoint, apiKey, levelSwitch))]);
+
 builder.Services.AddHostedService<TrafficSimulator>();
 
 var host = builder.Build();

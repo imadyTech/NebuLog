@@ -1,13 +1,12 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Options;
 using NebuLog.Contracts;
-using NebuLog.OpenTelemetry;
 
 namespace NebuLog.Samples.DemoProducer;
 
 /// <summary>
-/// Produces plausible traffic for the public demo: several services, a realistic mix of severities,
-/// occasional exceptions with stack traces, nested activities and a couple of live statistics.
+/// Produces plausible traffic for the public demo: three services, a realistic mix of severities,
+/// occasional exceptions with stack traces, nested activities and a few live statistics.
 /// </summary>
 internal sealed partial class TrafficSimulator : BackgroundService
 {
@@ -21,39 +20,33 @@ internal sealed partial class TrafficSimulator : BackgroundService
 
     private static readonly string[] Regions = ["auckland", "wellington", "christchurch"];
 
-    private readonly ILogger<TrafficSimulator> _orders;
-    private readonly ILogger<ShippingService> _shipping;
-    private readonly ILogger<BillingService> _billing;
-    private readonly INebuLogStats _stats;
-    private readonly INebuLogCommands _commands;
+    private readonly IReadOnlyList<SimulatedService> _services;
     private readonly DemoProducerOptions _options;
     private readonly LogLevelSwitch _levelSwitch;
+    private readonly ILogger<TrafficSimulator> _logger;
 
     private int _queueDepth;
     private int _ordersPlaced;
     private DateTimeOffset _burstUntil = DateTimeOffset.MinValue;
 
     public TrafficSimulator(
-        ILogger<TrafficSimulator> orders,
-        ILogger<ShippingService> shipping,
-        ILogger<BillingService> billing,
-        INebuLogStats stats,
-        INebuLogCommands commands,
+        IReadOnlyList<SimulatedService> services,
         IOptions<DemoProducerOptions> options,
-        LogLevelSwitch levelSwitch)
+        LogLevelSwitch levelSwitch,
+        ILogger<TrafficSimulator> logger)
     {
-        _orders = orders;
-        _shipping = shipping;
-        _billing = billing;
-        _stats = stats;
-        _commands = commands;
+        _services = services;
         _options = options.Value;
         _levelSwitch = levelSwitch;
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _commands.CommandReceived += OnCommand;
+        foreach (var service in _services)
+        {
+            service.Commands.CommandReceived += OnCommand;
+        }
 
         try
         {
@@ -103,41 +96,46 @@ internal sealed partial class TrafficSimulator : BackgroundService
         }
         finally
         {
-            _commands.CommandReceived -= OnCommand;
+            foreach (var service in _services)
+            {
+                service.Commands.CommandReceived -= OnCommand;
+            }
         }
     }
 
+    /// <summary>Emits one unit of business traffic, attributed to one of the simulated services.</summary>
     private void EmitOne(Random random)
     {
         var orderId = Interlocked.Increment(ref _ordersPlaced);
         var product = Products[random.Next(Products.Length)];
         var region = Regions[random.Next(Regions.Length)];
+        var service = _services[random.Next(_services.Count)];
 
         // A root activity so every log below carries the same TraceId, as a real request would.
         using var root = Activity.StartActivity("checkout", ActivityKind.Server);
         root?.SetTag("order.id", orderId);
         root?.SetTag("region", region);
 
-        OrderReceived(_orders, orderId, product, region);
+        OrderReceived(service.Orders, orderId, product, region);
 
         var roll = random.Next(100);
         if (roll < 55)
         {
             using var _ = Activity.StartActivity("billing.authorise", ActivityKind.Internal);
-            PaymentAuthorised(_billing, orderId, Math.Round(random.NextDouble() * 40 + 4, 2));
+            PaymentAuthorised(service.Billing, orderId, Math.Round((random.NextDouble() * 40) + 4, 2));
         }
         else if (roll < 75)
         {
             using var _ = Activity.StartActivity("shipping.label", ActivityKind.Internal);
-            LabelPrinted(_shipping, orderId, region, random.Next(1, 40));
+            LabelPrinted(service.Shipping, orderId, region, random.Next(1, 40));
         }
         else if (roll < 88)
         {
-            SlowDownstream(_shipping, orderId, random.Next(900, 4000));
+            SlowDownstream(service.Shipping, orderId, random.Next(900, 4000));
         }
         else if (roll < 96)
         {
-            PaymentDeclined(_billing, orderId, "insufficient_funds");
+            PaymentDeclined(service.Billing, orderId, "insufficient_funds");
         }
         else
         {
@@ -148,7 +146,7 @@ internal sealed partial class TrafficSimulator : BackgroundService
             }
             catch (TimeoutException exception)
             {
-                CheckoutFailed(_billing, exception, orderId);
+                CheckoutFailed(service.Billing, exception, orderId);
             }
         }
 
@@ -159,50 +157,55 @@ internal sealed partial class TrafficSimulator : BackgroundService
 
     private async Task DeclareStatsAsync(CancellationToken cancellationToken)
     {
+        // Declared on the first service's connection; statistics are server-wide, not per service.
+        var stats = _services[0].Stats;
+
         try
         {
-            await _stats.DefineAsync(
+            await stats.DefineAsync(
                 new StatDefinition { Id = "queue.depth", Title = "Queue depth", Color = "blue" },
                 cancellationToken).ConfigureAwait(false);
-            await _stats.DefineAsync(
+            await stats.DefineAsync(
                 new StatDefinition { Id = "cpu.percent", Title = "CPU %", Color = "amber" },
                 cancellationToken).ConfigureAwait(false);
-            await _stats.DefineAsync(
+            await stats.DefineAsync(
                 new StatDefinition { Id = "orders.total", Title = "Orders placed", Color = "green" },
                 cancellationToken).ConfigureAwait(false);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            // The server may not be up yet; the connection retries on its own and the next
-            // publish re-declares nothing, so losing this once is harmless.
-            StatsUnavailable(_orders, exception);
+            // The server may not be up yet; the next pass re-declares, so losing this once is fine.
+            StatsUnavailable(_logger, exception);
         }
     }
 
     private async Task PublishStatsAsync(Random random, CancellationToken cancellationToken)
     {
+        var stats = _services[0].Stats;
+
         try
         {
-            await _stats.UpdateAsync("queue.depth", Volatile.Read(ref _queueDepth).ToString(), cancellationToken)
+            await stats.UpdateAsync("queue.depth", Volatile.Read(ref _queueDepth).ToString(), cancellationToken)
                 .ConfigureAwait(false);
-            await _stats.UpdateAsync("cpu.percent", random.Next(8, 72).ToString(), cancellationToken)
+            await stats.UpdateAsync("cpu.percent", random.Next(8, 72).ToString(), cancellationToken)
                 .ConfigureAwait(false);
-            await _stats.UpdateAsync("orders.total", Volatile.Read(ref _ordersPlaced).ToString(), cancellationToken)
+            await stats.UpdateAsync("orders.total", Volatile.Read(ref _ordersPlaced).ToString(), cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            StatsUnavailable(_orders, exception);
+            StatsUnavailable(_logger, exception);
         }
     }
 
     /// <summary>Handles the commands an operator can send from the dashboard.</summary>
     private void OnCommand(object? sender, NebuLogCommand command)
     {
+        // Every simulated service subscribes, so a command addressed to any of them is honoured.
         switch (command.Name)
         {
             case "ping":
-                Pong(_orders, command.IssuedBy);
+                Pong(_services[0].Orders, command.IssuedBy);
                 break;
 
             case "set-min-level":
@@ -211,18 +214,18 @@ internal sealed partial class TrafficSimulator : BackgroundService
                 {
                     var level = ToLogLevel(severity);
                     _levelSwitch.MinimumLevel = level;
-                    MinimumLevelChanged(_orders, level, command.IssuedBy);
+                    MinimumLevelChanged(_services[0].Orders, level, command.IssuedBy);
                 }
 
                 break;
 
             case "burst":
                 _burstUntil = DateTimeOffset.UtcNow.AddSeconds(_options.BurstSeconds);
-                BurstStarted(_orders, _options.BurstRatePerSecond, _options.BurstSeconds);
+                BurstStarted(_services[0].Orders, _options.BurstRatePerSecond, _options.BurstSeconds);
                 break;
 
             default:
-                UnknownCommand(_orders, command.Name);
+                UnknownCommand(_services[0].Orders, command.Name);
                 break;
         }
     }
@@ -277,9 +280,3 @@ internal sealed partial class TrafficSimulator : BackgroundService
     [LoggerMessage(EventId = 11, Level = LogLevel.Debug, Message = "Statistics could not be published")]
     private static partial void StatsUnavailable(ILogger logger, Exception exception);
 }
-
-/// <summary>Logger category standing in for a shipping service.</summary>
-internal sealed class ShippingService;
-
-/// <summary>Logger category standing in for a billing service.</summary>
-internal sealed class BillingService;

@@ -91,8 +91,8 @@ public static class NebuLogServerServiceCollectionExtensions
         services.TryAddSingleton<StatRegistry>();
         services.TryAddSingleton<LogIngestor>();
         services.TryAddSingleton<ILogIngestor>(sp => sp.GetRequiredService<LogIngestor>());
-        services.TryAddSingleton(sp => new ServerStartTime(
-            sp.GetRequiredService<TimeProvider>().GetUtcNow().ToUnixTimeMilliseconds()));
+        services.TryAddSingleton<ServerStartTime>();
+        services.AddHostedService<ServerStartTimeStamper>();
         services.AddHostedService<LogPipelineService>();
 
         services
