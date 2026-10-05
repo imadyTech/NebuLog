@@ -196,16 +196,21 @@ dotnet test NebuLog.slnx
 ## Deployment
 
 See [`deploy/README.md`](deploy/README.md). Images are published to GHCR by
-[`.github/workflows/release.yml`](.github/workflows/release.yml) with immutable tags —
-`sha-<short commit>`, plus the bare version on a `v*` tag. Never `latest`, so a roll-back is a
-one-line change to a tag.
+[`.github/workflows/release.yml`](.github/workflows/release.yml) on every push to `master` and on
+`v*` tags, with immutable tags — `sha-<short commit>`, plus the bare version on a `v*` tag. Never
+`latest`, so a roll-back is a one-line change to a tag.
 
 ## v1 → v2
 
-v1 was a .NET 6 project that worked but had accumulated the usual problems: the hub was open to
-anyone, log bodies were inserted into the page as HTML (so any producer could script the dashboard),
-the table rebuilt itself on every entry and stalled past ten thousand rows, and the build no longer
-ran from a clean clone.
+NebuLog started in December 2018 and was developed through October 2022. That version — a .NET 6
+project — is archived at [`v1-final`](https://github.com/imadyTech/NebuLog/tree/v1-final) (also on
+the [`v1`](https://github.com/imadyTech/NebuLog/tree/v1) branch) and remains in this repository's
+history.
+
+It worked, but had accumulated the usual problems: the hub was open to anyone, log bodies were
+inserted into the page as HTML (so any producer could script the dashboard), the table rebuilt
+itself on every entry and stalled past ten thousand rows, and the build no longer ran from a clean
+clone.
 
 v2 keeps the idea and rewrites the implementation: OpenTelemetry instead of a bespoke client
 protocol, authentication from the start, a virtualised dashboard, and automated tests as the
