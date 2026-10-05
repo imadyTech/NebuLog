@@ -58,13 +58,18 @@ public static class NebuLogLoggerProviderBuilderExtensions
 
             registry.AddConfiguration(configure);
 
-            var exporter = new NebuLogExporter(
+            NebuLogExporter? exporter = null;
+            exporter = new NebuLogExporter(
                 registry.BuildOptions(),
                 identity =>
                 {
                     registry.SetIdentity(identity);
                     return registry.GetTransport(identity);
                 });
+
+            // Lets the registry name this process even when a statistic or a command opens the
+            // connection before the first log record is exported.
+            registry.SetIdentitySource(() => exporter!.ReadIdentity());
 
             // A simple processor is correct here: Export() never performs I/O, it only enqueues.
             return new SimpleLogRecordExportProcessor(exporter);

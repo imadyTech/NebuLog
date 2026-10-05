@@ -180,7 +180,11 @@ public sealed class NebuLogExporter : BaseExporter<LogRecord>
         }
     }
 
-    private NebuLogClientIdentity ReadIdentity()
+    /// <summary>
+    /// Reads <c>service.name</c> and <c>service.instance.id</c> from the OpenTelemetry resource.
+    /// Internal so the registry can ask for it when the connection opens before the first export.
+    /// </summary>
+    internal NebuLogClientIdentity ReadIdentity()
     {
         var resource = ParentProvider?.GetResource() ?? Resource.Empty;
         string? service = null;

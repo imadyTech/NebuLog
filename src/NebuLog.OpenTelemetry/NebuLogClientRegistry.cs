@@ -20,6 +20,7 @@ internal sealed class NebuLogClientRegistry : IAsyncDisposable
     private readonly ILoggerFactory _loggerFactory;
     private readonly Lock _gate = new();
     private NebuLogClientIdentity _identity = NebuLogClientIdentity.Unknown;
+    private Func<NebuLogClientIdentity>? _identitySource;
     private NebuLogConnection? _connection;
 
     public NebuLogClientRegistry(IOptions<NebuLogExporterOptions> options, ILoggerFactory loggerFactory)
@@ -34,6 +35,25 @@ internal sealed class NebuLogClientRegistry : IAsyncDisposable
         lock (_gate)
         {
             _configurations.Add(configure);
+        }
+    }
+
+    /// <summary>
+    /// Registers a way to read the producer identity from the OpenTelemetry resource on demand.
+    /// </summary>
+    /// <remarks>
+    /// The identity has to be resolved when the connection opens, not when the exporter is built:
+    /// whichever of the exporter, <see cref="INebuLogStats"/> or <see cref="INebuLogCommands"/>
+    /// touches the connection first decides the service name sent on the query string. A process
+    /// that declares a statistic before writing its first log would otherwise register as
+    /// "unknown_service".
+    /// </remarks>
+    /// <param name="source">Returns the identity; called at most once, when the connection opens.</param>
+    public void SetIdentitySource(Func<NebuLogClientIdentity> source)
+    {
+        lock (_gate)
+        {
+            _identitySource ??= source;
         }
     }
 
@@ -75,7 +95,7 @@ internal sealed class NebuLogClientRegistry : IAsyncDisposable
         {
             if (_connection is null)
             {
-                _identity = identity;
+                _identity = Resolve(identity);
                 _connection = new NebuLogConnection(BuildOptionsUnlocked(), _identity, _loggerFactory);
             }
 
@@ -85,6 +105,18 @@ internal sealed class NebuLogClientRegistry : IAsyncDisposable
 
     /// <summary>Returns the shared connection for callers that have no resource identity of their own.</summary>
     public NebuLogConnection GetConnection() => (NebuLogConnection)GetTransport(_identity);
+
+    /// <summary>The identity the connection was opened with. Exposed for tests.</summary>
+    internal NebuLogClientIdentity ResolvedIdentity
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _identity;
+            }
+        }
+    }
 
     /// <inheritdoc />
     public async ValueTask DisposeAsync()
@@ -100,6 +132,23 @@ internal sealed class NebuLogClientRegistry : IAsyncDisposable
         {
             await connection.DisposeAsync().ConfigureAwait(false);
         }
+    }
+
+    /// <summary>
+    /// Prefers a real identity over the placeholder, asking the resource only when the caller
+    /// could not supply one.
+    /// </summary>
+    private NebuLogClientIdentity Resolve(NebuLogClientIdentity supplied)
+    {
+        if (supplied.ServiceName != NebuLogClientIdentity.Unknown.ServiceName)
+        {
+            return supplied;
+        }
+
+        var fromResource = _identitySource?.Invoke();
+        return fromResource is not null && fromResource.ServiceName != NebuLogClientIdentity.Unknown.ServiceName
+            ? fromResource
+            : supplied;
     }
 
     private NebuLogExporterOptions BuildOptionsUnlocked()
