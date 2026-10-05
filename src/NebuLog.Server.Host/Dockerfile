@@ -38,4 +38,7 @@ EXPOSE 8080
 ENV ASPNETCORE_HTTP_PORTS=8080 \
     DOTNET_gcServer=0
 
+# Uses the application itself: this image has no curl or wget for a shell probe to call.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3     CMD ["dotnet", "NebuLog.Server.Host.dll", "--health-check"]
+
 ENTRYPOINT ["dotnet", "NebuLog.Server.Host.dll"]

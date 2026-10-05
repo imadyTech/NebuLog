@@ -26,12 +26,8 @@ services:
     mem_limit: 512m
     cpus: 1.0
     networks: [nebulog_net]
-    healthcheck:
-      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/health/ready >/dev/null || exit 1']
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 20s
+    # The healthcheck is baked into the image (it runs the application with --health-check,
+    # because the ASP.NET runtime image has no curl or wget for a shell probe to use).
 
   nebulog-demo-producer:
     image: ghcr.io/imadytech/nebulog-demo-producer:${NEBULOG_TAG}
