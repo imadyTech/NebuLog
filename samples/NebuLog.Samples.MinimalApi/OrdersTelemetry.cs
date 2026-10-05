@@ -38,13 +38,20 @@ internal sealed partial class OrdersTelemetry : BackgroundService
 
         try
         {
-            await _stats.DefineAsync(
-                new StatDefinition { Id = "orders.rps", Title = "Requests/s", Color = "teal" },
-                stoppingToken).ConfigureAwait(false);
+            var definition = new StatDefinition { Id = "orders.rps", Title = "Requests/s", Color = "teal" };
+            var ticks = 0;
 
             using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
             while (await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false))
             {
+                // The server holds definitions in memory, so they vanish when it restarts, and the
+                // first attempt can race a server that is not up yet. Re-declaring every 30 s is
+                // idempotent and lets the dashboard panel recover on its own.
+                if (ticks++ % 30 == 0)
+                {
+                    await _stats.DefineAsync(definition, stoppingToken).ConfigureAwait(false);
+                }
+
                 await _stats.UpdateAsync("orders.rps", _counter.Drain().ToString(), stoppingToken)
                     .ConfigureAwait(false);
             }

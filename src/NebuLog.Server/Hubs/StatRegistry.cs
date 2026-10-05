@@ -3,7 +3,16 @@ using NebuLog.Contracts;
 
 namespace NebuLog.Server.Hubs;
 
-/// <summary>Holds the live statistics producers have declared and their latest values.</summary>
+/// <summary>
+/// Holds the live statistics producers have declared and their latest values.
+/// </summary>
+/// <remarks>
+/// This is in-memory and deliberately ephemeral, like the log ring buffer: a server restart clears
+/// it. A value published for an id that was never declared is stored but not listed, so producers
+/// are expected to re-declare periodically rather than once at start-up — otherwise a restart, or
+/// simply connecting before the server is ready, would leave the dashboard's panel empty for good.
+/// The bundled demo producer re-declares every 30 seconds.
+/// </remarks>
 public sealed class StatRegistry
 {
     private readonly ConcurrentDictionary<string, StatDefinition> _definitions = new(StringComparer.Ordinal);

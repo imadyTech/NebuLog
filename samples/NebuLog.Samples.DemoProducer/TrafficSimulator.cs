@@ -13,6 +13,9 @@ internal sealed partial class TrafficSimulator : BackgroundService
 {
     private static readonly ActivitySource Activity = new("NebuLog.DemoProducer");
 
+    /// <summary>How often the statistic definitions are re-sent. See the call site for why.</summary>
+    private static readonly TimeSpan RedeclareInterval = TimeSpan.FromSeconds(30);
+
     private static readonly string[] Products =
         ["flat white", "long black", "cortado", "filter roast", "cold brew"];
 
@@ -58,6 +61,7 @@ internal sealed partial class TrafficSimulator : BackgroundService
 
             var random = new Random(Environment.TickCount);
             var statsTimer = Stopwatch.StartNew();
+            var declareTimer = Stopwatch.StartNew();
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -72,6 +76,16 @@ internal sealed partial class TrafficSimulator : BackgroundService
                 for (var i = 0; i < slice && !stoppingToken.IsCancellationRequested; i++)
                 {
                     EmitOne(random);
+                }
+
+                // Statistic definitions live in the server's memory, so they are lost whenever the
+                // server restarts — and the very first declaration can race a server that is not
+                // listening yet. Re-declaring periodically is idempotent (the server replaces by id)
+                // and is what makes the dashboard's panel repopulate on its own.
+                if (declareTimer.Elapsed >= RedeclareInterval)
+                {
+                    declareTimer.Restart();
+                    await DeclareStatsAsync(stoppingToken).ConfigureAwait(false);
                 }
 
                 if (statsTimer.ElapsedMilliseconds >= 1000)
