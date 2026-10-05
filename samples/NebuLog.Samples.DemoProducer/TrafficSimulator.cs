@@ -1,0 +1,271 @@
+using System.Diagnostics;
+using Microsoft.Extensions.Options;
+using NebuLog.Contracts;
+using NebuLog.OpenTelemetry;
+
+namespace NebuLog.Samples.DemoProducer;
+
+/// <summary>
+/// Produces plausible traffic for the public demo: several services, a realistic mix of severities,
+/// occasional exceptions with stack traces, nested activities and a couple of live statistics.
+/// </summary>
+internal sealed partial class TrafficSimulator : BackgroundService
+{
+    private static readonly ActivitySource Activity = new("NebuLog.DemoProducer");
+
+    private static readonly string[] Products =
+        ["flat white", "long black", "cortado", "filter roast", "cold brew"];
+
+    private static readonly string[] Regions = ["auckland", "wellington", "christchurch"];
+
+    private readonly ILogger<TrafficSimulator> _orders;
+    private readonly ILogger<ShippingService> _shipping;
+    private readonly ILogger<BillingService> _billing;
+    private readonly INebuLogStats _stats;
+    private readonly INebuLogCommands _commands;
+    private readonly DemoProducerOptions _options;
+    private readonly LogLevelSwitch _levelSwitch;
+
+    private int _queueDepth;
+    private int _ordersPlaced;
+    private DateTimeOffset _burstUntil = DateTimeOffset.MinValue;
+
+    public TrafficSimulator(
+        ILogger<TrafficSimulator> orders,
+        ILogger<ShippingService> shipping,
+        ILogger<BillingService> billing,
+        INebuLogStats stats,
+        INebuLogCommands commands,
+        IOptions<DemoProducerOptions> options,
+        LogLevelSwitch levelSwitch)
+    {
+        _orders = orders;
+        _shipping = shipping;
+        _billing = billing;
+        _stats = stats;
+        _commands = commands;
+        _options = options.Value;
+        _levelSwitch = levelSwitch;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        _commands.CommandReceived += OnCommand;
+
+        try
+        {
+            await DeclareStatsAsync(stoppingToken).ConfigureAwait(false);
+
+            var random = new Random(Environment.TickCount);
+            var statsTimer = Stopwatch.StartNew();
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                var bursting = DateTimeOffset.UtcNow < _burstUntil;
+                var perSecond = bursting
+                    ? _options.BurstRatePerSecond
+                    : random.Next(_options.MinRatePerSecond, _options.MaxRatePerSecond + 1);
+
+                // One slice of a second's worth of traffic, so the rate stays smooth rather than
+                // arriving as one spike per second.
+                var slice = Math.Max(1, perSecond / 10);
+                for (var i = 0; i < slice && !stoppingToken.IsCancellationRequested; i++)
+                {
+                    EmitOne(random);
+                }
+
+                if (statsTimer.ElapsedMilliseconds >= 1000)
+                {
+                    statsTimer.Restart();
+                    await PublishStatsAsync(random, stoppingToken).ConfigureAwait(false);
+                }
+
+                await Task.Delay(100, stoppingToken).ConfigureAwait(false);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Normal shutdown.
+        }
+        finally
+        {
+            _commands.CommandReceived -= OnCommand;
+        }
+    }
+
+    private void EmitOne(Random random)
+    {
+        var orderId = Interlocked.Increment(ref _ordersPlaced);
+        var product = Products[random.Next(Products.Length)];
+        var region = Regions[random.Next(Regions.Length)];
+
+        // A root activity so every log below carries the same TraceId, as a real request would.
+        using var root = Activity.StartActivity("checkout", ActivityKind.Server);
+        root?.SetTag("order.id", orderId);
+        root?.SetTag("region", region);
+
+        OrderReceived(_orders, orderId, product, region);
+
+        var roll = random.Next(100);
+        if (roll < 55)
+        {
+            using var _ = Activity.StartActivity("billing.authorise", ActivityKind.Internal);
+            PaymentAuthorised(_billing, orderId, Math.Round(random.NextDouble() * 40 + 4, 2));
+        }
+        else if (roll < 75)
+        {
+            using var _ = Activity.StartActivity("shipping.label", ActivityKind.Internal);
+            LabelPrinted(_shipping, orderId, region, random.Next(1, 40));
+        }
+        else if (roll < 88)
+        {
+            SlowDownstream(_shipping, orderId, random.Next(900, 4000));
+        }
+        else if (roll < 96)
+        {
+            PaymentDeclined(_billing, orderId, "insufficient_funds");
+        }
+        else
+        {
+            // A real exception, so the dashboard's exception panel has a genuine stack trace.
+            try
+            {
+                throw new TimeoutException($"The payment gateway did not respond for order {orderId}.");
+            }
+            catch (TimeoutException exception)
+            {
+                CheckoutFailed(_billing, exception, orderId);
+            }
+        }
+
+        // Queue depth wanders so the statistic visibly moves.
+        var delta = random.Next(-3, 5);
+        Interlocked.Exchange(ref _queueDepth, Math.Clamp(_queueDepth + delta, 0, 500));
+    }
+
+    private async Task DeclareStatsAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _stats.DefineAsync(
+                new StatDefinition { Id = "queue.depth", Title = "Queue depth", Color = "blue" },
+                cancellationToken).ConfigureAwait(false);
+            await _stats.DefineAsync(
+                new StatDefinition { Id = "cpu.percent", Title = "CPU %", Color = "amber" },
+                cancellationToken).ConfigureAwait(false);
+            await _stats.DefineAsync(
+                new StatDefinition { Id = "orders.total", Title = "Orders placed", Color = "green" },
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            // The server may not be up yet; the connection retries on its own and the next
+            // publish re-declares nothing, so losing this once is harmless.
+            StatsUnavailable(_orders, exception);
+        }
+    }
+
+    private async Task PublishStatsAsync(Random random, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _stats.UpdateAsync("queue.depth", Volatile.Read(ref _queueDepth).ToString(), cancellationToken)
+                .ConfigureAwait(false);
+            await _stats.UpdateAsync("cpu.percent", random.Next(8, 72).ToString(), cancellationToken)
+                .ConfigureAwait(false);
+            await _stats.UpdateAsync("orders.total", Volatile.Read(ref _ordersPlaced).ToString(), cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            StatsUnavailable(_orders, exception);
+        }
+    }
+
+    /// <summary>Handles the commands an operator can send from the dashboard.</summary>
+    private void OnCommand(object? sender, NebuLogCommand command)
+    {
+        switch (command.Name)
+        {
+            case "ping":
+                Pong(_orders, command.IssuedBy);
+                break;
+
+            case "set-min-level":
+                if (command.Arguments.TryGetValue("level", out var raw) &&
+                    int.TryParse(raw, out var severity))
+                {
+                    var level = ToLogLevel(severity);
+                    _levelSwitch.MinimumLevel = level;
+                    MinimumLevelChanged(_orders, level, command.IssuedBy);
+                }
+
+                break;
+
+            case "burst":
+                _burstUntil = DateTimeOffset.UtcNow.AddSeconds(_options.BurstSeconds);
+                BurstStarted(_orders, _options.BurstRatePerSecond, _options.BurstSeconds);
+                break;
+
+            default:
+                UnknownCommand(_orders, command.Name);
+                break;
+        }
+    }
+
+    private static LogLevel ToLogLevel(int severityNumber) => severityNumber switch
+    {
+        >= Severity.Fatal => LogLevel.Critical,
+        >= Severity.Error => LogLevel.Error,
+        >= Severity.Warn => LogLevel.Warning,
+        >= Severity.Info => LogLevel.Information,
+        >= Severity.Debug => LogLevel.Debug,
+        _ => LogLevel.Trace,
+    };
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Information,
+        Message = "Order {OrderId} received: {Product} to {Region}")]
+    private static partial void OrderReceived(ILogger logger, int orderId, string product, string region);
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Debug,
+        Message = "Order {OrderId} authorised for {Amount:F2} NZD")]
+    private static partial void PaymentAuthorised(ILogger logger, int orderId, double amount);
+
+    [LoggerMessage(EventId = 3, Level = LogLevel.Information,
+        Message = "Order {OrderId} label printed for {Region}, {Grams} g")]
+    private static partial void LabelPrinted(ILogger logger, int orderId, string region, int grams);
+
+    [LoggerMessage(EventId = 4, Level = LogLevel.Warning,
+        Message = "Order {OrderId} waited {ElapsedMs} ms on a downstream service")]
+    private static partial void SlowDownstream(ILogger logger, int orderId, int elapsedMs);
+
+    [LoggerMessage(EventId = 5, Level = LogLevel.Error,
+        Message = "Order {OrderId} payment declined: {Reason}")]
+    private static partial void PaymentDeclined(ILogger logger, int orderId, string reason);
+
+    [LoggerMessage(EventId = 6, Level = LogLevel.Critical, Message = "Order {OrderId} checkout failed")]
+    private static partial void CheckoutFailed(ILogger logger, Exception exception, int orderId);
+
+    [LoggerMessage(EventId = 7, Level = LogLevel.Information, Message = "pong (requested by {IssuedBy})")]
+    private static partial void Pong(ILogger logger, string issuedBy);
+
+    [LoggerMessage(EventId = 8, Level = LogLevel.Information,
+        Message = "Minimum level set to {Level} by {IssuedBy}")]
+    private static partial void MinimumLevelChanged(ILogger logger, LogLevel level, string issuedBy);
+
+    [LoggerMessage(EventId = 9, Level = LogLevel.Information,
+        Message = "Burst mode: {RatePerSecond} entries/s for {Seconds} s")]
+    private static partial void BurstStarted(ILogger logger, int ratePerSecond, int seconds);
+
+    [LoggerMessage(EventId = 10, Level = LogLevel.Warning, Message = "Ignored unknown command {Name}")]
+    private static partial void UnknownCommand(ILogger logger, string name);
+
+    [LoggerMessage(EventId = 11, Level = LogLevel.Debug, Message = "Statistics could not be published")]
+    private static partial void StatsUnavailable(ILogger logger, Exception exception);
+}
+
+/// <summary>Logger category standing in for a shipping service.</summary>
+internal sealed class ShippingService;
+
+/// <summary>Logger category standing in for a billing service.</summary>
+internal sealed class BillingService;

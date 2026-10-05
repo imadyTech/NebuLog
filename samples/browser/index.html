@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NebuLog · browser OTLP sample</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Sending logs from a browser</h1>
+      <p class="lede">
+        This page posts an OpenTelemetry <code>ExportLogsServiceRequest</code> as OTLP/JSON to
+        <code>/v1/logs</code>. It is served from the same origin as the API, so no CORS is involved;
+        a page on another origin would need its origin added to
+        <code>NebuLog__Cors__AllowedOrigins</code>.
+      </p>
+
+      <label for="key">Producer API key</label>
+      <input id="key" type="password" autocomplete="off" placeholder="nbl_xxxxxxxx_x32" />
+      <p class="hint">
+        The key stays in this tab and is never stored. Create one on the dashboard's API keys page.
+      </p>
+
+      <label for="message">Message</label>
+      <input id="message" value="hello from the browser" />
+
+      <label for="severity">Severity</label>
+      <select id="severity">
+        <option value="5">Debug</option>
+        <option value="9" selected>Info</option>
+        <option value="13">Warn</option>
+        <option value="17">Error</option>
+      </select>
+
+      <button id="send" type="button">Send one entry</button>
+      <output id="result" aria-live="polite"></output>
+
+      <h2>The request body</h2>
+      <pre id="preview"></pre>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

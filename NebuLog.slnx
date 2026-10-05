@@ -5,6 +5,10 @@
     <Project Path="src/NebuLog.Server/NebuLog.Server.csproj" />
     <Project Path="src/NebuLog.Server.Host/NebuLog.Server.Host.csproj" />
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/NebuLog.Samples.DemoProducer/NebuLog.Samples.DemoProducer.csproj" />
+    <Project Path="samples/NebuLog.Samples.MinimalApi/NebuLog.Samples.MinimalApi.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/NebuLog.OpenTelemetry.Tests/NebuLog.OpenTelemetry.Tests.csproj" />
     <Project Path="tests/NebuLog.Server.Tests/NebuLog.Server.Tests.csproj" />

@@ -22,7 +22,10 @@ jobs:
           cache: npm
           cache-dependency-path: web/dashboard/package-lock.json
       - run: npm ci
+      # `npm run lint` also runs the raw-HTML check (WO-0006 §6: no dangerouslySetInnerHTML or
+      # innerHTML anywhere in src/) and the WCAG contrast check.
       - run: npm run lint
+      - run: npm test
       - run: npm run build
       - uses: actions/upload-artifact@v4
         with:
