@@ -1,0 +1,82 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-width: 1024px;
+}
+
+.header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex: none;
+  padding: 0.5rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.brand {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.nav {
+  display: flex;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.link,
+.linkActive {
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.3rem;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.link {
+  color: var(--text-muted);
+}
+
+.linkActive {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.user {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.78rem;
+}
+
+.roles {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.signOut {
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.3rem;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.loading {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  color: var(--text-muted);
+}

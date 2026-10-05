@@ -1,0 +1,115 @@
+.panel {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.title,
+.subtitle {
+  margin: 0 0 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.subtitle {
+  margin-top: 1rem;
+}
+
+.totals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.total {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  border-radius: 0.35rem;
+  background: var(--surface-sunken);
+}
+
+.totalValue {
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.totalLabel {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.chart {
+  margin: 0.75rem 0 0;
+}
+
+.spark {
+  display: block;
+  width: 100%;
+  height: 48px;
+  border-radius: 0.35rem;
+  background: var(--surface-sunken);
+}
+
+.sparkLine {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.chartCaption {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.bands {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.band {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+
+.bandName {
+  font-weight: 600;
+}
+
+.bandCount {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.services {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.8rem;
+}
+
+.empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.levelTrace { color: var(--severity-trace); }
+.levelDebug { color: var(--severity-debug); }
+.levelInfo { color: var(--severity-info); }
+.levelWarn { color: var(--severity-warn); }
+.levelError { color: var(--severity-error); }
+.levelFatal { color: var(--severity-fatal); }
