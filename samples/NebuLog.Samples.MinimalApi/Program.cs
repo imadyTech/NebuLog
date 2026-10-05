@@ -64,9 +64,6 @@ if (useExporter)
     builder.Services.AddHostedService<OrdersTelemetry>();
 }
 
-// Formatted messages are what the dashboard shows; without this the body is the message template.
-builder.Services.Configure<OpenTelemetryLoggerOptions>(options => options.IncludeFormattedMessage = true);
-
 var app = builder.Build();
 
 app.MapGet("/orders/{id:int}", Results<Ok<Order>, NotFound> (int id, ILogger<Order> logger, RequestCounter counter) =>

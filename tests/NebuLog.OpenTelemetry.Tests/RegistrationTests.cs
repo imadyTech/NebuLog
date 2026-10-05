@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
@@ -76,6 +77,24 @@ public sealed class RegistrationTests
 
         Assert.Equal("OrderApi", registry.ResolvedIdentity.ServiceName);
         Assert.Equal("order-1", registry.ResolvedIdentity.ServiceInstanceId);
+    }
+
+    [Fact]
+    public async Task AddNebuLogClientAsksOpenTelemetryToRenderTheMessage()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddNebuLogClient(options =>
+        {
+            options.Endpoint = new Uri("https://logs.example.test");
+            options.ApiKey = "api-key";
+        });
+
+        await using var provider = services.BuildServiceProvider();
+
+        // Without this the dashboard would show message templates instead of messages.
+        var otel = provider.GetRequiredService<IOptions<OpenTelemetryLoggerOptions>>().Value;
+        Assert.True(otel.IncludeFormattedMessage);
     }
 
     [Fact]

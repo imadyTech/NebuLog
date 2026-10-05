@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NebuLog.OpenTelemetry;
+using OpenTelemetry.Logs;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -34,6 +35,13 @@ public static class NebuLogServiceCollectionExtensions
             // result is validated instead, as the connection opens.
             options.Configure(configure).ValidateDataAnnotations().ValidateOnStart();
         }
+
+        // NebuLog shows people their logs, and OpenTelemetry does not render the message by
+        // default — without this the dashboard displays "Order {OrderId} shipped" rather than
+        // "Order 42 shipped". Set here rather than in the exporter because only the service
+        // collection can reach OpenTelemetryLoggerOptions. An application that wants the raw
+        // template can turn it back off after calling this method.
+        services.Configure<OpenTelemetryLoggerOptions>(options => options.IncludeFormattedMessage = true);
 
         services.TryAddSingleton<NebuLogClientRegistry>();
         services.TryAddSingleton<INebuLogStats>(sp => sp.GetRequiredService<NebuLogClientRegistry>().GetConnection());
