@@ -27,7 +27,7 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dashboard
           path: src/NebuLog.Server.Host/wwwroot
@@ -51,7 +51,7 @@ jobs:
       - run: dotnet build NebuLog.slnx --no-restore -c Release
       - run: dotnet test NebuLog.slnx --no-build -c Release
       - run: dotnet pack NebuLog.slnx --no-build -c Release -o artifacts/packages
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: packages
           path: artifacts/packages
