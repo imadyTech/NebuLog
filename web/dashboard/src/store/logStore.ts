@@ -6,6 +6,8 @@ export interface LogFilter {
   services: ReadonlySet<string>
   scope: string
   search: string
+  /** Empty shows every trace; otherwise only entries carrying this exact TraceId. */
+  traceId: string
 }
 
 export const emptyFilter: LogFilter = {
@@ -13,6 +15,7 @@ export const emptyFilter: LogFilter = {
   services: new Set<string>(),
   scope: '',
   search: '',
+  traceId: '',
 }
 
 /** Default ring capacity. The work order calls for 100,000 entries to stay smooth. */
@@ -233,6 +236,12 @@ export function matches(entry: NebuLogEntry, filter: LogFilter): boolean {
     return false
   }
 
+  // Exact match, not a prefix: a TraceId identifies one request, and a partial match would quietly
+  // widen "show only my trace" into "show traces that happen to start the same way".
+  if (filter.traceId.length > 0 && entry.traceId !== filter.traceId) {
+    return false
+  }
+
   return true
 }
 
@@ -241,6 +250,7 @@ function sameFilter(left: LogFilter, right: LogFilter): boolean {
     left.minSeverity !== right.minSeverity ||
     left.scope !== right.scope ||
     left.search !== right.search ||
+    left.traceId !== right.traceId ||
     left.services.size !== right.services.size
   ) {
     return false

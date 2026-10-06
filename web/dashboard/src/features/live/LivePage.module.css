@@ -1,3 +1,9 @@
+/* The console is a desktop view by agreement (WO-0006): dense, multi-panel, and not reflowed
+   for a phone. The floor that used to live on the app shell lives here instead. */
+.layout {
+  min-width: 1024px;
+}
+
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 18rem;

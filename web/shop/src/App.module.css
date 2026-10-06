@@ -45,7 +45,8 @@
 }
 
 .apiButton {
-  min-height: 32px;
+  /* 44 px, not 32: this is a control, and site-design.md §2 sets the touch target at 44 px. */
+  min-height: var(--touch-target);
   padding: 0 14px;
   font: inherit;
   font-size: 13px;

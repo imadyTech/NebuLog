@@ -1,52 +1,129 @@
 .page {
-  display: grid;
-  place-items: center;
   min-height: 100dvh;
-  padding: 2rem 1rem;
+  background: var(--ground);
+  color: var(--ink);
 }
 
-.card {
-  width: min(26rem, 100%);
-  padding: 2rem;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 14px 16px;
+}
+
+.brandLink {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.back {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  align-items: start;
+}
+
+.demoCard {
+  padding: 22px;
+  background: var(--dark);
+  color: var(--dark-text);
+  border-radius: var(--radius-card);
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+}
+
+.demoTitle {
+  margin: 0 0 14px;
+  font-size: 22px;
+  letter-spacing: -0.015em;
+}
+
+.points {
+  margin: 0 0 20px;
+  padding-left: 18px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--dark-text);
+}
+
+.demoButton {
+  width: 100%;
+  min-height: var(--touch-target);
+  font: inherit;
+  font-size: 14px;
+  color: var(--dark);
+  background: var(--dark-accent);
+  border: none;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+
+.returnNote {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--dark-muted);
+}
+
+.staffCard {
+  padding: 22px;
   background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
 }
 
-.title {
-  margin: 0;
-  font-size: 1.75rem;
-  letter-spacing: -0.02em;
+.staffTitle {
+  margin: 0 0 6px;
+  font-size: 18px;
 }
 
-.tagline {
-  margin: 0.25rem 0 1.5rem;
-  color: var(--text-muted);
-  font-size: 0.9rem;
+.staffLead {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--text-2);
 }
 
 .form {
-  display: grid;
-  gap: 0.35rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .label {
-  font-size: 0.8rem;
+  margin-bottom: 4px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--text-muted);
-}
-
-.label + .input {
-  margin-bottom: 0.75rem;
+  color: var(--text-2);
 }
 
 .input {
-  padding: 0.55rem 0.7rem;
-  border: 1px solid var(--border-strong);
-  border-radius: 0.4rem;
-  background: var(--surface-raised);
-  color: var(--text);
+  min-height: var(--touch-target);
+  margin-bottom: 14px;
+  padding: 0 10px;
   font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--surface);
+  /* --line-strong, not --line: an input's border is non-text UI and owes 3:1 (WCAG 1.4.11). */
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
 }
 
 .input:focus-visible {
@@ -54,50 +131,52 @@
   outline-offset: 1px;
 }
 
-.primary,
-.secondary {
-  padding: 0.6rem 0.8rem;
-  border-radius: 0.4rem;
+.submit {
+  min-height: var(--touch-target);
   font: inherit;
-  font-weight: 600;
+  font-size: 14px;
+  color: var(--surface);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-control);
   cursor: pointer;
 }
 
-.primary {
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: var(--accent-contrast);
-}
-
-.secondary {
-  width: 100%;
-  border: 1px solid var(--border-strong);
-  background: var(--surface-raised);
-  color: var(--text);
-}
-
-.primary:disabled,
-.secondary:disabled {
+.submit:disabled,
+.demoButton:disabled {
   opacity: 0.6;
-  cursor: progress;
-}
-
-.divider {
-  margin: 1rem 0;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  text-align: center;
+  cursor: not-allowed;
 }
 
 .error {
-  margin: 0 0 0.5rem;
-  color: var(--severity-error);
-  font-size: 0.85rem;
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--sev-error-fg);
+  background: var(--sev-error-bg);
+  border-radius: var(--radius-control);
 }
 
 .note {
-  margin: 1.5rem 0 0;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  line-height: 1.5;
+  margin: 14px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.footer {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  padding: 0 16px 36px;
+  font-size: 12px;
+}
+
+.footer a {
+  color: var(--text-2);
+}
+
+@media (max-width: 760px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
 }

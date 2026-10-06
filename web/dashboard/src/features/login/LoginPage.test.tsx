@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '../../api/auth'
@@ -35,10 +36,13 @@ function Harness() {
 }
 
 function renderLogin() {
+  // The page reads `returnUrl` from the query string, so it needs a router around it.
   return render(
-    <AuthProvider>
-      <Harness />
-    </AuthProvider>,
+    <MemoryRouter>
+      <AuthProvider>
+        <Harness />
+      </AuthProvider>
+    </MemoryRouter>,
   )
 }
 

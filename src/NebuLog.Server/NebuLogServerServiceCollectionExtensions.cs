@@ -76,6 +76,9 @@ public static class NebuLogServerServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddOptions<NebuLogSiteOptions>()
+            .Bind(configuration.GetSection(NebuLogSiteOptions.SectionName));
+
         services.AddOptions<NebuLogShopOptions>()
             .Bind(configuration.GetSection(NebuLogShopOptions.SectionName));
         services.AddNebuLogShopProxy();
@@ -107,6 +110,12 @@ public static class NebuLogServerServiceCollectionExtensions
                 ?? new NebuLogServerOptions().MaxHubMessageBytes)
             .AddMessagePackProtocol();
 
+        // Five seconds of output cache in front of the anonymous summary: the landing page polls it,
+        // and an unauthenticated endpoint on the public internet should not recompute per request.
+        services.AddOutputCache(cache => cache.AddPolicy(
+            PublicEndpoints.CachePolicy,
+            policy => policy.Expire(TimeSpan.FromSeconds(5))));
+
         services.AddProblemDetails();
         services.AddExceptionHandler<NebuLogExceptionHandler>();
 
@@ -121,6 +130,7 @@ public static class NebuLogServerServiceCollectionExtensions
             ConfigureRateLimiter(limiter);
             NebuLogSecurityServiceCollectionExtensions.AddAuthRateLimitPolicy(limiter);
             NebuLogShopProxy.AddShopRateLimitPolicy(limiter);
+            AddPublicRateLimitPolicy(limiter);
         });
 
         services.Configure<ForwardedHeadersOptions>(options =>
@@ -142,6 +152,21 @@ public static class NebuLogServerServiceCollectionExtensions
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IStartupFilter, NebuLogStartupFilter>());
 
         return services;
+    }
+
+    /// <summary>
+    /// Thirty requests per IP per minute for the anonymous endpoints. Enough for a landing page that
+    /// refreshes every few seconds, far too little to be worth scraping.
+    /// </summary>
+    private static void AddPublicRateLimitPolicy(RateLimiterOptions limiter)
+    {
+        limiter.AddPolicy(PublicEndpoints.RateLimitPolicy, static context =>
+            RateLimitPartition.GetFixedWindowLimiter(PartitionKey(context), _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 30,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+            }));
     }
 
     /// <summary>Parses a comma-separated CIDR list; malformed entries are skipped.</summary>

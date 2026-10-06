@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { useSearchParams } from 'react-router'
 import { hasRole, useAuth } from '../../api/useAuth'
 import { api } from '../../api/client'
 import {
@@ -18,6 +19,11 @@ import SummaryPanel from '../summary/SummaryPanel'
 import EntryDrawer from './EntryDrawer'
 import FilterBar from './FilterBar'
 import LogTable from './LogTable'
+import ScenarioBanner from '../../site/ScenarioBanner'
+import TracePanel from '../../site/TracePanel'
+import FilterChips, { type Chip } from './FilterChips'
+import { readConsoleUrl, writeConsoleUrl } from '../../site/consoleUrlState'
+import { useDemoChannel } from '../../site/useDemoChannel'
 import styles from './LivePage.module.css'
 
 /** The live log view: table, filters, detail drawer and the side panels. */
@@ -34,8 +40,22 @@ export default function LivePage() {
   const [selectedProducer, setSelectedProducer] = useState<string | null>(null)
   const [paused, setPaused] = useState(false)
 
-  const [minSeverity, setMinSeverity] = useState(0)
-  const [services, setServices] = useState<ReadonlySet<string>>(new Set())
+  // The query string is the source of truth for the shareable part of the filter, so a console
+  // link can be copied and reopened with the same view (WO-0011 §2.7).
+  const [searchParams, setSearchParams] = useSearchParams()
+  // Read once, from the URL the visitor arrived on. Later changes flow the other way: state is
+  // the source of truth and the effect below writes it back.
+  const [initialUrl] = useState(() => readConsoleUrl(window.location.search))
+  const scenario = initialUrl.scenario
+
+  const [minSeverity, setMinSeverity] = useState(initialUrl.minSeverity)
+  const [services, setServices] = useState<ReadonlySet<string>>(initialUrl.services)
+  const [traceId, setTraceId] = useState(initialUrl.traceId)
+  const [bannerOpen, setBannerOpen] = useState(scenario !== undefined)
+
+  // The shop asked for a trace to be brought to the front. Narrowing happens here rather than in
+  // an effect, because the message is an event, not state to synchronise.
+  const demo = useDemoChannel(scenario !== undefined || initialUrl.follow, setTraceId)
   const [scope, setScope] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const search = useDebounced(searchInput, 200)
@@ -75,11 +95,20 @@ export default function LivePage() {
   }, [store])
 
   const filter = useMemo<LogFilter>(
-    () => ({ minSeverity, services, scope, search }),
-    [minSeverity, services, scope, search],
+    () => ({ minSeverity, services, scope, search, traceId }),
+    [minSeverity, services, scope, search, traceId],
   )
 
   store.setFilter(filter)
+
+  // Push the shareable part of the filter back into the URL. replace: true keeps the back button
+  // meaningful — typing in a filter should not fill the history with intermediate states.
+  useEffect(() => {
+    const next = writeConsoleUrl({ scenarioId: scenario?.id, services, traceId, minSeverity })
+    if (`?${searchParams.toString()}` !== next && !(searchParams.toString() === '' && next === '')) {
+      setSearchParams(new URLSearchParams(next), { replace: true })
+    }
+  }, [minSeverity, scenario?.id, searchParams, services, setSearchParams, traceId])
 
   const togglePause = useCallback(() => {
     setPaused((current) => {
@@ -104,6 +133,37 @@ export default function LivePage() {
     [],
   )
 
+  const chips = useMemo<Chip[]>(() => {
+    const result: Chip[] = []
+
+    for (const service of [...services].sort()) {
+      result.push({
+        key: `service:${service}`,
+        label: `service: ${service}`,
+        onRemove: () =>
+          setServices((current) => new Set([...current].filter((candidate) => candidate !== service))),
+      })
+    }
+
+    if (minSeverity > 0) {
+      result.push({ key: 'level', label: `level ≥ ${severityName(minSeverity)}`, onRemove: () => setMinSeverity(0) })
+    }
+
+    if (traceId) {
+      result.push({ key: 'trace', label: `trace ${traceId.slice(0, 12)}…`, onRemove: () => setTraceId('') })
+    }
+
+    if (scope) {
+      result.push({ key: 'scope', label: `scope: ${scope}`, onRemove: () => setScope('') })
+    }
+
+    if (search) {
+      result.push({ key: 'search', label: `text: ${search}`, onRemove: () => setSearchInput('') })
+    }
+
+    return result
+  }, [minSeverity, scope, search, services, traceId])
+
   const producers = useMemo(() => clients.filter((client) => client.kind === 'producer'), [clients])
   const knownServices = summary?.services ?? []
   const canCommand = hasRole(user, Roles.operator)
@@ -111,6 +171,17 @@ export default function LivePage() {
   return (
     <div className={styles.layout}>
       <div className={styles.main}>
+        {scenario && bannerOpen ? (
+          <ScenarioBanner
+            scenario={scenario}
+            popupBlocked={initialUrl.popupBlocked}
+            traceFiltered={traceId.length > 0}
+            latestTrace={demo.traces[0]?.traceId ?? null}
+            onShowOnlyMyTrace={() => setTraceId(demo.traces[0]?.traceId ?? '')}
+            onDismiss={() => setBannerOpen(false)}
+          />
+        ) : null}
+
         <FilterBar
           status={status}
           paused={paused}
@@ -133,6 +204,8 @@ export default function LivePage() {
           onExport={exportJson}
         />
 
+        <FilterChips chips={chips} shown={store.filteredCount} buffered={store.size} />
+
         <div className={styles.content}>
           <LogTable store={store} version={version} selectedId={selected?.id ?? null} onSelect={setSelected} />
           {selected !== null && <EntryDrawer entry={selected} onClose={() => setSelected(null)} />}
@@ -140,6 +213,13 @@ export default function LivePage() {
       </div>
 
       <aside className={styles.side}>
+        <TracePanel
+          requests={demo.traces}
+          entries={store.filteredEntries()}
+          activeTrace={traceId}
+          onSelect={setTraceId}
+          onClear={() => setTraceId('')}
+        />
         <SummaryPanel summary={summary} buffered={store.size} />
         <StatsPanel stats={stats} />
         <ClientsPanel
@@ -161,3 +241,13 @@ export default function LivePage() {
 }
 
 function noop() {}
+
+/** The names used on the filter chips, matching the severity bands the server reports. */
+function severityName(minSeverity: number): string {
+  if (minSeverity >= 21) return 'Fatal'
+  if (minSeverity >= 17) return 'Error'
+  if (minSeverity >= 13) return 'Warn'
+  if (minSeverity >= 9) return 'Info'
+  if (minSeverity >= 5) return 'Debug'
+  return 'Trace'
+}
