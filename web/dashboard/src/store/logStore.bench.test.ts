@@ -104,18 +104,50 @@ describe('LogStore performance', () => {
     expect(elapsed).toBeLessThan(FRAME_BUDGET_MS * 4)
   })
 
-  it('recomputes the whole filter over a full buffer fast enough to stay on the main thread', () => {
-    const store = new LogStore(defaultCapacity)
-    fill(store, defaultCapacity, 1000)
+  it('recomputes the whole filter in time that scales linearly with the buffer', () => {
+    // This is the machine-independent half, and it is the one that runs everywhere. A full
+    // recompute is O(n); the failure worth catching is someone making it O(n²) — a nested scan, a
+    // per-entry allocation that triggers a rehash — which shows up as a super-linear ratio no
+    // matter how fast or slow the host is.
+    const small = timeFullFilter(25_000)
+    const large = timeFullFilter(100_000)
+    const ratio = large / small
 
-    const started = performance.now()
-    store.setFilter({ ...emptyFilter, minSeverity: SeverityNumbers.warn, search: 'worker 3' })
-    const elapsed = performance.now() - started
+    console.log(
+      `full re-filter: ${small.toFixed(2)} ms at 25,000, ${large.toFixed(2)} ms at 100,000 (${ratio.toFixed(2)}x for 4x the data)`,
+    )
 
+    // Linear would be 4x. Allowing 8x leaves room for cache effects and a noisy shared runner,
+    // while an accidental O(n²) would land near 16x.
+    expect(ratio).toBeLessThan(8)
+  })
+
+  it('recomputes the whole filter fast enough to stay on the main thread', () => {
+    // The absolute budget from WO-0006 §2.4: above this a full recompute would have to move to a
+    // Web Worker. It is a statement about the user's device, so it is asserted on a developer
+    // machine and only reported on a shared CI runner, where the number measures the runner rather
+    // than the code — 7 ms here, 75 ms on a GitHub-hosted runner for identical code (WO-0012 §9).
+    // The linearity check above is what guards the algorithm on every machine.
+    const elapsed = timeFullFilter(defaultCapacity)
     console.log(`full re-filter of ${defaultCapacity.toLocaleString()} entries: ${elapsed.toFixed(2)} ms`)
 
-    // WO-0006 §2.4: a full recompute above 50 ms would have to move to a Web Worker.
-    expect(elapsed).toBeLessThan(50)
-    expect(store.filteredCount).toBeGreaterThan(0)
+    const budget = process.env.CI ? 500 : 50
+    expect(elapsed).toBeLessThan(budget)
   })
 })
+
+/** Fills a store of the given size and returns how long one full re-filter takes, in milliseconds. */
+function timeFullFilter(size: number): number {
+  const store = new LogStore(size)
+  fill(store, size, 1000)
+
+  const started = performance.now()
+  store.setFilter({ ...emptyFilter, minSeverity: SeverityNumbers.warn, search: 'worker 3' })
+  const elapsed = performance.now() - started
+
+  if (store.filteredCount === 0) {
+    throw new Error('the filter matched nothing, so this measured the wrong thing')
+  }
+
+  return elapsed
+}
