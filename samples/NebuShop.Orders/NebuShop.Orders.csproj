@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!--
+    The demo shop. Two equivalent implementations of the same API — Minimal API and MVC — so the
+    console can show what each pipeline logs for an identical request.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <UserSecretsId>imady-nebulog-nebushop-orders</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\NebuLog.OpenTelemetry\NebuLog.OpenTelemetry.csproj" />
+  </ItemGroup>
+</Project>

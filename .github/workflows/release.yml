@@ -41,6 +41,14 @@ jobs:
           npm test
           npm run build
 
+      - name: Build the shop page
+        working-directory: web/shop
+        run: |
+          npm ci
+          npm run lint
+          npm test
+          npm run build
+
       - name: Build the browser sample
         working-directory: samples/browser
         run: |
@@ -74,6 +82,20 @@ jobs:
               echo "${REGISTRY}/imadytech/nebulog-demo-producer:${GITHUB_REF_NAME#v}"
             fi
             echo "TAGS"
+
+            echo "shop_orders<<TAGS"
+            echo "${REGISTRY}/imadytech/nebulog-shop-orders:${short}"
+            if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+              echo "${REGISTRY}/imadytech/nebulog-shop-orders:${GITHUB_REF_NAME#v}"
+            fi
+            echo "TAGS"
+
+            echo "shop_payments<<TAGS"
+            echo "${REGISTRY}/imadytech/nebulog-shop-payments:${short}"
+            if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+              echo "${REGISTRY}/imadytech/nebulog-shop-payments:${GITHUB_REF_NAME#v}"
+            fi
+            echo "TAGS"
           } >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v4
@@ -101,6 +123,26 @@ jobs:
           file: samples/NebuLog.Samples.DemoProducer/Dockerfile
           push: true
           tags: ${{ steps.tags.outputs.producer }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push the shop orders image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: samples/NebuShop.Orders/Dockerfile
+          push: true
+          tags: ${{ steps.tags.outputs.shop_orders }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push the shop payments image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: samples/NebuShop.Payments/Dockerfile
+          push: true
+          tags: ${{ steps.tags.outputs.shop_payments }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

@@ -8,10 +8,13 @@
   <Folder Name="/samples/">
     <Project Path="samples/NebuLog.Samples.DemoProducer/NebuLog.Samples.DemoProducer.csproj" />
     <Project Path="samples/NebuLog.Samples.MinimalApi/NebuLog.Samples.MinimalApi.csproj" />
+    <Project Path="samples/NebuShop.Orders/NebuShop.Orders.csproj" />
+    <Project Path="samples/NebuShop.Payments/NebuShop.Payments.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/NebuLog.OpenTelemetry.Tests/NebuLog.OpenTelemetry.Tests.csproj" />
     <Project Path="tests/NebuLog.Server.Tests/NebuLog.Server.Tests.csproj" />
+    <Project Path="tests/NebuShop.Tests/NebuShop.Tests.csproj" />
   </Folder>
   <Folder Name="/solution items/">
     <File Path=".editorconfig" />

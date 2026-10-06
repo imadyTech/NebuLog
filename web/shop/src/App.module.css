@@ -1,0 +1,277 @@
+/*
+ * Sized for the 960×720 popup the scenario cards open (site-design.md §3.5), and still usable if
+ * the visitor resizes it or the popup is blocked and the page opens as a normal tab.
+ */
+
+.shop {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--shop-line);
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  color: var(--shop-accent);
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.apiToggle {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-chip);
+}
+
+.apiButton {
+  min-height: 32px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text-2);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-chip);
+  cursor: pointer;
+}
+
+.apiButton[aria-pressed='true'] {
+  color: var(--surface);
+  background: var(--shop-accent);
+}
+
+.scenario {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin: 0;
+  padding: 10px 12px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-soft-border);
+  border-radius: var(--radius-card);
+  font-size: 13px;
+}
+
+.scenarioNumber {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.notice {
+  margin: 0;
+  padding: 10px 12px;
+  background: var(--sev-warn-bg);
+  color: var(--sev-warn-fg);
+  border-radius: var(--radius-control);
+  font-size: 13px;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 16px;
+  align-items: start;
+}
+
+.sectionTitle {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.product {
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--shop-line);
+  border-radius: var(--radius-card);
+}
+
+/* A plain tinted block rather than a picture: nothing here should resemble a real product. */
+.productArt {
+  height: 72px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #efe6d9, #e2d3c0);
+  border-radius: var(--radius-control);
+}
+
+.productName {
+  margin: 0;
+  font-size: 14px;
+}
+
+.sku,
+.price {
+  margin: 2px 0 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.price {
+  margin-bottom: 10px;
+  color: var(--ink);
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel {
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--shop-line);
+  border-radius: var(--radius-card);
+}
+
+.basket {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+.basket li {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+}
+
+.total {
+  margin: 0 0 10px;
+  font-family: var(--font-mono);
+  font-size: 18px;
+}
+
+.empty,
+.hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.hint {
+  margin-top: 8px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.primary,
+.secondary {
+  min-height: var(--touch-target);
+  padding: 0 14px;
+  font: inherit;
+  font-size: 13px;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+
+.primary {
+  width: 100%;
+  color: var(--surface);
+  background: var(--shop-accent);
+  border: 1px solid var(--shop-accent);
+}
+
+.secondary {
+  color: var(--ink);
+  background: var(--surface);
+  /* --line-strong, not --line: this outlines a control, and WCAG 1.4.11 asks 3:1 of those. */
+  border: 1px solid var(--line-strong);
+}
+
+.primary:disabled,
+.secondary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.requests {
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--shop-line);
+  border-radius: var(--radius-card);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--shop-line);
+  padding: 4px 6px;
+}
+
+.table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--shop-line);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.link {
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  color: var(--accent);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+
+  .products {
+    grid-template-columns: 1fr;
+  }
+}

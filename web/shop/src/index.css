@@ -1,0 +1,18 @@
+@import '../../shared/tokens.css';
+
+/*
+ * The shop deliberately does not look like the console: a visitor with two windows open should
+ * never have to wonder which one they are clicking in (site-design.md §2).
+ */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--shop-ground);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+}

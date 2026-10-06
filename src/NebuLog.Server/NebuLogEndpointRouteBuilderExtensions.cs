@@ -12,6 +12,7 @@ using NebuLog.Server.Hubs;
 using NebuLog.Server.Infrastructure;
 using NebuLog.Server.Ingestion;
 using NebuLog.Server.Otlp;
+using NebuLog.Server.Proxy;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -23,7 +24,7 @@ public static class NebuLogEndpointRouteBuilderExtensions
     /// 404 rather than falling back to the dashboard's <c>index.html</c>.
     /// </summary>
     private static readonly string[] ReservedPrefixes =
-        ["/api", "/hubs", "/v1", "/health", "/openapi", "/scalar"];
+        ["/api", "/hubs", "/v1", "/health", "/openapi", "/scalar", "/apps"];
 
     /// <summary>Maps every NebuLog endpoint onto the application.</summary>
     /// <param name="endpoints">The endpoint route builder.</param>
@@ -48,6 +49,7 @@ public static class NebuLogEndpointRouteBuilderExtensions
         endpoints.MapNebuLogOtlp();
         endpoints.MapNebuLogAuth();
         endpoints.MapNebuLogApiKeys();
+        endpoints.MapNebuLogShopProxy();
 
         endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
         {
