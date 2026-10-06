@@ -1,16 +1,24 @@
 # NebuLog deployment for AceMagic-W1.
 #
-# Follows the baseline in docs/ops/ENV-REQ-001-reply.md §三, with the revisions listed in
-# WO-0007 §9 "需回告 DevOps". The host port binds to 127.0.0.1 only: cloudflared is the sole way in,
+# Follows the baseline in docs/ops/ENV-REQ-001-reply.md §三 and the increment in
+# ENV-REQ-002-reply.md §三. The host port binds to 127.0.0.1 only: cloudflared is the sole way in,
 # which is what makes trusting CF-Connecting-IP safe.
+#
+# Secrets are injected per service rather than with `env_file`. Compose's env_file puts every key of
+# .env into every container, which would hand the visitor-facing demo containers the administrator
+# password; each service below names only the keys it needs (ENV-REQ-002 follow-up §1, now the
+# standard in standards/secrets.md §4). `${VAR:?...}` makes a missing key fail `up` loudly rather
+# than starting a container with an empty credential.
+#
+# When troubleshooting: `docker compose config` prints every interpolated value, secrets included.
+# Do not paste its output into logs, tickets or chat.
 name: imady-nebulog
 
 services:
   nebulog:
-    image: ghcr.io/imadytech/nebulog:${NEBULOG_TAG}
+    image: ghcr.io/imadytech/nebulog:${NEBULOG_TAG:?set NEBULOG_TAG to an immutable tag, never latest}
     restart: unless-stopped
     ports: ['127.0.0.1:2000:8080']
-    env_file: .env
     environment:
       ConnectionStrings__Identity: 'Data Source=/data/nebulog.db'
       # Added since the baseline: without it the key ring falls back to a path inside the
@@ -20,9 +28,19 @@ services:
       # Empty allows no cross-origin posting at all. The browser sample is served same-origin,
       # so it needs nothing here.
       NebuLog__Cors__AllowedOrigins: ''
-      # Registers the /apps/shop reverse-proxy route. Leaving it unset removes the route entirely,
-      # which is what a deployment without the demo shop wants.
+      # Registers the /apps/shop reverse-proxy route. Unset removes the route entirely, which is
+      # what a deployment without the demo shop wants.
       NebuLog__Shop__OrdersUrl: 'http://nebushop-orders:8080'
+      NebuLog__Site__GitHubUrl: 'https://github.com/imadyTech/NebuLog'
+      # Cloudflare injects its analytics beacon at the edge; without these the policy blocks it and
+      # it reports a violation in every visitor's console (ENV-REQ-002 follow-up §3). Additive only:
+      # no other directive is widened. Not secret, so these stay out of .env.
+      NebuLog__Security__Csp__ExtraScriptSrc: 'https://static.cloudflareinsights.com'
+      NebuLog__Security__Csp__ExtraConnectSrc: 'https://cloudflareinsights.com'
+      # Secrets. The admin account is seeded once; the producer key is stored only as a hash.
+      NebuLog__Admin__Email: ${NebuLog__Admin__Email:?missing in .env}
+      NebuLog__Admin__Password: ${NebuLog__Admin__Password:?missing in .env}
+      NebuLog__DemoProducer__ApiKey: ${NebuLog__DemoProducer__ApiKey:?missing in .env}
     volumes: ['nebulog_data:/data']
     read_only: true
     tmpfs: ['/tmp']
@@ -35,9 +53,9 @@ services:
   nebulog-demo-producer:
     image: ghcr.io/imadytech/nebulog-demo-producer:${NEBULOG_TAG}
     restart: unless-stopped
-    env_file: .env
     environment:
       NebuLog__Endpoint: 'http://nebulog:8080'
+      NebuLog__DemoProducer__ApiKey: ${NebuLog__DemoProducer__ApiKey:?missing in .env}
     read_only: true
     tmpfs: ['/tmp']
     mem_limit: 128m
@@ -52,10 +70,10 @@ services:
   nebushop-orders:
     image: ghcr.io/imadytech/nebulog-shop-orders:${NEBULOG_TAG}
     restart: unless-stopped
-    env_file: .env
     environment:
       NebuLog__Endpoint: 'http://nebulog:8080'
       NebuShop__PaymentsUrl: 'http://nebushop-payments:8080'
+      NebuLog__ShopOrders__ApiKey: ${NebuLog__ShopOrders__ApiKey:?missing in .env}
     read_only: true
     tmpfs: ['/tmp']
     mem_limit: 128m
@@ -65,12 +83,13 @@ services:
       nebulog:
         condition: service_started
 
+  # Reached only by the orders service; deliberately absent from the proxy's route table.
   nebushop-payments:
     image: ghcr.io/imadytech/nebulog-shop-payments:${NEBULOG_TAG}
     restart: unless-stopped
-    env_file: .env
     environment:
       NebuLog__Endpoint: 'http://nebulog:8080'
+      NebuLog__ShopPayments__ApiKey: ${NebuLog__ShopPayments__ApiKey:?missing in .env}
     read_only: true
     tmpfs: ['/tmp']
     mem_limit: 96m
