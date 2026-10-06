@@ -78,13 +78,15 @@ export default function LogTable({ store, version, selectedId, onSelect }: LogTa
   }
 
   return (
-    <div className={styles.wrapper}>
+    // role="grid" with gridcell children: a role="row" whose children carry no cell role is
+    // incomplete ARIA, and a screen reader cannot then walk the columns.
+    <div className={styles.wrapper} role="grid" aria-label="Log entries">
       <div className={styles.header} role="row">
-        <span className={styles.time}>Time</span>
-        <span className={styles.level}>Level</span>
-        <span className={styles.service}>Service</span>
-        <span className={styles.scope}>Category</span>
-        <span className={styles.message}>Message</span>
+        <span className={styles.time} role="columnheader">Time</span>
+        <span className={styles.level} role="columnheader">Level</span>
+        <span className={styles.service} role="columnheader">Service</span>
+        <span className={styles.scope} role="columnheader">Category</span>
+        <span className={styles.message} role="columnheader">Message</span>
       </div>
 
       <div className={styles.scroller} ref={scrollRef} onScroll={onScroll} role="rowgroup" tabIndex={0}>
@@ -147,11 +149,13 @@ const LogRow = memo(function LogRow({ entry, top, selected, onSelect }: LogRowPr
         }
       }}
     >
-      <span className={styles.time}>{formatTime(entry.timestampUnixMs)}</span>
-      <span className={`${styles.level} ${styles[`level${band}`]}`}>{severityShortName(entry.severityNumber)}</span>
-      <span className={styles.service}>{entry.serviceName}</span>
-      <span className={styles.scope}>{entry.scopeName}</span>
-      <span className={styles.message}>{entry.body}</span>
+      <span className={styles.time} role="gridcell">{formatTime(entry.timestampUnixMs)}</span>
+      <span className={`${styles.level} ${styles[`level${band}`]}`} role="gridcell">
+        {severityShortName(entry.severityNumber)}
+      </span>
+      <span className={styles.service} role="gridcell">{entry.serviceName}</span>
+      <span className={styles.scope} role="gridcell">{entry.scopeName}</span>
+      <span className={styles.message} role="gridcell">{entry.body}</span>
     </div>
   )
 })

@@ -85,3 +85,25 @@
   min-height: 100dvh;
   color: var(--text-muted);
 }
+
+/*
+ * The shell is shared by the console and the guided demos. The console is a desktop view by
+ * agreement, but /demo has to work on a phone (WO-0011 §2.8), so the header wraps rather than
+ * forcing the page wider than the viewport.
+ */
+@media (max-width: 760px) {
+  .header {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .nav {
+    order: 3;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .user {
+    margin-left: auto;
+  }
+}

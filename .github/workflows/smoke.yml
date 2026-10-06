@@ -1,0 +1,46 @@
+# Smoke tests against a running deployment.
+#
+# Manual only: it needs a live site, so running it on every push would either test nothing or test
+# the wrong thing. The point is to run it right after a deployment — WO-0007 shipped six defects
+# that 215 green tests missed and that one look at the deployed site would have caught.
+name: smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: The deployment to test
+        required: false
+        default: https://nebulog.imady.co.nz
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Install
+        working-directory: tests/smoke
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Run
+        working-directory: tests/smoke
+        env:
+          NEBULOG_URL: ${{ inputs.url }}
+        run: npx playwright test
+
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-report
+          path: tests/smoke/playwright-report
+          retention-days: 7

@@ -1,54 +1,57 @@
 # NebuLog
 
-A real-time log dashboard for .NET, built on OpenTelemetry. Applications log through the standard
-`ILogger`; NebuLog collects, buffers and streams those entries to a browser with sub-second latency,
-and lets an operator push commands back to the running application.
+Real-time log streaming for .NET, built on OpenTelemetry: your application writes to the standard
+`ILogger`, and a browser console shows every record within a tenth of a second — filterable,
+searchable, and correlated by trace across services.
 
-Live demo: **<https://nebulog.imady.co.nz>** — "Continue as demo visitor" needs no account.
+**Live demo: <https://nebulog.imady.co.nz>** — press *Continue as demo visitor*; no account needed.
 
-This is version 2, a ground-up rewrite. [What changed, and why](#v1--v2) is at the bottom.
+[![ci](https://github.com/imadyTech/NebuLog/actions/workflows/ci.yml/badge.svg)](https://github.com/imadyTech/NebuLog/actions/workflows/ci.yml)
+[![Apache-2.0](https://img.shields.io/badge/licence-Apache--2.0-blue.svg)](LICENSE)
+
+![The NebuLog landing page](docs/images/landing.jpg)
+
+The live console, filtered to one scenario, showing two services under a single trace:
+
+![The live console](docs/images/console.jpg)
+
+The guided demos open a small shop application beside the console. Every button there is exactly one
+HTTP request, and its TraceId is shown so you can find it in the console:
+
+![The NebuShop demo application](docs/images/shop.jpg)
 
 ---
 
-## How it fits together
+## Contents
 
-```mermaid
-flowchart LR
-  subgraph producers["Your applications"]
-    A["ILogger<br/>+ OpenTelemetry SDK"]
-    B["Any language<br/>OTLP/HTTP"]
-    C["Browser<br/>OTLP/JSON"]
-  end
+- [Quick start](#quick-start)
+- [Sending logs from your application](#sending-logs-from-your-application)
+- [Configuration](#configuration)
+- [Deployment](#deployment)
+- [How it fits together](#how-it-fits-together)
+- [Security](#security)
+- [Repository layout](#repository-layout)
+- [History](#history)
+- [Changelog and licence](#changelog-and-licence)
 
-  subgraph server["NebuLog server (one container)"]
-    direction TB
-    H["SignalR hub<br/>/hubs/nebulog"]
-    O["OTLP receiver<br/>POST /v1/logs"]
-    I["ILogIngestor<br/>normalise + back-pressure"]
-    P["Pipeline<br/>assign id, buffer, batch"]
-    R[("Ring buffer<br/>in memory")]
-    D["REST API /api<br/>+ dashboard"]
-    H --> I
-    O --> I
-    I --> P
-    P --> R
-    P -->|"batched push"| H
-    R --> D
-  end
-
-  A -->|"NebuLogExporter<br/>SignalR + MessagePack"| H
-  A -.->|"or official OTLP exporter"| O
-  B --> O
-  C --> O
-  H -->|"ReceiveLogs / commands"| V["React dashboard"]
-  D --> V
-```
-
-Both ingestion paths converge on one `ILogIngestor`, so normalisation, sequencing and back-pressure
-are decided in exactly one place. The SignalR path is additionally bidirectional: it carries live
-statistics up and operator commands down, which plain OTLP cannot do.
+---
 
 ## Quick start
+
+### With Docker Compose
+
+The fastest way to see everything, including the demo producer and the guided-demo shop:
+
+```bash
+git clone https://github.com/imadyTech/NebuLog.git
+cd NebuLog/deploy
+cp .env.example .env     # then fill in NEBULOG_TAG, the admin account and the API keys
+docker compose up -d
+```
+
+Then open <http://localhost:2000>.
+
+### From source
 
 Needs the .NET 10 SDK and Node 22+.
 
@@ -72,7 +75,18 @@ dotnet user-secrets --project src/NebuLog.Server.Host set "NebuLog:Admin:Passwor
 
 Sign in, open **API keys**, create one, and point a producer at it.
 
-### Sending logs from your application
+To run the guided-demo shop as well, build `web/shop` and start both shop services, then set
+`NebuLog:Shop:OrdersUrl`; see [`samples/NebuShop.Orders`](samples/NebuShop.Orders/).
+
+---
+
+## Sending logs from your application
+
+There are two ways in, and they converge on the same ingest pipeline inside the server.
+
+### 1. The NebuLog exporter (SignalR)
+
+Lowest latency, and the only transport that can also carry live statistics and inbound commands.
 
 ```csharp
 builder.Services.AddOpenTelemetry()
@@ -88,7 +102,10 @@ builder.Services.AddOpenTelemetry()
 builder.Services.AddNebuLogClient();                  // INebuLogStats and INebuLogCommands
 ```
 
-Or keep your existing OpenTelemetry setup and just point it at NebuLog — any language, any SDK:
+### 2. The stock OTLP exporter (any language, any SDK)
+
+Keep your existing OpenTelemetry setup and point it at NebuLog. Nothing in your code then depends on
+NebuLog at all.
 
 ```csharp
 logging.AddOtlpExporter(o =>
@@ -99,7 +116,144 @@ logging.AddOtlpExporter(o =>
 });
 ```
 
+`POST /v1/logs` accepts OTLP protobuf and OTLP/JSON, gzip-encoded or plain. There is a browser
+example in [`samples/browser`](samples/browser/) that uses nothing but `fetch`.
+
 Working examples of both are in [`samples/`](samples/).
+
+---
+
+## Configuration
+
+All keys bind from configuration; in containers use the `__` form, for example
+`NebuLog__Server__BufferCapacity`.
+
+### Server (`NebuLog:Server`)
+
+| Key | Default | What it does |
+|---|---|---|
+| `BufferCapacity` | `50000` | Entries kept in the in-memory ring buffer |
+| `IngestQueueCapacity` | `100000` | Bounded channel between receivers and the pipeline; overflow is counted, not blocked |
+| `BroadcastInterval` | `00:00:00.100` | How often batches are pushed to the browser |
+| `MaxBroadcastBatch` | `1000` | Largest batch sent in one push |
+| `MaxAttributesPerEntry` | `64` | Attributes kept per entry; the rest are dropped |
+| `MaxAttributeValueLength` | `8192` | Attribute values are truncated to this |
+| `MaxHubMessageBytes` | `4194304` | SignalR receive limit; the 32 KiB default closes connections on large batches |
+
+### Security, storage and networking
+
+| Key | Default | What it does |
+|---|---|---|
+| `ConnectionStrings:Identity` | `App_Data` file | SQLite connection string for accounts and API keys |
+| `NebuLog:Admin:Email` / `:Password` | — | Seeded once, only if the account does not exist |
+| `NebuLog:DataProtection:KeysPath` | framework default | Must be writable; required when the root filesystem is read-only |
+| `NebuLog:Demo:Enabled` | `true` | Enables the read-only demo visitor account |
+| `NebuLog:ForwardedHeaders:KnownNetworks` | empty | CIDR blocks whose `CF-Connecting-IP` is trusted; empty disables the feature |
+| `NebuLog:Cors:AllowedOrigins` | empty | Origins allowed to `POST /v1/logs` from a browser |
+| `NebuLog:RateLimit:*` | see below | Ingest token bucket and API fixed window |
+| `NebuLog:Otlp:MaxRequestBodyBytes` | `4194304` | Decompressed ceiling for `/v1/logs` |
+| `NebuLog:Shop:OrdersUrl` | empty | Reverse-proxies the demo shop at `/apps/shop`; empty removes the route entirely |
+| `NebuLog:Site:BlogUrl` / `:GitHubUrl` | empty / this repo | Links shown on the public pages |
+
+Rate limiting defaults: ingest 50 tokens/second with a bucket of 200, per client; the dashboard API
+100 requests per 10 seconds.
+
+### Exporter (`NebuLog:*` in the producing application)
+
+| Key | Default | What it does |
+|---|---|---|
+| `Endpoint` | — | Base address of the NebuLog server |
+| `ApiKey` | — | A Producer key, `nbl_<prefix>_<secret>` |
+| `BatchSize` / `BatchInterval` | `500` / `1s` | Export batching |
+| `QueueCapacity` | `10000` | Bounded; overflow is counted and reported, never blocks the caller |
+
+---
+
+## Deployment
+
+Images are published to GHCR on every push to `master` and on `v*` tags, with **immutable tags
+only** — `sha-<short commit>`, plus the bare version on a tag. Never `latest`; upgrading and rolling
+back are both a one-line change to `NEBULOG_TAG`.
+
+| Image | What it is |
+|---|---|
+| `ghcr.io/imadytech/nebulog` | The server and the dashboard |
+| `ghcr.io/imadytech/nebulog-demo-producer` | Synthetic traffic for the public demo |
+| `ghcr.io/imadytech/nebulog-shop-orders` | The guided-demo shop (two API implementations) |
+| `ghcr.io/imadytech/nebulog-shop-payments` | The downstream service the shop calls |
+
+The containers run as a non-root user with a **read-only root filesystem**. The server has one
+writable volume at `/data` for the SQLite database and the Data Protection key ring; the others have
+no volume at all. Health is checked by the application itself (`--health-check`), because the ASP.NET
+runtime image carries neither curl nor wget.
+
+Behind a reverse proxy, set `NebuLog:ForwardedHeaders:KnownNetworks` to the proxy's network so the
+real client address is used for rate limiting; leave it empty and the header is ignored rather than
+trusted. A full worked example, including Cloudflare Tunnel, is in [`deploy/`](deploy/).
+
+---
+
+## How it fits together
+
+```mermaid
+flowchart LR
+    subgraph app["Your application"]
+        logger["ILogger&lt;T&gt;"] --> sdk["OpenTelemetry SDK"]
+        sdk --> redact["RedactionProcessor"]
+        redact --> exp["NebuLogExporter"]
+        redact --> otlp["OTLP exporter"]
+    end
+
+    subgraph server["NebuLog server"]
+        hub["SignalR hub"] --> ingest["ILogIngestor"]
+        rest["POST /v1/logs"] --> ingest
+        ingest --> ring["Ring buffer"]
+        ring --> push["Batched fan-out"]
+    end
+
+    subgraph browser["Browser console"]
+        store["Ring outside React"] --> table["Virtual table"]
+    end
+
+    exp -->|MessagePack| hub
+    otlp -->|protobuf / JSON| rest
+    push -->|MessagePack| store
+```
+
+Both receivers normalise onto one `ILogIngestor`, so an entry behaves identically whichever way it
+arrived. The browser keeps its own ring of plain objects outside React state and commits batches once
+per animation frame, which is what keeps a hundred thousand entries scrolling smoothly.
+
+Measured on 2026-10-05 (methods and sources in the evaluation section of the development log):
+
+| | |
+|---|---|
+| Sustained ingest | 10,077 entries/second for five seconds, zero rejections |
+| Producer-to-browser latency | p50 109 ms, p95 115 ms on an idle server |
+| DOM rows at 100,000 buffered | about 51 |
+| Dashboard JavaScript | 122 KB gzipped |
+| Tests | 324 (246 .NET, 78 frontend) |
+
+---
+
+## Security
+
+- **Two kinds of identity.** People sign in with a cookie session; programs present an `X-Api-Key`
+  header. A policy scheme picks per request, so one endpoint serves both.
+- **Four roles.** Viewer reads, Operator sends commands to producers, Admin manages API keys, and
+  Producer may only publish. There is no registration endpoint: accounts are seeded from
+  configuration, and API keys are issued by an administrator and stored only as hashes.
+- **Log bodies are rendered as text, never as HTML.** Two checks enforce it in CI — oxlint's
+  `react/no-danger` and a script covering the `innerHTML` family — and both were verified against a
+  deliberate violation rather than assumed to work.
+- **Redaction masks attribute values, and that is all it can do.** `RedactionProcessor` replaces the
+  value of any attribute whose key looks sensitive (`password`, `token`, `secret`, …) with `***`
+  before the record leaves your process. It cannot help with a secret you formatted into the message
+  text, because by then it is indistinguishable from the rest of the sentence. The rule that follows
+  is not "redaction will catch it" but **do not log secrets**; redaction is a backstop for the case
+  you missed. Scenario 05 of the guided demos shows both halves of this.
+
+---
 
 ## Repository layout
 
@@ -108,115 +262,58 @@ Working examples of both are in [`samples/`](samples/).
 | `src/NebuLog.Contracts` | Wire contracts (netstandard2.1 / net10.0) |
 | `src/NebuLog.OpenTelemetry` | SDK extensions: exporter, redaction processor, stats, commands |
 | `src/NebuLog.Server` | The embeddable server: `AddNebuLogServer()` + `MapNebuLog()` |
-| `src/NebuLog.Server.Host` | Stand-alone host; serves the dashboard same-origin |
-| `web/dashboard` | React dashboard |
-| `samples/` | Minimal API, demo producer, browser OTLP page |
-| `deploy/` | compose file and deployment notes |
-| `docs/` | Plan, ADRs, work orders, the build journal |
+| `src/NebuLog.Server.Host` | Stand-alone host; serves the dashboard from `wwwroot` |
+| `web/dashboard` | The React console and the public site pages |
+| `web/shop` | The NebuShop demo application |
+| `web/shared` | Design tokens, scenario definitions and the cross-window message contract |
+| `samples/` | Minimal API, demo producer, NebuShop services, browser OTLP sample |
+| `tests/` | Unit and integration tests, including the protocol and performance checks |
+| `deploy/` | Compose file and deployment notes |
 
-## What it does
-
-- **Two ingestion paths, one model.** `NebuLogExporter` over SignalR with MessagePack, and
-  OTLP/HTTP at `POST /v1/logs` accepting protobuf *and* OTLP/JSON, gzip optional.
-- **Interoperability is tested, not claimed.** A test boots a stock
-  `OpenTelemetry.Exporter.OpenTelemetryProtocol`, configured with nothing but a URL, and asserts the
-  entry arrives at a dashboard.
-- **Back-pressure that is visible.** A full ingest queue answers 503 with `Retry-After`, which OTLP
-  treats as retryable, rather than silently dropping.
-- **Two kinds of caller.** People sign in and get a session cookie; programs send `X-Api-Key`. One
-  policy scheme picks per request. Roles: `Viewer`, `Operator`, `Admin`, and `Producer` for keys.
-- **Commands back down the same socket.** An operator can `ping` a producer or change its minimum
-  log level at run time, without a deployment.
-- **A dashboard that does not fall over.** 100,000 entries buffered with 1,000/s arriving: ~51 rows
-  in the DOM, median 4.8 ms per scroll step. See
-  [`web/dashboard/scripts/perf.md`](web/dashboard/scripts/perf.md).
-
-### A note on redaction
-
-`AddNebuLogRedaction()` masks attribute values whose key looks sensitive — `password`, `token`,
-`authorization` and friends — before the entry leaves your process. It is a backstop, not a licence.
-
-It cannot mask the rendered message, because the logging pipeline formats that text before any
-processor sees the record. And `[LoggerMessage]` will not let you pass a parameter that is absent
-from the template (SYSLIB1015), so with source-generated logging a redacted attribute necessarily
-appears in the prose as well. `samples/NebuLog.Samples.MinimalApi` shows exactly this: the
-`Password` attribute arrives as `***`, while the message body still carries the value.
-
-The rule that follows is the boring one: **do not log secrets.** Redaction is there for the case you
-missed, not for the ones you chose.
-
-## Identity and API keys
-
-Two kinds of caller are distinguished. **People** sign in with email and password and get a session
-cookie; **programs** send an API key in `X-Api-Key`. A single policy scheme picks between them per
-request, so both share one pipeline.
-
-There is no registration endpoint: accounts are seeded from configuration, and keys are issued by an
-administrator.
-
-| Setting | Purpose |
-|---|---|
-| `ConnectionStrings__Identity` | SQLite database. Production: `Data Source=/data/nebulog.db` |
-| `NebuLog__Admin__Email` / `NebuLog__Admin__Password` | Seeded once if the account is absent |
-| `NebuLog__Demo__Enabled` | Offers a read-only `demo@nebulog.local` sign-in (default `true`) |
-| `NebuLog__DemoProducer__ApiKey` | Seeds a producer key; only its hash is stored |
-| `NebuLog__DataProtection__KeysPath` | Key ring directory. Production: `/data/keys` |
-
-Only hashes are stored: an API key's clear text is shown once, at creation, and is not recoverable.
-
-### Trade-off: migrating at startup
-
-The application applies EF Core migrations and seeds its roles and accounts while starting, from a
-hosted service. That is deliberate for this deployment — one container, one SQLite file — where a
-separate migration step would add operational work for no benefit. It would be the wrong choice for
-a multi-instance deployment, where two instances could race to migrate the same database; that would
-call for a separate migration job and a startup that only verifies the schema.
-
-All seeding is idempotent and never modifies an existing account, so restarting the container cannot
-reset a password that was changed afterwards.
-
-### Writable paths
-
-The container runs with a read-only root filesystem and one writable volume at `/data`. Everything
-written at runtime — the SQLite database and the Data Protection key ring — is placed under the
-configured paths, which is covered by `WritablePathsTests`.
-
-## Build and test
+### Build and test
 
 ```bash
-npm --prefix web/dashboard ci
-npm --prefix web/dashboard run lint     # also checks for raw HTML injection and WCAG contrast
-npm --prefix web/dashboard test
-npm --prefix web/dashboard run build
-
-dotnet build NebuLog.slnx               # 0 warnings; warnings are errors
-dotnet test NebuLog.slnx
+dotnet build NebuLog.slnx -c Release
+dotnet test NebuLog.slnx -c Release
+npm --prefix web/dashboard run lint && npm --prefix web/dashboard test
+npm --prefix web/shop run lint && npm --prefix web/shop test
 ```
 
-## Deployment
+Tests run on Microsoft.Testing.Platform, selected in `global.json`; .NET 10 no longer supports
+VSTest. The build treats warnings as errors.
 
-See [`deploy/README.md`](deploy/README.md). Images are published to GHCR by
-[`.github/workflows/release.yml`](.github/workflows/release.yml) on every push to `master` and on
-`v*` tags, with immutable tags — `sha-<short commit>`, plus the bare version on a `v*` tag. Never
-`latest`, so a roll-back is a one-line change to a tag.
+---
 
-## v1 → v2
+## History
 
-NebuLog started in December 2018 and was developed through October 2022. That version — a .NET 6
-project — is archived at [`v1-final`](https://github.com/imadyTech/NebuLog/tree/v1-final) (also on
-the [`v1`](https://github.com/imadyTech/NebuLog/tree/v1) branch) and remains in this repository's
-history.
+NebuLog started in December 2018 as *MyLogger*, a WinForms viewer for a logging experiment, and was
+renamed in August 2019. It was developed through October 2022 and is archived at the
+[`v1-final`](https://github.com/imadyTech/NebuLog/tree/v1-final) tag (also on the
+[`v1`](https://github.com/imadyTech/NebuLog/tree/v1) branch). In 2020 the repository was included in
+the GitHub Arctic Code Vault.
 
-It worked, but had accumulated the usual problems: the hub was open to anyone, log bodies were
-inserted into the page as HTML (so any producer could script the dashboard), the table rebuilt
-itself on every entry and stalled past ten thousand rows, and the build no longer ran from a clean
-clone.
+The author documented v1 as it was built, in a seven-part series (in Chinese) on Zhihu:
 
-v2 keeps the idea and rewrites the implementation: OpenTelemetry instead of a bespoke client
-protocol, authentication from the start, a virtualised dashboard, and automated tests as the
-definition of done. The full before-and-after — including what the rewrite cost and where the AI
-doing it got things wrong — is in [`docs/journey/journey-log.md`](docs/journey/journey-log.md).
+| | |
+|---|---|
+| 0 | [Origins and development](https://zhuanlan.zhihu.com/p/258847899) |
+| 1 | [Project structure](https://zhuanlan.zhihu.com/p/258974363) |
+| 2 | [Collecting and shaping logs in an MVC application](https://zhuanlan.zhihu.com/p/258974461) |
+| 3 | [Forwarding Unity's `Debug.Log` to another machine](https://zhuanlan.zhihu.com/p/258974737) |
+| 4 | [Sending logs from a WPF client](https://zhuanlan.zhihu.com/p/260091996) |
+| 5 | [Hosting the SignalR hub inside WPF](https://zhuanlan.zhihu.com/p/260489557) |
+| 6 | [A Blazor WebAssembly server](https://zhuanlan.zhihu.com/p/261311503) |
 
-## Licence
+v2 is a rewrite rather than an upgrade. v1 worked, but the hub was open to anyone, log bodies were
+inserted into the page as HTML, the table was rebuilt on every entry, it no longer built from a clean
+clone, and its dependencies carried 57 security advisories. v2 targets .NET 10, is built around the
+official OpenTelemetry SDK, authenticates from the start, and has 324 automated tests where v1 had
+none.
 
-Apache-2.0
+---
+
+## Changelog and licence
+
+See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
+
+Licensed under the [Apache License 2.0](LICENSE). Copyright © Imady NZ Limited.
