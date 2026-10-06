@@ -43,7 +43,7 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dashboard
           path: src/NebuLog.Server.Host/wwwroot
