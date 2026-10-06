@@ -1,0 +1,119 @@
+.wrapper {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.header,
+.row {
+  display: grid;
+  grid-template-columns: 7.5rem 4.5rem 10rem 14rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0 0.75rem;
+  white-space: nowrap;
+}
+
+.header {
+  height: 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.scroller {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  contain: strict;
+}
+
+.canvas {
+  position: relative;
+  width: 100%;
+}
+
+.row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 26px;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.row:hover {
+  background: var(--surface-raised);
+}
+
+.row:nth-child(even) {
+  background: color-mix(in srgb, var(--surface-sunken) 45%, transparent);
+}
+
+.selected,
+.selected:hover {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.time,
+.level {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.time {
+  color: var(--text-muted);
+}
+
+.level {
+  font-weight: 700;
+  font-size: 0.6875rem;
+  letter-spacing: 0.03em;
+}
+
+.service,
+.scope,
+.message {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scope {
+  color: var(--text-muted);
+}
+
+.levelTrace { color: var(--severity-trace); }
+.levelDebug { color: var(--severity-debug); }
+.levelInfo { color: var(--severity-info); }
+.levelWarn { color: var(--severity-warn); }
+.levelError { color: var(--severity-error); }
+.levelFatal { color: var(--severity-fatal); }
+.levelUnspecified { color: var(--text-muted); }
+
+.jump {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 25%);
+}

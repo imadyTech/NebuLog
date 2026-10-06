@@ -1,0 +1,127 @@
+.drawer {
+  display: flex;
+  flex-direction: column;
+  width: 30rem;
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-sunken);
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.timestamp {
+  flex: 1;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+}
+
+.close {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  padding: 0.75rem;
+  overflow: auto;
+}
+
+.section + .section {
+  margin-top: 1.25rem;
+}
+
+.sectionTitle {
+  margin: 0 0 0.4rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.message {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.pairs {
+  display: grid;
+  grid-template-columns: minmax(6rem, auto) minmax(0, 1fr);
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+}
+
+.key {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.value {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.valueText {
+  font-family: var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.copy {
+  flex: none;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.stack {
+  margin: 0.5rem 0 0;
+  padding: 0.6rem;
+  border-radius: 0.35rem;
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.levelTrace { color: var(--severity-trace); }
+.levelDebug { color: var(--severity-debug); }
+.levelInfo { color: var(--severity-info); }
+.levelWarn { color: var(--severity-warn); }
+.levelError { color: var(--severity-error); }
+.levelFatal { color: var(--severity-fatal); }
+.levelUnspecified { color: var(--text-muted); }

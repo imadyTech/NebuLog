@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      opentelemetry:
+        patterns: ["OpenTelemetry*"]
+      testing:
+        patterns: ["xunit*", "Microsoft.NET.Test.Sdk", "Microsoft.AspNetCore.Mvc.Testing"]
+  - package-ecosystem: npm
+    directory: /web/dashboard
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

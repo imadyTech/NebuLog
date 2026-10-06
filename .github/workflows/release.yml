@@ -1,0 +1,120 @@
+name: release
+
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/dashboard/package-lock.json
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      # The dashboard's build empties wwwroot, so it must run before the browser sample, which
+      # publishes into a subdirectory of it.
+      - name: Build the dashboard
+        working-directory: web/dashboard
+        run: |
+          npm ci
+          npm run lint
+          npm test
+          npm run build
+
+      - name: Build the browser sample
+        working-directory: samples/browser
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Test
+        run: |
+          dotnet restore NebuLog.slnx
+          dotnet build NebuLog.slnx --no-restore -c Release
+          dotnet test NebuLog.slnx --no-build -c Release
+
+      - name: Work out the image tags
+        id: tags
+        run: |
+          # Immutable tags only, never `latest`: sha-<short> always, plus the bare version on a v* tag.
+          short="sha-$(git rev-parse --short HEAD)"
+          echo "primary=$short" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "server<<TAGS"
+            echo "${REGISTRY}/imadytech/nebulog:${short}"
+            if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+              echo "${REGISTRY}/imadytech/nebulog:${GITHUB_REF_NAME#v}"
+            fi
+            echo "TAGS"
+
+            echo "producer<<TAGS"
+            echo "${REGISTRY}/imadytech/nebulog-demo-producer:${short}"
+            if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+              echo "${REGISTRY}/imadytech/nebulog-demo-producer:${GITHUB_REF_NAME#v}"
+            fi
+            echo "TAGS"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push the server image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: src/NebuLog.Server.Host/Dockerfile
+          push: true
+          tags: ${{ steps.tags.outputs.server }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push the demo producer image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: samples/NebuLog.Samples.DemoProducer/Dockerfile
+          push: true
+          tags: ${{ steps.tags.outputs.producer }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Summarise
+        run: |
+          {
+            echo "### Images"
+            echo ""
+            echo '```'
+            echo "${REGISTRY}/imadytech/nebulog:${TAG}"
+            echo "${REGISTRY}/imadytech/nebulog-demo-producer:${TAG}"
+            echo '```'
+            echo ""
+            echo "Set NEBULOG_TAG=${TAG} in the deployment .env, then pull and recreate."
+          } >> "$GITHUB_STEP_SUMMARY"
+        env:
+          TAG: ${{ steps.tags.outputs.primary }}

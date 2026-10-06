@@ -1,0 +1,16 @@
+# Keep the build context small and deterministic.
+**/bin/
+**/obj/
+**/node_modules/
+**/TestResults/
+**/App_Data/
+.git/
+.github/
+docs/
+deploy/
+tests/
+web/dashboard/node_modules/
+samples/browser/node_modules/
+
+# wwwroot is NOT ignored: CI builds the dashboard and the browser sample before the image, and
+# `dotnet publish` picks them up from there.

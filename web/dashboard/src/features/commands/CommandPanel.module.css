@@ -1,0 +1,82 @@
+.panel {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.select {
+  width: 100%;
+  padding: 0.35rem 0.4rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.3rem;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.actions {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.inline {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.4rem;
+}
+
+.button {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.3rem;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ok,
+.error {
+  margin: 0.6rem 0 0;
+  font-size: 0.78rem;
+}
+
+.ok {
+  color: var(--severity-info);
+}
+
+.error {
+  color: var(--severity-error);
+}
+
+.empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}

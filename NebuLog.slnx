@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NebuLog.Contracts/NebuLog.Contracts.csproj" />
+    <Project Path="src/NebuLog.OpenTelemetry/NebuLog.OpenTelemetry.csproj" />
+    <Project Path="src/NebuLog.Server/NebuLog.Server.csproj" />
+    <Project Path="src/NebuLog.Server.Host/NebuLog.Server.Host.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/NebuLog.Samples.DemoProducer/NebuLog.Samples.DemoProducer.csproj" />
+    <Project Path="samples/NebuLog.Samples.MinimalApi/NebuLog.Samples.MinimalApi.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NebuLog.OpenTelemetry.Tests/NebuLog.OpenTelemetry.Tests.csproj" />
+    <Project Path="tests/NebuLog.Server.Tests/NebuLog.Server.Tests.csproj" />
+  </Folder>
+  <Folder Name="/solution items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+  </Folder>
+</Solution>

@@ -1,0 +1,143 @@
+.page {
+  max-width: 64rem;
+  padding: 1.25rem;
+}
+
+.heading {
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+}
+
+.intro {
+  margin: 0 0 1.25rem;
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.input {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.35rem;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.primary,
+.ghost,
+.danger {
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.35rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.ghost {
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text);
+}
+
+.danger {
+  border: 1px solid var(--severity-error);
+  background: transparent;
+  color: var(--severity-error);
+}
+
+.primary:disabled,
+.danger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.notice {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--severity-warn);
+  border-radius: 0.4rem;
+  background: color-mix(in srgb, var(--severity-warn) 12%, transparent);
+}
+
+.noticeTitle {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.keyRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.key {
+  flex: 1;
+  min-width: 18rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.3rem;
+  background: var(--surface-sunken);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.table th,
+.table td {
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.table th {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mono {
+  font-family: var(--mono);
+}
+
+.active {
+  color: var(--severity-info);
+}
+
+.revoked {
+  color: var(--text-muted);
+}
+
+.empty {
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.error {
+  margin: 0 0 0.75rem;
+  color: var(--severity-error);
+  font-size: 0.85rem;
+}

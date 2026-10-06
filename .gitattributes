@@ -1,0 +1,22 @@
+# Line endings: LF in the repository AND in the working tree, on every platform.
+# This must stay in step with .editorconfig's end_of_line settings, otherwise Git and
+# the editor rewrite each other's files and every touched file shows up as fully changed.
+* text=auto eol=lf
+
+# The few file kinds that are genuinely happier with CRLF on Windows.
+# Mirrored by the [*.{sln,slnx,cmd,bat,ps1}] section in .editorconfig.
+*.sln     text eol=crlf
+*.slnx    text eol=crlf
+*.cmd     text eol=crlf
+*.bat     text eol=crlf
+*.ps1     text eol=crlf
+
+# Shell scripts must stay LF
+*.sh      text eol=lf
+
+# Binary
+*.png     binary
+*.jpg     binary
+*.ico     binary
+*.vsdx    binary
+*.woff2   binary

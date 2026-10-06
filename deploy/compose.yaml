@@ -1,0 +1,53 @@
+# NebuLog deployment for AceMagic-W1.
+#
+# Follows the baseline in docs/ops/ENV-REQ-001-reply.md §三, with the revisions listed in
+# WO-0007 §9 "需回告 DevOps". The host port binds to 127.0.0.1 only: cloudflared is the sole way in,
+# which is what makes trusting CF-Connecting-IP safe.
+name: imady-nebulog
+
+services:
+  nebulog:
+    image: ghcr.io/imadytech/nebulog:${NEBULOG_TAG}
+    restart: unless-stopped
+    ports: ['127.0.0.1:2000:8080']
+    env_file: .env
+    environment:
+      ConnectionStrings__Identity: 'Data Source=/data/nebulog.db'
+      # Added since the baseline: without it the key ring falls back to a path inside the
+      # read-only root filesystem and the container cannot start. See WO-0005 §9.7.
+      NebuLog__DataProtection__KeysPath: '/data/keys'
+      NebuLog__ForwardedHeaders__KnownNetworks: '172.30.20.0/24'
+      # Empty allows no cross-origin posting at all. The browser sample is served same-origin,
+      # so it needs nothing here.
+      NebuLog__Cors__AllowedOrigins: ''
+    volumes: ['nebulog_data:/data']
+    read_only: true
+    tmpfs: ['/tmp']
+    mem_limit: 512m
+    cpus: 1.0
+    networks: [nebulog_net]
+    # The healthcheck is baked into the image (it runs the application with --health-check,
+    # because the ASP.NET runtime image has no curl or wget for a shell probe to use).
+
+  nebulog-demo-producer:
+    image: ghcr.io/imadytech/nebulog-demo-producer:${NEBULOG_TAG}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NebuLog__Endpoint: 'http://nebulog:8080'
+    read_only: true
+    tmpfs: ['/tmp']
+    mem_limit: 128m
+    cpus: 0.25
+    networks: [nebulog_net]
+    depends_on:
+      nebulog:
+        condition: service_started
+
+volumes:
+  nebulog_data:
+
+networks:
+  nebulog_net:
+    ipam:
+      config: [{ subnet: 172.30.20.0/24 }]
