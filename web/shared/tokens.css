@@ -1,0 +1,66 @@
+/*
+ * Design tokens shared by the console, the shop and the site pages.
+ * Values come from docs/design/site-design.md §2, which is the authority when they disagree.
+ *
+ * Contrast ratios in the comments are measured against the surface the token is used on and are
+ * verified by web/dashboard/scripts/check-contrast.mjs — a comment claiming AA is not evidence,
+ * which is why that script exists (WO-0006 §9).
+ */
+
+:root {
+  /* Surfaces */
+  --ground: #f6f6f3;
+  --surface: #ffffff;
+  --surface-sunken: #f0f0ec;
+
+  /* Text */
+  --ink: #14161b;
+  --text-2: #3d424c;
+  --muted: #5a5f6a;
+
+  /* Lines. --line is decorative; anything that outlines a control uses --line-strong,
+     which meets the 3:1 that WCAG 1.4.11 asks of non-text UI. */
+  --line: #dadbd6;
+  --line-strong: #8a8f98;
+
+  /* Accent */
+  --accent: #2450d8;
+  --accent-soft: #e3eaff;
+  --accent-soft-border: #9fb5f5;
+  --accent-row: #f0f4ff;
+
+  /* Dark areas: the landing hero and the demo-visitor card */
+  --dark: #0e1116;
+  --dark-surface: #161a22;
+  --dark-text: #e6e8ec;
+  --dark-muted: #9aa3b2;
+  --dark-accent: #7fa2ff;
+
+  /* Severity badges: background / text pairs */
+  --sev-trace-bg: #f1f2f4;
+  --sev-trace-fg: #3d424c;
+  --sev-debug-bg: #e8eaee;
+  --sev-debug-fg: #2b3240;
+  --sev-info-bg: #dce6ff;
+  --sev-info-fg: #1e3fa8;
+  --sev-warn-bg: #fdecc8;
+  --sev-warn-fg: #6b4100;
+  --sev-error-bg: #fde0dc;
+  --sev-error-fg: #96211a;
+  --sev-fatal-bg: #f5d9f0;
+  --sev-fatal-fg: #7c1d6f;
+
+  /* NebuShop keeps its own palette so the demo application never reads as part of the console. */
+  --shop-ground: #fbf8f3;
+  --shop-accent: #8a3b12;
+  --shop-line: #e5ded3;
+
+  /* Shape and rhythm */
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --radius-chip: 999px;
+  --touch-target: 44px;
+
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+}

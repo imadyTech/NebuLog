@@ -19,6 +19,7 @@ using NebuLog.Server.Hubs;
 using NebuLog.Server.Infrastructure;
 using NebuLog.Server.Ingestion;
 using NebuLog.Server.Otlp;
+using NebuLog.Server.Proxy;
 using IPNetwork = System.Net.IPNetwork;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -75,6 +76,10 @@ public static class NebuLogServerServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddOptions<NebuLogShopOptions>()
+            .Bind(configuration.GetSection(NebuLogShopOptions.SectionName));
+        services.AddNebuLogShopProxy();
+
         services.AddOptions<NebuLogCorsOptions>()
             .Bind(configuration.GetSection(NebuLogCorsOptions.SectionName));
 
@@ -115,6 +120,7 @@ public static class NebuLogServerServiceCollectionExtensions
         {
             ConfigureRateLimiter(limiter);
             NebuLogSecurityServiceCollectionExtensions.AddAuthRateLimitPolicy(limiter);
+            NebuLogShopProxy.AddShopRateLimitPolicy(limiter);
         });
 
         services.Configure<ForwardedHeadersOptions>(options =>

@@ -19,6 +19,8 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Grpc.Tools" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" />
+    <!-- Reverse-proxies the NebuShop demo containers, which publish no ports of their own. -->
+    <PackageReference Include="Yarp.ReverseProxy" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NebuLog.Contracts\NebuLog.Contracts.csproj" />

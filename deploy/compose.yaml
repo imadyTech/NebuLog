@@ -20,6 +20,9 @@ services:
       # Empty allows no cross-origin posting at all. The browser sample is served same-origin,
       # so it needs nothing here.
       NebuLog__Cors__AllowedOrigins: ''
+      # Registers the /apps/shop reverse-proxy route. Leaving it unset removes the route entirely,
+      # which is what a deployment without the demo shop wants.
+      NebuLog__Shop__OrdersUrl: 'http://nebushop-orders:8080'
     volumes: ['nebulog_data:/data']
     read_only: true
     tmpfs: ['/tmp']
@@ -38,6 +41,39 @@ services:
     read_only: true
     tmpfs: ['/tmp']
     mem_limit: 128m
+    cpus: 0.25
+    networks: [nebulog_net]
+    depends_on:
+      nebulog:
+        condition: service_started
+
+  # The demo shop. Two containers, no published ports and no volumes: the only way in is the
+  # nebulog container's reverse proxy, which requires a signed-in Viewer (ENV-REQ-002 §1).
+  nebushop-orders:
+    image: ghcr.io/imadytech/nebulog-shop-orders:${NEBULOG_TAG}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NebuLog__Endpoint: 'http://nebulog:8080'
+      NebuShop__PaymentsUrl: 'http://nebushop-payments:8080'
+    read_only: true
+    tmpfs: ['/tmp']
+    mem_limit: 128m
+    cpus: 0.25
+    networks: [nebulog_net]
+    depends_on:
+      nebulog:
+        condition: service_started
+
+  nebushop-payments:
+    image: ghcr.io/imadytech/nebulog-shop-payments:${NEBULOG_TAG}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NebuLog__Endpoint: 'http://nebulog:8080'
+    read_only: true
+    tmpfs: ['/tmp']
+    mem_limit: 96m
     cpus: 0.25
     networks: [nebulog_net]
     depends_on:

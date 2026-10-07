@@ -27,4 +27,6 @@ coverage/
 Thumbs.db
 desktop.ini
 src/NebuLog.Server.Host/wwwroot/
+# Built by web/shop, same as the host's wwwroot above: generated output, never committed.
+samples/NebuShop.Orders/wwwroot/
 App_Data/
