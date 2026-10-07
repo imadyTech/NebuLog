@@ -4,7 +4,7 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.1.0] — unreleased
+## [2.1.0] — 2026-10-07
 
 A public face for the project: a landing page, guided demos, and a small application to generate
 real traffic for them.
@@ -93,5 +93,5 @@ collectors for MVC, WPF, Unity and Blazor WebAssembly hosts, custom live statist
 state is archived at [`v1-final`](https://github.com/imadyTech/NebuLog/tree/v1-final); the author's
 contemporary write-ups are linked from the README.
 
-[2.1.0]: https://github.com/imadyTech/NebuLog/compare/v2.0.0...HEAD
+[2.1.0]: https://github.com/imadyTech/NebuLog/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/imadyTech/NebuLog/releases/tag/v2.0.0
