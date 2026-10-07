@@ -131,7 +131,13 @@ describe('LogStore performance', () => {
     const elapsed = timeFullFilter(defaultCapacity)
     console.log(`full re-filter of ${defaultCapacity.toLocaleString()} entries: ${elapsed.toFixed(2)} ms`)
 
-    const budget = process.env.CI ? 500 : 50
+    // Read through globalThis rather than `process`: this is browser-targeted code whose tsconfig
+    // deliberately does not include Node's types, and widening that just to read one variable
+    // would let browser modules reach for Node APIs too.
+    const onCi = Boolean(
+      (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.CI,
+    )
+    const budget = onCi ? 500 : 50
     expect(elapsed).toBeLessThan(budget)
   })
 })
