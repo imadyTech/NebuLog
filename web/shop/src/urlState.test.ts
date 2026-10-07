@@ -37,6 +37,11 @@ describe('apiBase', () => {
     expect(apiBase('/')).toBe('')
   })
 
+  it('derives the API base whether or not the path ends in a slash', () => {
+    expect(apiBase('/apps/shop')).toBe('/apps/shop')
+    expect(apiBase('/apps/shop/')).toBe('/apps/shop')
+  })
+
   it('builds the path for each implementation', () => {
     expect(apiPath('minimal', '/orders/42')).toBe('/api/minimal/orders/42')
     expect(apiPath('mvc', '/checkout')).toBe('/api/mvc/checkout')

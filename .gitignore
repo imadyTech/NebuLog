@@ -30,3 +30,8 @@ src/NebuLog.Server.Host/wwwroot/
 # Built by web/shop, same as the host's wwwroot above: generated output, never committed.
 samples/NebuShop.Orders/wwwroot/
 App_Data/
+
+# Playwright smoke-test output
+tests/smoke/node_modules/
+tests/smoke/playwright-report/
+tests/smoke/test-results/

@@ -76,6 +76,9 @@ public static class NebuLogServerServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddOptions<NebuLogCspOptions>()
+            .Bind(configuration.GetSection(NebuLogCspOptions.SectionName));
+
         services.AddOptions<NebuLogSiteOptions>()
             .Bind(configuration.GetSection(NebuLogSiteOptions.SectionName));
 
