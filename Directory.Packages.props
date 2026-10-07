@@ -28,7 +28,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.19.0" />
   </ItemGroup>
   <ItemGroup Label="Third party">
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.17.13" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.17.14" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
   </ItemGroup>
   <ItemGroup Label="Testing">
