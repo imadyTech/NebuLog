@@ -1,4 +1,17 @@
 /*
+ * Fonts are bundled, not fetched from Google: the server's CSP allows font-src 'self' only, and
+ * loosening it so a marketing page can have a typeface would be the wrong trade (WO-0011 §2.1).
+ * Only the weights actually used are imported, to keep the payload small.
+ */
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/600.css';
+
+/* Shared design tokens (site-design.md §2), used by the site pages, the console and the shop. */
+@import '../../shared/tokens.css';
+
+/*
  * Theme tokens. Light is the default; dark follows prefers-color-scheme.
  * Foreground/background pairs are chosen to clear WCAG AA (4.5:1 for body text,
  * 3:1 for large text and UI borders) in both themes.
@@ -23,7 +36,7 @@
   --severity-error: #b3261e;
   --severity-fatal: #7b1fa2;
 
-  --mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', monospace;
+  --mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'Liberation Mono', monospace;
 
   color-scheme: light dark;
 }
@@ -64,7 +77,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-size: 14px;
   line-height: 1.45;
 }

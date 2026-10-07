@@ -1,0 +1,425 @@
+/*
+ * The public landing page. Unlike the console it has to work at phone width (WO-0011 §2.8), so
+ * every grid here collapses to one column below 760 px.
+ */
+
+.page {
+  background: var(--ground);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+.topBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 14px 16px;
+}
+
+.brand {
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+
+.topNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-left: auto;
+  font-size: 13px;
+}
+
+.topNav a {
+  color: var(--text-2);
+  text-decoration: none;
+}
+
+.topNav a:hover,
+.topNav a:focus-visible {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.topCta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 13px;
+  color: var(--surface);
+  background: var(--ink);
+  border-radius: var(--radius-control);
+  text-decoration: none;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+  padding: 44px 16px 52px;
+  background: var(--dark);
+  color: var(--dark-text);
+}
+
+.heroText,
+.heroConsole {
+  max-width: 560px;
+}
+
+.heroText {
+  margin-left: auto;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+}
+
+.heroTitle {
+  margin: 0 0 14px;
+  font-size: 40px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.heroSub {
+  margin: 0 0 22px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--dark-text);
+}
+
+.heroSub code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 1px 5px;
+  background: var(--dark-surface);
+  border-radius: 4px;
+}
+
+.heroButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.primary,
+.ghost {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: 0 18px;
+  font-size: 14px;
+  border-radius: var(--radius-control);
+  text-decoration: none;
+}
+
+.primary {
+  color: var(--dark);
+  background: var(--dark-accent);
+}
+
+.ghost {
+  color: var(--dark-text);
+  border: 1px solid var(--dark-muted);
+}
+
+.heroNote {
+  margin: 16px 0 0;
+  font-size: 12px;
+  color: var(--dark-muted);
+}
+
+.heroConsole {
+  padding: 12px;
+  background: var(--dark-surface);
+  border: 1px solid #262c38;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.consoleBar {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--dark-muted);
+  padding-bottom: 8px;
+}
+
+.counter {
+  color: var(--dark-accent);
+}
+
+.spark {
+  display: block;
+  width: 100%;
+  height: 26px;
+  color: var(--dark-accent);
+  margin-bottom: 8px;
+}
+
+.sparkEmpty {
+  height: 26px;
+  margin-bottom: 8px;
+}
+
+.consoleTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--dark-text);
+}
+
+.consoleTable td {
+  padding: 3px 6px 3px 0;
+  white-space: nowrap;
+}
+
+.cellTime,
+.cellService {
+  color: var(--dark-muted);
+}
+
+.cellMessage {
+  white-space: normal;
+}
+
+.level {
+  display: inline-block;
+  min-width: 46px;
+  padding: 0 5px;
+  border-radius: 3px;
+  text-align: center;
+  font-size: 10px;
+}
+
+.levelINFO {
+  background: var(--sev-info-bg);
+  color: var(--sev-info-fg);
+}
+
+.levelDEBUG {
+  background: var(--sev-debug-bg);
+  color: var(--sev-debug-fg);
+}
+
+.levelWARN {
+  background: var(--sev-warn-bg);
+  color: var(--sev-warn-fg);
+}
+
+.levelERROR {
+  background: var(--sev-error-bg);
+  color: var(--sev-error-fg);
+}
+
+.consoleNote {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: var(--dark-muted);
+}
+
+.section {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 44px 16px;
+}
+
+.sectionTitle {
+  margin: 0 0 10px;
+  font-size: 24px;
+  letter-spacing: -0.015em;
+}
+
+.sectionLead {
+  margin: 0 0 22px;
+  max-width: 70ch;
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.sectionLead code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.flow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.column,
+.columnHighlight {
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+
+/* NebuLog's own components are tinted, so the diagram shows where the boundary is. */
+.columnHighlight {
+  background: var(--accent-soft);
+  border-color: var(--accent-soft-border);
+}
+
+.columnTitle {
+  margin: 0;
+  font-size: 15px;
+}
+
+.columnSub {
+  margin: 2px 0 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.columnList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.columnList li {
+  padding: 5px 0;
+  border-top: 1px solid var(--line);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.fact {
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+
+.factValue {
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  color: var(--accent);
+}
+
+.factLabel {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.factDetail {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.footnote {
+  margin: 16px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.code {
+  margin: 0 0 16px;
+  padding: 16px;
+  overflow-x: auto;
+  background: var(--dark);
+  color: var(--dark-text);
+  border-radius: var(--radius-card);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 70ch;
+}
+
+.timeline li {
+  display: flex;
+  gap: 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.when {
+  flex: 0 0 72px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.footerNav {
+  display: flex;
+  gap: 16px;
+}
+
+.footerNav a {
+  color: var(--text-2);
+}
+
+@media (max-width: 900px) {
+  .flow,
+  .facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 28px 16px 36px;
+  }
+
+  .heroText {
+    margin-left: 0;
+  }
+
+  .heroTitle {
+    font-size: 30px;
+  }
+
+  .topCta {
+    order: -1;
+    margin-left: auto;
+  }
+
+  .topNav {
+    width: 100%;
+    margin-left: 0;
+    gap: 14px;
+  }
+}

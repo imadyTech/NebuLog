@@ -42,9 +42,11 @@ public static class NebuLogEndpointRouteBuilderExtensions
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseRateLimiter();
+            app.UseOutputCache();
         }
 
         endpoints.MapHub<NebuLogHub>(HubRoutes.Path);
+        endpoints.MapNebuLogPublic();
         endpoints.MapNebuLogApi();
         endpoints.MapNebuLogOtlp();
         endpoints.MapNebuLogAuth();

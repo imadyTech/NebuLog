@@ -1,8 +1,9 @@
+/* The shell is shared by the console and the guided demos. The 1024 px floor belongs to the
+   console alone (see LivePage.module.css); /demo has to work on a phone (WO-0011 §2.8). */
 .shell {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
-  min-width: 1024px;
+  min-height: 100dvh;
 }
 
 .header {
@@ -16,6 +17,10 @@
 }
 
 .brand {
+  /* Inline-flex with a floor, so the link is a target of at least 24 px (WCAG 2.2 SC 2.5.8). */
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: -0.01em;
