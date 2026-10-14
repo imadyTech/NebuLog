@@ -4,6 +4,26 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] — 2026-10-14
+
+### Security
+
+- Updated the ASP.NET Core packages from 10.0.12 to 10.0.13, which carries the fixes for two
+  SignalR advisories published after 2.1.0:
+  - [GHSA-86xp-94pg-8r6r](https://github.com/advisories/GHSA-86xp-94pg-8r6r) (moderate, CVSS 5.3) —
+    the MessagePack protocol can consume excessive memory deserializing deeply nested arrays from a
+    client. **This one is reachable here**: NebuLog uses the MessagePack protocol, and although the
+    hub requires an authenticated principal, the read-only demo account is open to anyone.
+  - [GHSA-334f-vvp4-7g6p](https://github.com/advisories/GHSA-334f-vvp4-7g6p) (high, CVSS 7.5) — a
+    stateful-reconnect client can block broadcasts indefinitely. NebuLog does not enable stateful
+    reconnect, so this path is not reachable; the package was updated because it is in the
+    dependency graph, not because the server was exposed.
+
+### Changed
+
+- Dependabot updates merged before the above: `Scalar.AspNetCore` 2.17.13 → 2.17.14,
+  `Microsoft.Testing.Extensions.CodeCoverage` 18.11.2 → 18.12.0.
+
 ## [2.1.0] — 2026-10-07
 
 A public face for the project: a landing page, guided demos, and a small application to generate
@@ -93,5 +113,6 @@ collectors for MVC, WPF, Unity and Blazor WebAssembly hosts, custom live statist
 state is archived at [`v1-final`](https://github.com/imadyTech/NebuLog/tree/v1-final); the author's
 contemporary write-ups are linked from the README.
 
+[2.1.1]: https://github.com/imadyTech/NebuLog/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/imadyTech/NebuLog/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/imadyTech/NebuLog/releases/tag/v2.0.0
