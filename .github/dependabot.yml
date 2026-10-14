@@ -1,4 +1,9 @@
 version: 2
+
+# Every manifest in the repository must appear here. Dependabot only looks where it is told, so a
+# project added without a matching entry silently stops receiving updates — which is how
+# web/shop, tests/smoke and samples/browser went unmonitored until 2026-10-15. The check is simple:
+# `find . -name package.json -not -path '*/node_modules/*'` should match the npm entries below.
 updates:
   - package-ecosystem: nuget
     directory: /
@@ -8,11 +13,39 @@ updates:
       opentelemetry:
         patterns: ["OpenTelemetry*"]
       testing:
-        patterns: ["xunit*", "Microsoft.NET.Test.Sdk", "Microsoft.AspNetCore.Mvc.Testing"]
+        patterns: ["xunit*", "Microsoft.Testing.*", "Microsoft.AspNetCore.Mvc.Testing"]
+
+  # The console and the public site pages.
   - package-ecosystem: npm
     directory: /web/dashboard
     schedule:
       interval: weekly
+    groups:
+      # Grouped so a week's tooling bumps arrive as one pull request rather than six.
+      dev-tooling:
+        dependency-type: development
+
+  # The NebuShop demo application (WO-0010).
+  - package-ecosystem: npm
+    directory: /web/shop
+    schedule:
+      interval: weekly
+    groups:
+      dev-tooling:
+        dependency-type: development
+
+  # The Playwright smoke suite that runs against the deployment (WO-0012).
+  - package-ecosystem: npm
+    directory: /tests/smoke
+    schedule:
+      interval: weekly
+
+  # The browser OTLP sample (WO-0004).
+  - package-ecosystem: npm
+    directory: /samples/browser
+    schedule:
+      interval: weekly
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
