@@ -4,6 +4,36 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.2] — 2026-10-23
+
+Dependency maintenance. No functional change, and nothing here fixes a vulnerability that was
+reachable in 2.1.1 — see the note below.
+
+### Changed
+
+- OpenTelemetry 1.19.1 → **1.20.1** across the SDK, the OTLP exporter, the hosting extensions and
+  both instrumentation packages. This is the one upgrade worth watching: NebuLog builds on SDK
+  internals (`BaseExporter<LogRecord>`, `BaseProcessor<LogRecord>`, `LoggerProviderBuilder`), so a
+  minor version is not automatically safe. All 251 tests pass, including the compatibility test that
+  drives the stock OTLP exporter end to end.
+- React and React DOM 19.2.8 → 19.3.1 in the console and the shop; `@tanstack/react-virtual`
+  3.14.15 → 3.14.21; Playwright 1.64.1; `Scalar.AspNetCore` 2.18.0 → 2.18.2; plus the usual
+  dev-tooling bumps.
+- Dependabot now covers all four npm manifests, so `web/shop`, `tests/smoke` and `samples/browser`
+  received their first updates since they were added.
+
+### Note on the October 2026 ASP.NET Core advisories
+
+A batch of advisories was published on 2026-10-13, including two rated Critical in Kestrel
+([CVE-2026-88092](https://github.com/dotnet/announcements/issues/472), request smuggling;
+[CVE-2026-70188](https://github.com/dotnet/announcements/issues/462), security feature bypass). All
+are fixed in 10.0.13.
+
+Kestrel ships in the shared framework, not as a NuGet package, so `dotnet list package
+--vulnerable` does not report it — checking the runtime inside the image is what answers the
+question. The 2.1.1 image was verified to carry `Microsoft.AspNetCore.App 10.0.13`, so it already
+contained these fixes; 2.1.2 is built on the same or newer runtime.
+
 ## [2.1.1] — 2026-10-14
 
 ### Security
@@ -113,6 +143,7 @@ collectors for MVC, WPF, Unity and Blazor WebAssembly hosts, custom live statist
 state is archived at [`v1-final`](https://github.com/imadyTech/NebuLog/tree/v1-final); the author's
 contemporary write-ups are linked from the README.
 
+[2.1.2]: https://github.com/imadyTech/NebuLog/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/imadyTech/NebuLog/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/imadyTech/NebuLog/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/imadyTech/NebuLog/releases/tag/v2.0.0
