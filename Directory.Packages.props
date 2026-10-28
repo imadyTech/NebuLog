@@ -12,7 +12,7 @@
   </ItemGroup>
   <ItemGroup Label="Protobuf">
     <PackageVersion Include="Google.Protobuf" Version="3.36.2" />
-    <PackageVersion Include="Grpc.Tools" Version="2.84.0" />
+    <PackageVersion Include="Grpc.Tools" Version="2.85.0" />
   </ItemGroup>
   <ItemGroup Label="Data">
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.13" />
