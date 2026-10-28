@@ -4,6 +4,28 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.3] — 2026-10-29
+
+Dependency maintenance. No functional change, and no vulnerability was reachable in 2.1.2 — all
+three supply-chain checks were clean before and after.
+
+### Changed
+
+- All eleven ASP.NET Core packages are now on **10.0.14**. Dependabot had raised four of them; the
+  remaining seven were brought up in one commit rather than waiting for separate pull requests.
+  Mixed patch versions let NuGet resolve transitive dependencies in combinations nobody chose, and
+  the October SignalR advisories landed on `SignalR.Protocols.MessagePack` — which was one of the
+  seven lagging behind.
+- `react-router` 8.5.0, `@tanstack/react-virtual` 3.14.22, `vite` 8.3.5 (console and browser
+  sample), `oxlint` 1.89.0, `Grpc.Tools` 2.85.0, and the usual dev-tooling bumps.
+
+### Not changed, deliberately
+
+- `Microsoft.Extensions.DependencyModel` still resolves to 10.0.10 as a transitive dependency of the
+  test host. It has no known advisory and never reaches a production image. Pinning it explicitly
+  would add a permanent maintenance entry for the sake of a tidy version list; the scanner will
+  raise it if it ever matters.
+
 ## [2.1.2] — 2026-10-23
 
 Dependency maintenance. No functional change, and nothing here fixes a vulnerability that was
@@ -143,6 +165,7 @@ collectors for MVC, WPF, Unity and Blazor WebAssembly hosts, custom live statist
 state is archived at [`v1-final`](https://github.com/imadyTech/NebuLog/tree/v1-final); the author's
 contemporary write-ups are linked from the README.
 
+[2.1.3]: https://github.com/imadyTech/NebuLog/compare/v2.1.2...v2.1.3
 [2.1.2]: https://github.com/imadyTech/NebuLog/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/imadyTech/NebuLog/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/imadyTech/NebuLog/compare/v2.0.0...v2.1.0
