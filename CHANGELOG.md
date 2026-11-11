@@ -4,6 +4,28 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.4] — 2026-11-12
+
+Dependency maintenance. All three supply-chain checks were clean before and after.
+
+### Changed
+
+- All eleven ASP.NET Core packages are now on **10.0.15**. Dependabot raised three; the other eight
+  were brought up in the same commit, as in 2.1.3 — mixed patch versions let NuGet resolve
+  transitive dependencies in combinations nobody chose.
+- `Scalar.AspNetCore` 2.20.0, `react-router` 8.5.1, `@tanstack/react-virtual` 3.14.26, Playwright
+  1.65.0, `vite` 8.3.6 in the browser sample, `xunit.v3` 4.0.3, and the grouped dev-tooling bumps
+  for both front ends.
+
+### Left alone, deliberately
+
+- `OpenTelemetry.Instrumentation.AspNetCore` is on 1.20.2 while the other OpenTelemetry packages
+  are on 1.20.1. Unlike the ASP.NET Core case, this one **is** a difference in release cadence:
+  1.20.2 was published for the instrumentation package only, and 1.20.1 is the newest release of
+  the rest. There is nothing to align.
+- `Microsoft.Extensions.DependencyModel` still resolves to 10.0.10 transitively, for the reasons
+  given in 2.1.3.
+
 ## [2.1.3] — 2026-10-29
 
 Dependency maintenance. No functional change, and no vulnerability was reachable in 2.1.2 — all
@@ -165,6 +187,7 @@ collectors for MVC, WPF, Unity and Blazor WebAssembly hosts, custom live statist
 state is archived at [`v1-final`](https://github.com/imadyTech/NebuLog/tree/v1-final); the author's
 contemporary write-ups are linked from the README.
 
+[2.1.4]: https://github.com/imadyTech/NebuLog/compare/v2.1.3...v2.1.4
 [2.1.3]: https://github.com/imadyTech/NebuLog/compare/v2.1.2...v2.1.3
 [2.1.2]: https://github.com/imadyTech/NebuLog/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/imadyTech/NebuLog/compare/v2.1.0...v2.1.1
