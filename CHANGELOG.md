@@ -4,9 +4,15 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.1.4] — 2026-11-12
+## [2.1.5] — 2026-11-12
 
-Dependency maintenance. All three supply-chain checks were clean before and after.
+Dependency maintenance, plus a fix to the benchmark that blocked the previous attempt. All three
+supply-chain checks were clean before and after.
+
+**2.1.4 has a tag but no images.** Its release build failed on the benchmark described under Fixed,
+on the same commit whose `master` build had passed minutes earlier — the clearest possible sign the
+measurement was unstable rather than the code. The tag is kept as a record of that; nothing was ever
+published under it. Use 2.1.5.
 
 ### Changed
 
@@ -16,6 +22,16 @@ Dependency maintenance. All three supply-chain checks were clean before and afte
 - `Scalar.AspNetCore` 2.20.0, `react-router` 8.5.1, `@tanstack/react-virtual` 3.14.26, Playwright
   1.65.0, `vite` 8.3.6 in the browser sample, `xunit.v3` 4.0.3, and the grouped dev-tooling bumps
   for both front ends.
+
+### Fixed
+
+- The linearity benchmark used a single sample per size, and divided by the 25,000-entry time —
+  under two milliseconds on a fast machine. One GC pause or JIT moment in that denominator was
+  enough to triple the ratio, which is how a shared runner produced 9.9x for code that measures
+  2.6–3.5x locally. It now takes the median of five runs after a discarded warm-up pass. Measured
+  over eight consecutive runs the ratio is 3.89–4.91 — both tighter and closer to the theoretical
+  4x, because the old ordering charged JIT time to the denominator and quietly flattered the
+  result. The 8x threshold is unchanged; a real quadratic still measures 15.4x.
 
 ### Left alone, deliberately
 
@@ -187,7 +203,7 @@ collectors for MVC, WPF, Unity and Blazor WebAssembly hosts, custom live statist
 state is archived at [`v1-final`](https://github.com/imadyTech/NebuLog/tree/v1-final); the author's
 contemporary write-ups are linked from the README.
 
-[2.1.4]: https://github.com/imadyTech/NebuLog/compare/v2.1.3...v2.1.4
+[2.1.5]: https://github.com/imadyTech/NebuLog/compare/v2.1.3...v2.1.5
 [2.1.3]: https://github.com/imadyTech/NebuLog/compare/v2.1.2...v2.1.3
 [2.1.2]: https://github.com/imadyTech/NebuLog/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/imadyTech/NebuLog/compare/v2.1.0...v2.1.1

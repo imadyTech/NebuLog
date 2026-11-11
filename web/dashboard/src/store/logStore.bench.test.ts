@@ -109,16 +109,17 @@ describe('LogStore performance', () => {
     // recompute is O(n); the failure worth catching is someone making it O(n²) — a nested scan, a
     // per-entry allocation that triggers a rehash — which shows up as a super-linear ratio no
     // matter how fast or slow the host is.
-    const small = timeFullFilter(25_000)
-    const large = timeFullFilter(100_000)
+    const small = medianFullFilter(25_000)
+    const large = medianFullFilter(100_000)
     const ratio = large / small
 
     console.log(
       `full re-filter: ${small.toFixed(2)} ms at 25,000, ${large.toFixed(2)} ms at 100,000 (${ratio.toFixed(2)}x for 4x the data)`,
     )
 
-    // Linear would be 4x. Allowing 8x leaves room for cache effects and a noisy shared runner,
-    // while an accidental O(n²) would land near 16x.
+    // Linear would be 4x. Allowing 8x leaves room for cache effects, while an accidental O(n²)
+    // would land near 16x — measured at 15.4x when this threshold was probed against a real
+    // nested loop. The medians above are what make 8x safe to keep on a shared runner.
     expect(ratio).toBeLessThan(8)
   })
 
@@ -128,7 +129,7 @@ describe('LogStore performance', () => {
     // machine and only reported on a shared CI runner, where the number measures the runner rather
     // than the code — 7 ms here, 75 ms on a GitHub-hosted runner for identical code (WO-0012 §9).
     // The linearity check above is what guards the algorithm on every machine.
-    const elapsed = timeFullFilter(defaultCapacity)
+    const elapsed = medianFullFilter(defaultCapacity)
     console.log(`full re-filter of ${defaultCapacity.toLocaleString()} entries: ${elapsed.toFixed(2)} ms`)
 
     // Read through globalThis rather than `process`: this is browser-targeted code whose tsconfig
@@ -142,18 +143,36 @@ describe('LogStore performance', () => {
   })
 })
 
-/** Fills a store of the given size and returns how long one full re-filter takes, in milliseconds. */
-function timeFullFilter(size: number): number {
-  const store = new LogStore(size)
-  fill(store, size, 1000)
+/**
+ * Median time of one full re-filter over a store of the given size, in milliseconds.
+ *
+ * Median of several runs after a discarded warm-up, not a single sample. The ratio test below
+ * divides by the 25,000-entry time, which is only a couple of milliseconds on a fast machine — at
+ * that scale one unlucky GC pause or JIT moment in the denominator is enough to triple the ratio.
+ * That is exactly what happened on CI for v2.1.4: 9.9x on a shared runner for code that measures
+ * 2.6–3.5x locally, and the same commit passed on another run minutes earlier.
+ */
+function medianFullFilter(size: number, runs = 5): number {
+  const samples: number[] = []
 
-  const started = performance.now()
-  store.setFilter({ ...emptyFilter, minSeverity: SeverityNumbers.warn, search: 'worker 3' })
-  const elapsed = performance.now() - started
+  // One extra pass, discarded: it pays for JIT compilation and the first allocations.
+  for (let run = 0; run <= runs; run++) {
+    const store = new LogStore(size)
+    fill(store, size, 1000)
 
-  if (store.filteredCount === 0) {
-    throw new Error('the filter matched nothing, so this measured the wrong thing')
+    const started = performance.now()
+    store.setFilter({ ...emptyFilter, minSeverity: SeverityNumbers.warn, search: 'worker 3' })
+    const elapsed = performance.now() - started
+
+    if (store.filteredCount === 0) {
+      throw new Error('the filter matched nothing, so this measured the wrong thing')
+    }
+
+    if (run > 0) {
+      samples.push(elapsed)
+    }
   }
 
-  return elapsed
+  samples.sort((a, b) => a - b)
+  return samples[Math.floor(samples.length / 2)]!
 }
