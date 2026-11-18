@@ -38,6 +38,16 @@ export class LogStore {
   private nextToFilter = 0
   private totalAppended = 0
   private version = 0
+
+  /**
+   * How many entries the filter has tested, counted since the store was created.
+   *
+   * One integer increment per entry examined. It exists so the complexity of filtering can be
+   * asserted by counting work rather than by timing it: a full pass must examine each entry once,
+   * so the count is exactly linear in the buffer size, on any machine, with no variance at all.
+   * Timing cannot make that claim on a shared CI runner — see logStore.bench.test.ts.
+   */
+  entriesExamined = 0
   private readonly listeners = new Set<() => void>()
 
   readonly capacity: number
@@ -186,6 +196,7 @@ export class LogStore {
   private extendFilter(): void {
     const end = this.totalAppended
     for (let absolute = this.nextToFilter; absolute < end; absolute++) {
+      this.entriesExamined++
       const entry = this.at(absolute - this.droppedCount)
       if (entry !== undefined && matches(entry, this.filter)) {
         this.filtered.push(absolute)

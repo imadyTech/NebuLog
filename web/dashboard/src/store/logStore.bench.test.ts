@@ -104,23 +104,25 @@ describe('LogStore performance', () => {
     expect(elapsed).toBeLessThan(FRAME_BUDGET_MS * 4)
   })
 
-  it('recomputes the whole filter in time that scales linearly with the buffer', () => {
-    // This is the machine-independent half, and it is the one that runs everywhere. A full
-    // recompute is O(n); the failure worth catching is someone making it O(n²) — a nested scan, a
-    // per-entry allocation that triggers a rehash — which shows up as a super-linear ratio no
-    // matter how fast or slow the host is.
-    const small = medianFullFilter(25_000)
-    const large = medianFullFilter(100_000)
-    const ratio = large / small
+  it('recomputes the whole filter by examining each entry exactly once', () => {
+    // The machine-independent half, and the one that runs everywhere. A full recompute is O(n);
+    // the failure worth catching is someone making it O(n**2) — a nested scan, a per-entry
+    // allocation that triggers a rehash.
+    //
+    // This counts work instead of timing it. Two earlier versions of this test took the ratio of
+    // two wall-clock measurements, and both were wrong in the same way: the denominator is only
+    // 1-2 ms on a shared runner, so the ratio amplified the runner's noise rather than cancelling
+    // the machine out. It failed six Dependabot PRs that touched nothing in this file (11.40,
+    // 9.83 and 8.10 against a threshold of 8), and taking a median of five samples did not help,
+    // because the problem was never an occasional spike. A count has no variance: a linear pass
+    // examines each entry once on every machine, every run.
+    const small = examinationsForFullFilter(25_000)
+    const large = examinationsForFullFilter(100_000)
 
-    console.log(
-      `full re-filter: ${small.toFixed(2)} ms at 25,000, ${large.toFixed(2)} ms at 100,000 (${ratio.toFixed(2)}x for 4x the data)`,
-    )
+    console.log(`full re-filter examined ${small} entries at 25,000 and ${large} at 100,000`)
 
-    // Linear would be 4x. Allowing 8x leaves room for cache effects, while an accidental O(n²)
-    // would land near 16x — measured at 15.4x when this threshold was probed against a real
-    // nested loop. The medians above are what make 8x safe to keep on a shared runner.
-    expect(ratio).toBeLessThan(8)
+    expect(small).toBe(25_000)
+    expect(large).toBe(100_000)
   })
 
   it('recomputes the whole filter fast enough to stay on the main thread', () => {
@@ -144,13 +146,29 @@ describe('LogStore performance', () => {
 })
 
 /**
+ * Entries the filter examined during one full recompute over a store of the given size.
+ *
+ * Deterministic: no clock, no warm-up, no tolerance. This is what the linearity assertion uses.
+ */
+function examinationsForFullFilter(size: number): number {
+  const store = new LogStore(size)
+  fill(store, size, 1000)
+
+  const before = store.entriesExamined
+  store.setFilter({ ...emptyFilter, minSeverity: SeverityNumbers.warn, search: 'worker 3' })
+
+  if (store.filteredCount === 0) {
+    throw new Error('the filter matched nothing, so this measured the wrong thing')
+  }
+
+  return store.entriesExamined - before
+}
+
+/**
  * Median time of one full re-filter over a store of the given size, in milliseconds.
  *
- * Median of several runs after a discarded warm-up, not a single sample. The ratio test below
- * divides by the 25,000-entry time, which is only a couple of milliseconds on a fast machine — at
- * that scale one unlucky GC pause or JIT moment in the denominator is enough to triple the ratio.
- * That is exactly what happened on CI for v2.1.4: 9.9x on a shared runner for code that measures
- * 2.6–3.5x locally, and the same commit passed on another run minutes earlier.
+ * Only used for the absolute budget below, which is a statement about a developer's machine. The
+ * complexity claim is made by counting, not by timing.
  */
 function medianFullFilter(size: number, runs = 5): number {
   const samples: number[] = []

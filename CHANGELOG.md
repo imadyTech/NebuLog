@@ -4,6 +4,33 @@ All notable changes to this project are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- The linearity benchmark for `LogStore` now **counts the entries the filter examines** instead of
+  comparing two wall-clock measurements. It asserts exactly 25,000 and 100,000 examinations — no
+  threshold, no tolerance, no clock.
+
+  The timing version failed six Dependabot pull requests on 2026-11-18 that touched nothing in the
+  dashboard (ratios of 11.40, 9.83 and 8.10 against a threshold of 8). The median-of-five sampling
+  added in 2.1.5 did not help, because the fault was never an occasional spike: the ratio's
+  denominator is only 1–2 ms on a shared runner, so the ratio *amplified* the runner's noise rather
+  than cancelling the machine out. The 2.1.5 note calling that a fix was premature. Probed against a
+  deliberately quadratic filter, the counting assertion reports 312,512,500 against an expected
+  25,000.
+
+### Changed
+
+- Dependabot no longer opens major-version pull requests for `Microsoft.AspNetCore.*`,
+  `Microsoft.Extensions.*`, `Microsoft.EntityFrameworkCore.*` or `@microsoft/signalr`. Moving to
+  .NET 11 means moving the base images, `global.json`, the target framework and CI together, which
+  is a work order rather than a dependency bump; five such pull requests opened on 2026-11-18 could
+  not build against a net10.0 project.
+- The remaining .NET packages are grouped into one `dotnet` pull request. Versions live in a single
+  central `Directory.Packages.props` and several sit on adjacent lines; Git merges with three lines
+  of context, so separate pull requests changing adjacent lines conflict with each other.
+
 ## [2.1.5] — 2026-11-12
 
 Dependency maintenance, plus a fix to the benchmark that blocked the previous attempt. All three

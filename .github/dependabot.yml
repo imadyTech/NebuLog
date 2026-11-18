@@ -9,17 +9,42 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # A major-version bump of the platform is a planned migration, not a dependency update: the
+    # base images, global.json, the target framework and CI all have to move together. Dependabot
+    # opened five 10.0.15 -> 11.0.0 pull requests on 2026-11-18 that could not build against a
+    # net10.0 project, and closing them only suppresses those exact versions — 11.0.1 would open
+    # the same five again. Drop this rule when the .NET 11 migration work order is written.
+    ignore:
+      - dependency-name: "Microsoft.AspNetCore.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.Extensions.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.EntityFrameworkCore.*"
+        update-types: ["version-update:semver-major"]
     groups:
+      # Versions live in one central Directory.Packages.props, and several of these packages sit on
+      # adjacent lines in it. Git merges with three lines of context, so two pull requests each
+      # changing one of two adjacent lines land in the same hunk and conflict — which is what
+      # happened to the batch of 2026-11-18. Grouping keeps same-ecosystem bumps in one pull
+      # request, so there is nothing to conflict with.
+      dotnet:
+        patterns: ["Microsoft.AspNetCore.*", "Microsoft.Extensions.*", "Microsoft.EntityFrameworkCore.*"]
+        exclude-patterns: ["Microsoft.AspNetCore.Mvc.Testing", "Microsoft.Extensions.TimeProvider.Testing"]
       opentelemetry:
         patterns: ["OpenTelemetry*"]
       testing:
-        patterns: ["xunit*", "Microsoft.Testing.*", "Microsoft.AspNetCore.Mvc.Testing"]
+        patterns: ["xunit*", "Microsoft.Testing.*", "Microsoft.AspNetCore.Mvc.Testing", "Microsoft.Extensions.TimeProvider.Testing"]
 
   # The console and the public site pages.
   - package-ecosystem: npm
     directory: /web/dashboard
     schedule:
       interval: weekly
+    # The SignalR client has to match the server's protocol version, so it moves with the .NET
+    # upgrade rather than on its own (PR #87 bumped it to 11.0.0 against a 10.0.15 server).
+    ignore:
+      - dependency-name: "@microsoft/signalr"
+        update-types: ["version-update:semver-major"]
     groups:
       # Grouped so a week's tooling bumps arrive as one pull request rather than six.
       dev-tooling:
